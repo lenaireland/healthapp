@@ -89,40 +89,62 @@ class Symptom(db.Model):
                                                  self.symptom_name)
 
 
-class ValueItem(db.Model):
-    """Symptoms available to track"""
+class UserSymptom(db.Model):
+    """Symptom a user is tracking"""
 
-    __tablename__ = "value_items"
+    __tablename__ = "user_symptoms"
 
-    value_item_id_pk = db.Column(db.Integer, 
-                                 autoincrement=True, 
-                                 primary_key=True)
-    value_item_name = db.Column(db.String(32), nullable=False)
-    value_item_desc = db.Column(db.String(200), nullable=True)
-
-    def __repr__(self):
-        """Provide helpful representation when printed."""
-
-        return "<Value item id={}, name={}>".format(self.value_item_id_pk, 
-                                                    self.value_item_name)
-
-
-class CountItem(db.Model):
-    """Symptoms available to track"""
-
-    __tablename__ = "count_items"
-
-    count_item_id_pk = db.Column(db.Integer, 
-                                 autoincrement=True, 
-                                 primary_key=True)
-    count_item_name = db.Column(db.String(32), nullable=False)
-    count_item_desc = db.Column(db.String(200), nullable=True)
+    user_symptom_id_pk = db.Column(db.Integer, 
+                                   autoincrement=True, 
+                                   primary_key=True)
+    symptom_id = db.Column(db.Integer, 
+                           db.ForeignKey("symptoms.symptom_id_pk"), 
+                           nullable=False)
+    usercond_id = db.Column(db.Integer, 
+                           db.ForeignKey("user_conditions.usercond_id_pk"), 
+                           nullable=False)
 
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        return "<Count item id={}, name={}>".format(self.count_item_id_pk, 
-                                                    self.count_item_name)
+        return "<Symptom id={}, user condition id={}>".format(self.symptom_id, 
+                                                              self.usercond_id)
+
+
+class ValueType(db.Model):
+    """Value data available to track (e.g. test results, obtained data)"""
+
+    __tablename__ = "value_types"
+
+    value_type_id_pk = db.Column(db.Integer, 
+                                 autoincrement=True, 
+                                 primary_key=True)
+    value_type_name = db.Column(db.String(32), nullable=False)
+    value_type_desc = db.Column(db.String(200), nullable=True)
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return "<Value type id={}, name={}>".format(self.value_type_id_pk, 
+                                                    self.value_type_name)
+
+
+class CountType(db.Model):
+    """Count data available to track (e.g. medication)"""
+
+    __tablename__ = "count_types"
+
+    count_type_id_pk = db.Column(db.Integer, 
+                                 autoincrement=True, 
+                                 primary_key=True)
+    count_type_name = db.Column(db.String(32), nullable=False)
+    count_type_desc = db.Column(db.String(200), nullable=True)
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return "<Count type id={}, name={}>".format(self.count_type_id_pk, 
+                                                    self.count_type_name)
 
 ##############################################################################
 # Helper functions
