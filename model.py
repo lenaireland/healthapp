@@ -18,7 +18,10 @@ class User(db.Model):
     password = db.Column(db.String(64), nullable=False)
     fname = db.Column(db.String(32), nullable=True)
     lname = db.Column(db.String(32), nullable=True)
-    zipcode = db.Column(db.Integer, nullable=True)
+    zipcode = db.Column(db.String(5), nullable=True)
+
+    #Define relationships
+    user_conditions=db.relationship("UserCondition")
 
     def __repr__(self):
         """Provide helpful representation when printed."""
@@ -34,6 +37,9 @@ class Condition(db.Model):
     cond_id_pk = db.Column(db.Integer, autoincrement=True, primary_key=True)
     cond_name = db.Column(db.String(32), nullable=False)
     cond_desc = db.Column(db.String(200), nullable=True)
+
+    #Define relationships
+    user_conditions=db.relationship("UserCondition")
 
     def __repr__(self):
         """Provide helpful representation when printed."""
@@ -58,13 +64,11 @@ class UserCondition(db.Model):
                         nullable=False)
 
     # Define relationships
-    user = db.relationship("User", 
-                           backref=("user_conditions", 
-                                    order_by=usercond_id_pk))
-
-    condition = db.relationship("Condition", 
-                           backref=("user_conditions", 
-                                    order_by=usercond_id_pk))
+    user = db.relationship("User")
+    condition = db.relationship("Condition")
+    user_symptoms = db.relationship("UserSymptom")
+    user_value_types = db.relationship("UserValueType")
+    user_count_types = db.relationship("UserCountType")
 
     def __repr__(self):
         """Provide helpful representation when printed."""
@@ -81,6 +85,9 @@ class Symptom(db.Model):
     symptom_id_pk = db.Column(db.Integer, autoincrement=True, primary_key=True)
     symptom_name = db.Column(db.String(32), nullable=False)
     symptom_desc = db.Column(db.String(200), nullable=True)
+
+    # Define relationships
+    user_symptoms = db.relationship("UserSymptom")
 
     def __repr__(self):
         """Provide helpful representation when printed."""
@@ -101,8 +108,13 @@ class UserSymptom(db.Model):
                            db.ForeignKey("symptoms.symptom_id_pk"), 
                            nullable=False)
     usercond_id = db.Column(db.Integer, 
-                           db.ForeignKey("user_conditions.usercond_id_pk"), 
-                           nullable=False)
+                            db.ForeignKey("user_conditions.usercond_id_pk"), 
+                            nullable=False)
+
+    # Define relationships
+    user_condition = db.relationship("UserCondition")
+    symptom = db.relationship("Symptom")
+    symptom_items = db.relationship("SymptomItem")
 
     def __repr__(self):
         """Provide helpful representation when printed."""
@@ -111,22 +123,101 @@ class UserSymptom(db.Model):
                                                               self.usercond_id)
 
 
+class SymptomItem(db.Model):
+    """Symptom occurrence logged by user"""
+
+    __tablename__ = "symptom_items"
+
+    symptom_date = db.Column(db.DateTime, primary_key=True)
+    symptom_present = db.Column(db.Boolean, nullable=False)
+    user_symptom_id = db.Column(db.Integer, 
+                            db.ForeignKey("user_symptoms.user_symptom_id_pk"), 
+                            nullable=False)
+
+    # Define relationships
+    user_symptom = db.relationship("UserSymptom")
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return """<DateTime={}, 
+                   present? {}, 
+                   user symptom id={}>""".format(self.symptom_date,
+                                                 self.symptom_present, 
+                                                 self.user_symptom_id)
+
+
 class ValueType(db.Model):
     """Value data available to track (e.g. test results, obtained data)"""
 
     __tablename__ = "value_types"
 
-    value_type_id_pk = db.Column(db.Integer, 
-                                 autoincrement=True, 
-                                 primary_key=True)
-    value_type_name = db.Column(db.String(32), nullable=False)
-    value_type_desc = db.Column(db.String(200), nullable=True)
+    value_id_pk = db.Column(db.Integer, 
+                            autoincrement=True, 
+                            primary_key=True)
+    value_name = db.Column(db.String(32), nullable=False)
+    value_desc = db.Column(db.String(200), nullable=True)
+
+    # Define relationships
+    user_value_types = db.relationship("UserValueType")
 
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        return "<Value type id={}, name={}>".format(self.value_type_id_pk, 
-                                                    self.value_type_name)
+        return "<Value type id={}, name={}>".format(self.value_id_pk, 
+                                                    self.value_name)
+
+
+class UserValueType(db.Model):
+    """Value item a user is tracking"""
+
+    __tablename__ = "user_value_types"
+
+    user_value_id_pk = db.Column(db.Integer, 
+                                   autoincrement=True, 
+                                   primary_key=True)
+    value_id = db.Column(db.Integer, 
+                         db.ForeignKey("value_types.value_id_pk"), 
+                         nullable=False)
+    usercond_id = db.Column(db.Integer, 
+                            db.ForeignKey("user_conditions.usercond_id_pk"), 
+                            nullable=False)
+
+    # Define relationships
+    user_condition = db.relationship("UserCondition")
+    value_type = db.relationship("ValueType")
+    value_items = db.relationship("ValueItem")
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return """<Value type id={}, 
+                  user condition id={}>""".format(self.value_id, 
+                                                  self.usercond_id)
+
+
+class ValueItem(db.Model):
+    """Symptom occurrence logged by user"""
+
+    __tablename__ = "value_items"
+
+    value_date = db.Column(db.DateTime, primary_key=True)
+    value = db.Column(db.Numeric, nullable=False)
+    user_value_id = db.Column(db.Integer, 
+                              db.ForeignKey("user_value_types.user_value_id_pk"), 
+                              nullable=False)
+
+    # Define relationships
+    user_value_item = db.relationship("UserValueType")
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return """<DateTime={}, 
+                   value= {}, 
+                   user value id={}>""".format(self.value_date,
+                                               self.value, 
+                                               self.user_value_id)
 
 
 class CountType(db.Model):
@@ -134,17 +225,73 @@ class CountType(db.Model):
 
     __tablename__ = "count_types"
 
-    count_type_id_pk = db.Column(db.Integer, 
-                                 autoincrement=True, 
-                                 primary_key=True)
-    count_type_name = db.Column(db.String(32), nullable=False)
-    count_type_desc = db.Column(db.String(200), nullable=True)
+    count_id_pk = db.Column(db.Integer, 
+                            autoincrement=True, 
+                            primary_key=True)
+    count_name = db.Column(db.String(32), nullable=False)
+    count_desc = db.Column(db.String(200), nullable=True)
+
+    # Define relationships
+    user_count_types = db.relationship("UserCountType")
 
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        return "<Count type id={}, name={}>".format(self.count_type_id_pk, 
-                                                    self.count_type_name)
+        return "<Count type id={}, name={}>".format(self.count_id_pk, 
+                                                    self.count_name)
+
+
+class UserCountType(db.Model):
+    """Count item a user is tracking"""
+
+    __tablename__ = "user_count_types"
+
+    user_count_id_pk = db.Column(db.Integer, 
+                                 autoincrement=True, 
+                                 primary_key=True)
+    count_id = db.Column(db.Integer, 
+                         db.ForeignKey("count_types.count_id_pk"), 
+                         nullable=False)
+    usercond_id = db.Column(db.Integer, 
+                            db.ForeignKey("user_conditions.usercond_id_pk"), 
+                            nullable=False)
+
+    # Define relationships
+    user_condition = db.relationship("UserCondition")
+    count_type = db.relationship("CountType")
+    count_items = db.relationship("CountItem")
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return """<Count type id={}, 
+                  user condition id={}>""".format(self.count_id, 
+                                                  self.usercond_id)
+
+
+class CountItem(db.Model):
+    """Symptom occurrence logged by user"""
+
+    __tablename__ = "count_items"
+
+    count_date = db.Column(db.DateTime, primary_key=True)
+    count = db.Column(db.Integer, nullable=False)
+    user_count_id = db.Column(db.Integer, 
+                            db.ForeignKey("user_count_types.user_count_id_pk"), 
+                            nullable=False)
+
+    # Define relationships
+    user_count_type = db.relationship("UserCountType")
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return """<DateTime={}, 
+                   count= {}, 
+                   user value id={}>""".format(self.count_date,
+                                               self.count, 
+                                               self.user_value_id)
+
 
 ##############################################################################
 # Helper functions
