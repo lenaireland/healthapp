@@ -60,7 +60,7 @@ class UserCondition(db.Model):
                         db.ForeignKey("users.user_id_pk"), 
                         nullable=False)
     cond_id = db.Column(db.Integer, 
-                        db.ForeignKey("conditions.condition_id_pk"), 
+                        db.ForeignKey("conditions.cond_id_pk"), 
                         nullable=False)
 
     # Define relationships
