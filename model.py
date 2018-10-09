@@ -128,7 +128,10 @@ class SymptomItem(db.Model):
 
     __tablename__ = "symptom_items"
 
-    symptom_date = db.Column(db.DateTime, primary_key=True)
+    symptom_item_id = db.Column(db.Integer, 
+                                autoincrement=True, 
+                                primary_key=True)
+    symptom_date = db.Column(db.DateTime, nullable=False)
     symptom_present = db.Column(db.Boolean, nullable=False)
     user_symptom_id = db.Column(db.Integer, 
                             db.ForeignKey("user_symptoms.user_symptom_id_pk"), 
@@ -140,9 +143,11 @@ class SymptomItem(db.Model):
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        return """<DateTime={}, 
-                   present? {}, 
-                   user symptom id={}>""".format(self.symptom_date,
+        return """<ID: {},
+                   DateTime: {},
+                   present? {},  
+                   user symp id={}>""".format(self.symptom_item_id,
+                                                 self.symptom_date,
                                                  self.symptom_present, 
                                                  self.user_symptom_id)
 
@@ -201,7 +206,10 @@ class ValueItem(db.Model):
 
     __tablename__ = "value_items"
 
-    value_date = db.Column(db.DateTime, primary_key=True)
+    value_item_id = db.Column(db.Integer, 
+                                autoincrement=True, 
+                                primary_key=True)
+    value_date = db.Column(db.DateTime, nullable=False)
     value = db.Column(db.Numeric, nullable=False)
     user_value_id = db.Column(db.Integer, 
                               db.ForeignKey("user_value_types.user_value_id_pk"), 
@@ -213,9 +221,11 @@ class ValueItem(db.Model):
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        return """<DateTime={}, 
+        return """<ID: {},
+                   DateTime:{}, 
                    value= {}, 
-                   user value id={}>""".format(self.value_date,
+                   user value id={}>""".format(self.value_item_id,
+                                               self.value_date,
                                                self.value, 
                                                self.user_value_id)
 
@@ -274,7 +284,10 @@ class CountItem(db.Model):
 
     __tablename__ = "count_items"
 
-    count_date = db.Column(db.DateTime, primary_key=True)
+    count_item_id = db.Column(db.Integer, 
+                                autoincrement=True, 
+                                primary_key=True)
+    count_date = db.Column(db.DateTime, nullable=False)
     count = db.Column(db.Integer, nullable=False)
     user_count_id = db.Column(db.Integer, 
                             db.ForeignKey("user_count_types.user_count_id_pk"), 
@@ -286,9 +299,11 @@ class CountItem(db.Model):
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        return """<DateTime={}, 
+        return """<ID: {},
+                   DateTime: {}, 
                    count= {}, 
-                   user value id={}>""".format(self.count_date,
+                   user value id={}>""".format(self.count_item_id,
+                                               self.count_date,
                                                self.count, 
                                                self.user_value_id)
 
