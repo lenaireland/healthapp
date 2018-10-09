@@ -14,14 +14,15 @@ class User(db.Model):
     __tablename__ = "users"
 
     user_id_pk = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    email = db.Column(db.String(64), nullable=False)
+    email = db.Column(db.String(64), nullable=False, unique=True)
     password = db.Column(db.String(64), nullable=False)
     fname = db.Column(db.String(32), nullable=True)
     lname = db.Column(db.String(32), nullable=True)
     zipcode = db.Column(db.String(5), nullable=True)
+    is_superuser = db.Column(db.Boolean, nullable=False, default=False)
 
     #Define relationships
-    # user_conditions=db.relationship("UserCondition")
+    user_conditions=db.relationship("UserCondition")
 
     def __repr__(self):
         """Provide helpful representation when printed."""
@@ -39,7 +40,7 @@ class Condition(db.Model):
     cond_desc = db.Column(db.String(200), nullable=True)
 
     #Define relationships
-    # user_conditions=db.relationship("UserCondition")
+    user_conditions=db.relationship("UserCondition")
 
     def __repr__(self):
         """Provide helpful representation when printed."""
@@ -64,8 +65,8 @@ class UserCondition(db.Model):
                         nullable=False)
 
     # Define relationships
-    user = db.relationship("User", backref="user_conditions")
-    condition = db.relationship("Condition", backref="user_conditions")
+    user = db.relationship("User")
+    condition = db.relationship("Condition")
     user_symptoms = db.relationship("UserSymptom")
     user_value_types = db.relationship("UserValueType")
     user_count_types = db.relationship("UserCountType")

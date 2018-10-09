@@ -23,6 +23,10 @@ app.secret_key = 'THISISSECRETHERE'
 # error.
 app.jinja_env.undefined = StrictUndefined
 
+#######
+#TO DO: Make homepage have logo, project info.  Login/Register on own pages.
+#######
+
 @app.route('/')
 def index():
     """Homepage - show login/register form"""
@@ -34,102 +38,115 @@ def index():
     # if not logged in, show login/register form
     return render_template('login_form.html')
 
-@app.route('/login', methods=['GET','POST'])
-def login():
+@app.route('/login', methods=['GET'])
+def login_form():
+    """Show login/registration form"""
 
-    # for GET requests, if user is logged in, take to personal page
+    # if user is logged in, take to personal page
     # if not logged in, go to '/' route to login/register
-    if request.method == 'GET':
-        if session.get('userid'):
-            flash('Already logged in.')
+    if session.get('userid'):
+        flash('Already logged in.')
 
+        return redirect('/user/{}'.format(session['userid']))
+
+    return redirect('/') 
+
+@app.route('/process-login', methods=['POST'])
+def login_process():
+    """Process Login"""
+
+    # process login form data, query for user in database
+    email = request.form.get('email')
+    password = request.form.get('password')
+
+    user = User.query.filter(User.email == email).first()
+
+    # if user email exists and password matches, login
+    if user:
+        if password == user.password:
+            session['userid']=user.user_id_pk
+            flash('Log in successful')
             return redirect('/user/{}'.format(session['userid']))
 
-        return redirect('/') 
+    flash('Login Failed')
+    return redirect('/')
 
-    # for POST requests, process login form data, query for user in database
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-
-        user = User.query.filter(User.email == email).first()
-
-        # if user email exists and password matches, login
-        if user:
-            if password == user.password:
-                session['userid']=user.user_id_pk
-                flash('Log in successful')
-                return redirect('/user/{}'.format(session['userid']))
-
-        flash('Login Failed')
-        return redirect('/')
-
-@app.route('/register', methods=['GET','POST'])
+@app.route('/register', methods=['GET'])
 def register_form():
+    """Show login/registration form"""
+
+    # if user is logged in, take to personal page
+    # if not logged in, go to '/' route to login/register
+    if session.get('userid'):
+        flash('Already logged in.')
+
+        return redirect('/user/{}'.format(session['userid']))
+
+    return redirect('/')
+
+@app.route('/process-register', methods=['POST'])
+def register_process():
     """Process user registration"""
 
-    # for GET requests, if user is logged in, take to personal page
-    # if not logged in, go to '/' route to login/register
-    if request.method == 'GET':
-        if session.get('userid'):
-            flash('Already logged in.')
+    # process register form data, query for user in database
+    email = request.form.get('email')
+    password = request.form.get('password')
 
-            return redirect('/user/{}'.format(session['userid']))
+    user = User.query.filter(User.email == email).first()
 
+    # if there is a user in database that matches email redirect to '/'    
+    if user:
+        flash('Account already exists. Please login.')
         return redirect('/')
 
-    # for POST requests, process register form data, query for user in database
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-    
-        user = User.query.filter(User.email == email).first()
+    # if email is not already in database, create new instance of User
+    # class, add to database, login user, and take to settings page
+    new_user = User(email=email, password=password)
+    db.session.add(new_user)
+    db.session.commit()
 
-        # if there is a user in database that matches email redirect to '/'    
-        if user:
-            flash('Account already exists. Please login.')
-            return redirect('/')
+    user = User.query.filter(User.email == email).first()
+    session['userid']=user.user_id_pk
 
-        # if email is not already in database, create new instance of User
-        # class, add to database, login user, and take to settings page
-        new_user = User(email=email, password=password)
-        db.session.add(new_user)
-        db.session.commit()
+    flash('New user successfully created.')
+    return redirect('/settings')
 
-        user = User.query.filter(User.email == email).first()
-        session['userid']=user.user_id_pk
-
-        flash('New user successfully created.')
-        return redirect('/settings')
-
-@app.route('/settings', methods=['GET', 'POST'])
+@app.route('/settings', methods=['GET'])
 def user_settings():
 
-    # for GET requests, if user is logged in, take to settings form
-    if request.method == 'GET':
-        if session.get('userid'):
-            user=User.query.get(session['userid'])
-            return render_template("settings_form.html", user=user)
-
-        else:
-            flash('Not logged in')
-            return redirect('/')
-
-    # for POST requests, process settings form data, update user in database
-    if request.method == 'POST':
-
+    # if user is logged in, take to settings form
+    if session.get('userid'):
         user=User.query.get(session['userid'])
+        return render_template("settings_form.html", user=user)
 
-        user.email = request.form.get('email')
-        user.password = request.form.get('password')
-        user.fname = request.form.get('fname')
-        user.lname = request.form.get('lname')
-        user.zipcode = request.form.get('zipcode')
+    else:
+        flash('Not logged in')
+        return redirect('/')
 
-        db.session.commit()
+@app.route('/process-settings', methods=['POST'])
+def process_user_settings():
 
-        flash('User settings updated')
-        return redirect('/user/{}'.format(session['userid']))
+    user=User.query.get(session['userid'])
+
+    email = request.form.get('email')
+
+    # check that e-mail does not yet exist in the system
+    for user_email in db.session.query(User.email).all():
+        if email == user_email[0]:
+            flash('Error - this email is already in the system')
+            return redirect('/settings')
+
+    user.email = email
+    user.password = request.form.get('password')
+    user.fname = request.form.get('fname')
+    user.lname = request.form.get('lname')
+    user.zipcode = request.form.get('zipcode')
+
+    db.session.commit()
+
+    flash('User settings updated')
+# TO DO: change this to take back to settings, add button to return to user page
+    return redirect('/user/{}'.format(session['userid']))
 
 @app.route('/logout')
 def logout():
