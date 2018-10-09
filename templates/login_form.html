@@ -1,0 +1,25 @@
+
+{% extends 'base.html' %}
+{% block content %}
+
+  <h2>Returning User</h2>
+  <h2>Please Login</h2>
+  <h3>
+    <form action="/login" method="POST">
+      Email: <input type="text" name="email" required><br><br>
+      Password: <input type="text" name="password" required><br><br> 
+      <input type="submit">
+    </form>
+  </h3>
+
+  <h2>New User</h2>
+  <h2>Please Register</h2>
+  <h3>
+    <form action="/register" method="POST">
+      Email: <input type="text" name="email" required><br><br>
+      Password: <input type="text" name="password" required><br><br> 
+      <input type="submit">
+    </form>
+  </h3>
+
+{% endblock %}

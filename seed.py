@@ -1,29 +1,15 @@
 
 """Utility file to seed health data for fictitious user"""
 
-from model import User
-from model import UserCondition
-from model import Condition
-
-from model import Symptom
-from model import UserSymptom
-from model import SymptomItem
-
-from model import ValueType
-from model import UserValueType
-from model import ValueItem
-
-from model import CountType
-from model import UserCountType
-from model import CountItem
+from model import connect_to_db, db
+from model import User, UserCondition, Condition
+from model import Symptom, UserSymptom, SymptomItem
+from model import ValueType, UserValueType, ValueItem
+from model import CountType, UserCountType, CountItem
 
 from datetime import datetime
 
-from model import connect_to_db, db
-
 from server import app
-
-
 
 
 def example_data():
@@ -31,18 +17,19 @@ def example_data():
 
     # Delete all rows in all tables so if we need to run this a second time,
     # we won't be trying to add duplicate data
-    User.query.delete()
-    Condition.query.delete()
-    UserCondition.query.delete()
-    Symptom.query.delete()
-    UserSymptom.query.delete()
-    SymptomItem.query.delete()
-    ValueType.query.delete()
-    UserValueType.query.delete()
-    ValueItem.query.delete()
-    CountType.query.delete()
-    UserCountType.query.delete()
-    CountItem.query.delete()
+
+    # User.query.delete()
+    # Condition.query.delete()
+    # UserCondition.query.delete()
+    # Symptom.query.delete()
+    # UserSymptom.query.delete()
+    # SymptomItem.query.delete()
+    # ValueType.query.delete()
+    # UserValueType.query.delete()
+    # ValueItem.query.delete()
+    # CountType.query.delete()
+    # UserCountType.query.delete()
+    # CountItem.query.delete()
 
 
     users = [

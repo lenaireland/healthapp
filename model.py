@@ -21,7 +21,7 @@ class User(db.Model):
     zipcode = db.Column(db.String(5), nullable=True)
 
     #Define relationships
-    user_conditions=db.relationship("UserCondition")
+    # user_conditions=db.relationship("UserCondition")
 
     def __repr__(self):
         """Provide helpful representation when printed."""
@@ -39,7 +39,7 @@ class Condition(db.Model):
     cond_desc = db.Column(db.String(200), nullable=True)
 
     #Define relationships
-    user_conditions=db.relationship("UserCondition")
+    # user_conditions=db.relationship("UserCondition")
 
     def __repr__(self):
         """Provide helpful representation when printed."""
@@ -64,8 +64,8 @@ class UserCondition(db.Model):
                         nullable=False)
 
     # Define relationships
-    user = db.relationship("User")
-    condition = db.relationship("Condition")
+    user = db.relationship("User", backref="user_conditions")
+    condition = db.relationship("Condition", backref="user_conditions")
     user_symptoms = db.relationship("UserSymptom")
     user_value_types = db.relationship("UserValueType")
     user_count_types = db.relationship("UserCountType")

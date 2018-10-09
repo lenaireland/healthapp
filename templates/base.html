@@ -1,0 +1,34 @@
+
+<!doctype html>
+<html>
+<head>
+  <title>{% block title %}Health Tracker{% endblock %}</title>
+<!--   <link rel="stylesheet" href="/static/css/styles.css">
+  <script src="http://code.jquery.com/jquery.js"></script> -->
+</head>
+
+<body>
+  Track your way to a healthier you!
+
+  <ul>
+    {% for message in get_flashed_messages() %}
+      <li>{{ message }}</li>
+    {% endfor %}
+  </ul>
+
+<!--   <div>
+    {% if session.get('userid') %}
+      <a href="/logout">Logout</a>
+    {% else %}
+      <a href="/login">Login</a>
+    {% endif %}
+  </div> -->
+
+  <hr>
+
+  {% block content %} put your content here {% endblock %}
+
+  <footer>Lena Ireland 2018</footer>
+
+</body>
+</html>
