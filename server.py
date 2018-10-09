@@ -28,7 +28,7 @@ def index():
     """Homepage."""
 
     if session.get('userid'):
-        return redirect('/{}'.format(session['userid']))
+        return redirect('/user/{}'.format(session['userid']))
 
     return redirect('/login')
 
@@ -39,7 +39,7 @@ def show_login_form():
     if session.get('userid'):
         flash('Already logged in.')
 
-        return redirect('/{}'.format(session['userid']))
+        return redirect('/user/{}'.format(session['userid']))
 
     return render_template('login_form.html')
 
@@ -55,14 +55,12 @@ def login():
         if password == user.password:
             session['userid']=user.user_id_pk
             flash('Log in successful')
-            return redirect('/{}'.format(session['userid']))
+            return redirect('/user/{}'.format(session['userid']))
 
     flash("Login Failed")
     return redirect('/login')
 
-
-# pulling in favicon.ico instead of userid.  FIGURE THIS OUT!!!
-@app.route('/<userid>')
+@app.route('/user/<userid>')
 def user_main_page(userid):
     """Show individual user main page"""
     userid=int(userid)
