@@ -1,0 +1,42 @@
+
+{% extends 'base.html' %}
+{% block content %}
+
+  <h2>Update your settings</h2>
+  <p>
+    <form action="/settings" method="POST">
+      Email: 
+      <input type="text" name="email" value={{user.email}} required>*
+      <br><br>
+<!--TODO: UPDATE PWD WITH AUTHENTICATION -->
+      Password: 
+      <input type="password" name="password" value={{user.password}} required>*
+      <br><br> 
+      First Name: 
+      <input type="text" name="fname"
+        {% if user.fname %}
+          value={{user.fname}}
+        {% endif %}
+      >
+      <br><br> 
+      Last Name: 
+      <input type="text" name="lname" 
+        {% if user.lname %}
+          value={{user.lname}}
+        {% endif %}
+      >
+      <br><br> 
+      Home Zipcode: 
+      <input type="text" name="zipcode"         
+        {% if user.zipcode %}
+          value={{user.zipcode}}
+        {% endif %}
+      >
+      <br><br> 
+      <input type="submit" value="Submit Updates">
+    </form>
+  </p>
+
+  <p>* Required fields</p>
+
+{% endblock %}

@@ -1,7 +1,7 @@
 
 """Health Tracker"""
 
-# from jinja2 import StrictUndefined
+from jinja2 import StrictUndefined
 
 from flask import Flask, render_template, redirect, flash, session, request
 from flask_debugtoolbar import DebugToolbarExtension
@@ -21,44 +21,125 @@ app.secret_key = 'THISISSECRETHERE'
 # Normally, if you use an undefined variable in Jinja2, it fails
 # silently. This is horrible. Fix this so that, instead, it raises an
 # error.
-# app.jinja_env.undefined = StrictUndefined
+app.jinja_env.undefined = StrictUndefined
 
 @app.route('/')
 def index():
-    """Homepage."""
+    """Homepage - show login/register form"""
 
+    # if user is already logged in, take to personal page
     if session.get('userid'):
         return redirect('/user/{}'.format(session['userid']))
 
-    return redirect('/login')
-
-@app.route('/login', methods=["GET"])
-def show_login_form():
-    """Show login/registration form"""
-
-    if session.get('userid'):
-        flash('Already logged in.')
-
-        return redirect('/user/{}'.format(session['userid']))
-
+    # if not logged in, show login/register form
     return render_template('login_form.html')
 
-@app.route('/login', methods=["POST"])
+@app.route('/login', methods=['GET','POST'])
 def login():
 
-    email = request.form.get("email")
-    password = request.form.get("password")
+    # for GET requests, if user is logged in, take to personal page
+    # if not logged in, go to '/' route to login/register
+    if request.method == 'GET':
+        if session.get('userid'):
+            flash('Already logged in.')
 
-    user = User.query.filter(User.email == email).first()
-
-    if user:
-        if password == user.password:
-            session['userid']=user.user_id_pk
-            flash('Log in successful')
             return redirect('/user/{}'.format(session['userid']))
 
-    flash("Login Failed")
-    return redirect('/login')
+        return redirect('/') 
+
+    # for POST requests, process login form data, query for user in database
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        user = User.query.filter(User.email == email).first()
+
+        # if user email exists and password matches, login
+        if user:
+            if password == user.password:
+                session['userid']=user.user_id_pk
+                flash('Log in successful')
+                return redirect('/user/{}'.format(session['userid']))
+
+        flash('Login Failed')
+        return redirect('/')
+
+@app.route('/register', methods=['GET','POST'])
+def register_form():
+    """Process user registration"""
+
+    # for GET requests, if user is logged in, take to personal page
+    # if not logged in, go to '/' route to login/register
+    if request.method == 'GET':
+        if session.get('userid'):
+            flash('Already logged in.')
+
+            return redirect('/user/{}'.format(session['userid']))
+
+        return redirect('/')
+
+    # for POST requests, process register form data, query for user in database
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+    
+        user = User.query.filter(User.email == email).first()
+
+        # if there is a user in database that matches email redirect to '/'    
+        if user:
+            flash('Account already exists. Please login.')
+            return redirect('/')
+
+        # if email is not already in database, create new instance of User
+        # class, add to database, login user, and take to settings page
+        new_user = User(email=email, password=password)
+        db.session.add(new_user)
+        db.session.commit()
+
+        user = User.query.filter(User.email == email).first()
+        session['userid']=user.user_id_pk
+
+        flash('New user successfully created.')
+        return redirect('/settings')
+
+@app.route('/settings', methods=['GET', 'POST'])
+def user_settings():
+
+    # for GET requests, if user is logged in, take to settings form
+    if request.method == 'GET':
+        if session.get('userid'):
+            user=User.query.get(session['userid'])
+            return render_template("settings_form.html", user=user)
+
+        else:
+            flash('Not logged in')
+            return redirect('/')
+
+    # for POST requests, process settings form data, update user in database
+    if request.method == 'POST':
+
+        user=User.query.get(session['userid'])
+
+        user.email = request.form.get('email')
+        user.password = request.form.get('password')
+        user.fname = request.form.get('fname')
+        user.lname = request.form.get('lname')
+        user.zipcode = request.form.get('zipcode')
+
+        db.session.commit()
+
+        flash('User settings updated')
+        return redirect('/user/{}'.format(session['userid']))
+
+@app.route('/logout')
+def logout():
+    """Process user logout"""
+
+    if session.get('userid'):    
+        session.pop('userid')
+        flash('Logged out.')
+    
+    return redirect('/')
 
 @app.route('/user/<userid>')
 def user_main_page(userid):
@@ -70,11 +151,11 @@ def user_main_page(userid):
             user = User.query.get(userid)
             return render_template('usermainpage.html', user=user)
 
-        flash("You don't have permission to view this page.")
-        return redirect('/{}'.format(session['userid']))
+        flash('You do not have permission to view this page.')
+        return redirect('/user/{}'.format(session['userid']))
 
-    flash("You don't have permission to view this page.")
-    return redirect('/login')
+    flash('You do not have permission to view this page.')
+    return redirect('/')
 
 
 
