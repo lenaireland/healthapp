@@ -4,8 +4,14 @@
   <a href="/settings">Settings</a><br>
   <a href="/logout">Logout</a>
 
-  <h2>Welcome</h2>
-  <p>
+  {% if user.fname %}
+
+    <h2>Welcome {{user.fname}}</h2>
+    <p>
+  {% else %}
+    <h2>Welcome</h2>
+    <p>
+  {% endif %}
 
     <a href="/user/{{session['userid']}}/{{prev_date}}">{{prev_date}}</a>
     <br>{{date}}<br>
