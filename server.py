@@ -6,6 +6,8 @@ from jinja2 import StrictUndefined
 from flask import Flask, render_template, redirect, flash, session, request
 from flask_debugtoolbar import DebugToolbarExtension
 
+from datetime import datetime, timedelta
+
 from model import connect_to_db, db
 from model import User, UserCondition, Condition
 from model import Symptom, UserSymptom, SymptomItem
@@ -146,7 +148,7 @@ def process_user_settings():
 
     flash('User settings updated')
 # TO DO: change this to take back to settings, add button to return to user page
-    return redirect('/user/{}'.format(session['userid']))
+    return redirect('/settings')
 
 @app.route('/logout')
 def logout():
@@ -174,7 +176,26 @@ def user_main_page(userid):
     flash('You do not have permission to view this page.')
     return redirect('/')
 
+@app.route('/user/<userid>/<date>')
+def user_day_page(userid, date):
+    """Show individual user day pages"""
+    userid=int(userid)
+    date=datetime.strptime(date, "%Y-%m-%d").date()
 
+    if session.get('userid'):
+        if userid == session['userid']:   
+            user = User.query.get(userid)
+            return render_template('usermainpage.html', 
+                                   user=user, 
+                                   date=date,
+                                   prev_date=(date-timedelta(1)),
+                                   next_date=(date+timedelta(1)))
+
+        flash('You do not have permission to view this page.')
+        return redirect('/user/{}'.format(session['userid']))
+
+    flash('You do not have permission to view this page.')
+    return redirect('/')
 
 
 
