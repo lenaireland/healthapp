@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+
+{% block title %}Health Tracker
+
+{% endblock %}
+
 {% block content %}
 
   <a href="/settings">Settings</a><br>
@@ -7,16 +12,46 @@
   {% if user.fname %}
 
     <h2>Welcome {{user.fname}}</h2>
-    <p>
   {% else %}
     <h2>Welcome</h2>
-    <p>
   {% endif %}
 
+  <p>
+  {% if date==today %}
+    <a href="/user/{{session['userid']}}/{{prev_date}}">Yesterday ({{prev_date}})</a>
+    <br><b>Today ({{date}})</b><br>   
+  {% elif date < today %}
     <a href="/user/{{session['userid']}}/{{prev_date}}">{{prev_date}}</a>
-    <br>{{date}}<br>
-    <a href="/user/{{session['userid']}}/{{next_date}}">{{next_date}}</a>    
-
+    <br><b>{{date}}</b><br>
+    <a href="/user/{{session['userid']}}/{{next_date}}">{{next_date}}</a>  
+  {% else %}
+    You can't track future days!
+  {% endif %}
   </p>
+
+  {% for condition in info %}
+    <h2>{{condition}}</h2>
+    {% for symptom in info[condition]['symptoms'] %}
+
+        <p id="symptom-{{symptom[2]}}-{{symptom[3]}}">{{symptom[1]}}</p> 
+    {% endfor %}
+    -----------
+
+    {% for item in info[condition]['value_types'] %}
+        <p id="value-{{item[2]}}-{{item[3]}}">{{item[1]}}</p> 
+    {% endfor %}
+    -----------
+
+    {% for item in info[condition]['count_types'] %}
+        <p id="count-{{item[2]}}-{{item[3]}}">{{item[1]}}</p> 
+    {% endfor %}
+    -----------
+
+  {% endfor %}
+
+
+  <p id="user_tracking"></p>
+
+  <script src="/static/js/usermainpage.js"></script>
 
 {% endblock %}

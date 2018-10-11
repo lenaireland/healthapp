@@ -1,9 +1,11 @@
 
 """Health Tracker"""
 
+import os
 from jinja2 import StrictUndefined
 
-from flask import Flask, render_template, redirect, flash, session, request
+from flask import Flask, render_template, redirect
+from flask import flash, session, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 
 from datetime import datetime, timedelta
@@ -18,7 +20,8 @@ from model import CountType, UserCountType, CountItem
 app = Flask(__name__)
 
 # Required to use Flask sessions and the debug toolbar
-app.secret_key = 'THISISSECRETHERE'
+app.secret_key = os.environ['SECRET_KEY']
+
 
 # Normally, if you use an undefined variable in Jinja2, it fails
 # silently. This is horrible. Fix this so that, instead, it raises an
@@ -177,23 +180,22 @@ def logout():
 @app.route('/user/<userid>/<date>')
 def user_day_page(userid, date):
     """Show individual user day pages"""
+
     userid=int(userid)
     date=datetime.strptime(date, "%Y-%m-%d").date()
+    today=datetime.now().date()
 
     if session.get('userid'):
         if userid == session['userid']:
 
             user = User.query.get(session['userid'])
-            conds = []
-            for cond in user.user_conditions:
-                conds.append(cond.cond_id)
-
-
-
+            info = user_tracked_info()
 
             return render_template('usermainpage.html',
-                                   user=user, 
+                                   user=user,
+                                   info=info, 
                                    date=date,
+                                   today=today,
                                    prev_date=(date-timedelta(1)),
                                    next_date=(date+timedelta(1)))
 
@@ -203,6 +205,70 @@ def user_day_page(userid, date):
     flash('You do not have permission to view this page.')
     return redirect('/')
 
+
+def user_tracked_info():
+    """Query database for information user is tracking"""
+
+    user = User.query.get(session['userid'])
+    # conds = {}
+    # for cond in user.user_conditions:
+    #     name = cond.condition.cond_name
+    #     conds[name]={}
+    #     conds[name]['symptoms'] = []
+    #     conds[name]['value_types'] = []
+    #     conds[name]['count_types'] = []
+    #     for usymptom in cond.user_symptoms:
+    #         conds[name]['symptoms'].append(usymptom.symptom.symptom_name)
+    #     for uvalue_type in cond.user_value_types:
+    #         conds[name]['value_types'].append(uvalue_type.value_type.value_name)
+    #     for ucount_type in cond.user_count_types:
+    #         conds[name]['count_types'].append(ucount_type.count_type.count_name)
+
+    # print(conds)
+    # return conds
+
+    conds = {}
+
+    for cond in user.user_conditions:
+
+        name = cond.condition.cond_name
+        conds[name]={}
+
+        symptoms = (db.session.query(UserCondition.user_id, 
+                                     Symptom.symptom_name,
+                                     UserSymptom.usercond_id, 
+                                     UserSymptom.user_symptom_id_pk, 
+                                     UserSymptom.symptom_id)
+                    .join(UserSymptom)
+                    .join(Symptom)
+                    .filter(UserCondition.usercond_id_pk==cond.usercond_id_pk)
+                    .all())
+
+        value_types = (db.session.query(UserCondition.user_id, 
+                                        ValueType.value_name,
+                                        UserValueType.usercond_id, 
+                                        UserValueType.user_value_id_pk, 
+                                        UserValueType.value_id)
+                       .join(UserValueType)
+                       .join(ValueType)
+                       .filter(UserCondition.usercond_id_pk==cond.usercond_id_pk)
+                       .all())
+
+        count_types = (db.session.query(UserCondition.user_id, 
+                                        CountType.count_name,
+                                        UserCountType.usercond_id, 
+                                        UserCountType.user_count_id_pk, 
+                                        UserCountType.count_id)
+                       .join(UserCountType)
+                       .join(CountType)
+                       .filter(UserCondition.usercond_id_pk==cond.usercond_id_pk)
+                       .all())
+
+        conds[name]['symptoms'] = symptoms
+        conds[name]['value_types'] = value_types
+        conds[name]['count_types'] = count_types
+
+    return conds
 
 
 ##############################################################################
