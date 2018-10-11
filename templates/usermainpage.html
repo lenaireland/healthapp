@@ -31,21 +31,21 @@
 
   {% for condition in info %}
     <h2>{{condition}}</h2>
-<!--     {% for symptom in info[condition]['symptoms'] %}
+    {% for symptom in info[condition]['symptoms'] %}
 
-        <p id="symptom-{{symptom[2]}}-{{symptom[3]}}">{{symptom[1]}}</p> 
+        <p id="symptom-{{symptom.Symptom.symptom_id_pk}}">{{symptom.Symptom.symptom_name}}</p> 
     {% endfor %}
     -----------
 
     {% for item in info[condition]['value_types'] %}
-        <p id="value-{{item[2]}}-{{item[3]}}">{{item[1]}}</p> 
+        <p id="value-{{item.ValueType.value_id_pk}}">{{item.ValueType.value_name}}</p> 
     {% endfor %}
     -----------
 
     {% for item in info[condition]['count_types'] %}
-        <p id="count-{{item[2]}}-{{item[3]}}">{{item[1]}}</p> 
+        <p id="value-{{item.CountType.count_id_pk}}">{{item.CountType.count_name}}</p> 
     {% endfor %}
-    ----------- -->
+    -----------
 
   {% endfor %}
 

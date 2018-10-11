@@ -287,7 +287,7 @@ def user_tracked_info():
         conds[name]['value_types'] = value_types
         conds[name]['count_types'] = count_types
 
-    print(conds)
+    # print(conds)
     return conds
 
 
