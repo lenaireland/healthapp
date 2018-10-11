@@ -9,6 +9,7 @@ from flask import flash, session, request, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 
 from datetime import datetime, timedelta
+from sqlalchemy import func
 
 from model import connect_to_db, db
 from model import User, UserCondition, Condition
@@ -36,11 +37,9 @@ app.jinja_env.undefined = StrictUndefined
 def index():
     """Homepage - show login/register form"""
 
-    date=datetime.now().date().strftime("%Y-%m-%d")
-
     # if user is already logged in, take to personal page
     if session.get('userid'):
-        return redirect('/user/{}/{}'.format(session['userid'], date))
+        return redirect('/user/{}'.format(session['userid']))
 
     # if not logged in, show login/register form
     return render_template('login_form.html')
@@ -49,22 +48,18 @@ def index():
 def login_form():
     """Show login/registration form"""
 
-    date=datetime.now().date().strftime("%Y-%m-%d")
-
     # if user is logged in, take to personal page
     # if not logged in, go to '/' route to login/register
     if session.get('userid'):
         flash('Already logged in.')
 
-        return redirect('/user/{}/{}'.format(session['userid'], date))
+        return redirect('/user/{}'.format(session['userid']))
 
     return redirect('/') 
 
 @app.route('/process-login', methods=['POST'])
 def login_process():
     """Process Login"""
-
-    date=datetime.now().date().strftime("%Y-%m-%d")
 
     # process login form data, query for user in database
     email = request.form.get('email')
@@ -77,7 +72,7 @@ def login_process():
         if password == user.password:
             session['userid']=user.user_id_pk
             flash('Log in successful')
-            return redirect('/user/{}/{}'.format(session['userid'], date))
+            return redirect('/user/{}'.format(session['userid']))
 
     flash('Login Failed')
     return redirect('/')
@@ -86,15 +81,12 @@ def login_process():
 def register_form():
     """Show login/registration form"""
 
-    date=datetime.now().date().strftime("%Y-%m-%d")
-    # date=datetime.strftime()
-
     # if user is logged in, take to personal page
     # if not logged in, go to '/' route to login/register
     if session.get('userid'):
         flash('Already logged in.')
 
-        return redirect('/user/{}/{}'.format(session['userid'], date))
+        return redirect('/user/{}'.format(session['userid']))
 
     return redirect('/')
 
@@ -177,13 +169,18 @@ def logout():
     
     return redirect('/')
 
+@app.route('/user/<userid>', defaults={'date': None})
 @app.route('/user/<userid>/<date>')
 def user_day_page(userid, date):
-    """Show individual user day pages"""
+    """Show individual user day page"""
 
     userid=int(userid)
-    date=datetime.strptime(date, "%Y-%m-%d").date()
-    today=datetime.now().date()
+    today=datetime.now()
+
+    if date:
+        date=datetime.strptime(date, "%Y-%m-%d")
+    else:
+        date=today
 
     if session.get('userid'):
         if userid == session['userid']:
@@ -205,10 +202,27 @@ def user_day_page(userid, date):
     flash('You do not have permission to view this page.')
     return redirect('/')
 
-@app.route('/update-user-symptom')
+@app.route('/update-user-symptom', methods=['POST'])
 def update_user_symptom():
     """Process user symptoms"""
-    pass
+
+    symptom_id = request.form.get("symptom_id")
+    date = request.form.get("date")
+    TF = request.form.get("TF")
+
+    datarecord = SymptomItem.query.filter(
+                    SymptomItem.user_symptom_id == symptom_id,
+                    func.date(SymptomItem.symptom_date)==date).first()
+
+    if datarecord:
+        datarecord.symptom_present=TF
+        return "Record Updated"
+
+    SymptomItem(symptom_date=date, 
+                symptom_present=TF, 
+                user_symptom_id=symptom_id)
+
+    return "Record Added"
 
 
 def user_tracked_info():

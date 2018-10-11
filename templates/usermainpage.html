@@ -17,15 +17,22 @@
   {% endif %}
 
   <p>
-  {% if date==today %}
-    <a href="/user/{{session['userid']}}/{{prev_date}}">Yesterday ({{prev_date}})</a>
-    <br><b>Today ({{date}})</b><br>   
-  {% elif date < today %}
-    <a href="/user/{{session['userid']}}/{{prev_date}}">{{prev_date}}</a>
-    <br><b>{{date}}</b><br>
-    <a href="/user/{{session['userid']}}/{{next_date}}">{{next_date}}</a>  
+  {% if date.date()==today.date() %}
+    <a href="/user/{{ session['userid'] }}/{{ prev_date.date() }}">
+      Yesterday ({{ prev_date.date() }})</a>
+    <br><b>Today ({{ date.date() }})</b><br> 
+
+  {% elif date.date() < today.date() %}
+    <a href="/user/{{ session['userid'] }}/{{ prev_date.date() }}">
+      {{ prev_date.date() }}</a>
+    <br><b>{{ date.date() }}</b><br>
+    <a href="/user/{{ session['userid'] }}/{{ next_date.date() }}">
+      {{next_date.date()}}</a> 
+
   {% else %}
     You can't track future days!
+    <a href="/user/{{ session['userid'] }}/{{ today.date() }}">
+    Today ({{ today.date() }})</a>
   {% endif %}
   </p>
 
@@ -33,17 +40,37 @@
     <h2>{{condition}}</h2>
     {% for symptom in info[condition]['symptoms'] %}
 
-        <p id="symptom-{{symptom.Symptom.symptom_id_pk}}">{{symptom.Symptom.symptom_name}}</p> 
+      <p>{{symptom.Symptom.symptom_name}}
+        <button name="symptombutton"
+          id="usersymptom {{symptom.Symptom.symptom_id_pk}} {{ date.date() }}">
+          FALSE
+        </button>
+      </p>
+
     {% endfor %}
     -----------
 
     {% for item in info[condition]['value_types'] %}
-        <p id="value-{{item.ValueType.value_id_pk}}">{{item.ValueType.value_name}}</p> 
+      <p>
+        <form>{{item.ValueType.value_name}}
+          <input type="text" 
+                 name= "valueform" 
+                 id="uservalue-{{item.ValueType.value_id_pk}}">
+          <input type="submit">
+        </form>
+      </p> 
     {% endfor %}
     -----------
 
     {% for item in info[condition]['count_types'] %}
-        <p id="value-{{item.CountType.count_id_pk}}">{{item.CountType.count_name}}</p> 
+      <p>
+        <form>{{item.CountType.count_name}}
+          <input type="text" 
+                 name="countform"
+                 id="usercount-{{item.CountType.count_id_pk}}">
+          <input type="submit">
+        </form>
+      </p> 
     {% endfor %}
     -----------
 
