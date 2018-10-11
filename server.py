@@ -205,11 +205,16 @@ def user_day_page(userid, date):
     flash('You do not have permission to view this page.')
     return redirect('/')
 
+@app.route('/update-user-symptom')
+def update_user_symptom():
+    """Process user symptoms"""
+    pass
+
 
 def user_tracked_info():
     """Query database for information user is tracking"""
 
-    user = User.query.get(session['userid'])
+    # user = User.query.get(session['userid'])
     # conds = {}
     # for cond in user.user_conditions:
     #     name = cond.condition.cond_name
@@ -224,9 +229,8 @@ def user_tracked_info():
     #     for ucount_type in cond.user_count_types:
     #         conds[name]['count_types'].append(ucount_type.count_type.count_name)
 
-    # print(conds)
-    # return conds
 
+    user = User.query.get(session['userid'])
     conds = {}
 
     for cond in user.user_conditions:
@@ -234,40 +238,56 @@ def user_tracked_info():
         name = cond.condition.cond_name
         conds[name]={}
 
-        symptoms = (db.session.query(UserCondition.user_id, 
-                                     Symptom.symptom_name,
-                                     UserSymptom.usercond_id, 
-                                     UserSymptom.user_symptom_id_pk, 
-                                     UserSymptom.symptom_id)
-                    .join(UserSymptom)
+        # symptoms = (db.session.query(UserCondition.user_id, 
+        #                              Symptom.symptom_name,
+        #                              UserSymptom.usercond_id, 
+        #                              UserSymptom.user_symptom_id_pk, 
+        #                              UserSymptom.symptom_id)
+        #             .join(UserSymptom)
+        #             .join(Symptom)
+        #             .filter(UserCondition.usercond_id_pk==cond.usercond_id_pk)
+        #             .all())
+
+        # value_types = (db.session.query(UserCondition.user_id, 
+        #                                 ValueType.value_name,
+        #                                 UserValueType.usercond_id, 
+        #                                 UserValueType.user_value_id_pk, 
+        #                                 UserValueType.value_id)
+        #                .join(UserValueType)
+        #                .join(ValueType)
+        #                .filter(UserCondition.usercond_id_pk==cond.usercond_id_pk)
+        #                .all())
+
+        # count_types = (db.session.query(UserCondition.user_id, 
+        #                                 CountType.count_name,
+        #                                 UserCountType.usercond_id, 
+        #                                 UserCountType.user_count_id_pk, 
+        #                                 UserCountType.count_id)
+        #                .join(UserCountType)
+        #                .join(CountType)
+        #                .filter(UserCondition.usercond_id_pk==cond.usercond_id_pk)
+        #                .all())
+
+        symptoms = (db.session.query(UserSymptom, Symptom)
                     .join(Symptom)
-                    .filter(UserCondition.usercond_id_pk==cond.usercond_id_pk)
+                    .filter(UserSymptom.usercond_id==cond.usercond_id_pk)
                     .all())
 
-        value_types = (db.session.query(UserCondition.user_id, 
-                                        ValueType.value_name,
-                                        UserValueType.usercond_id, 
-                                        UserValueType.user_value_id_pk, 
-                                        UserValueType.value_id)
-                       .join(UserValueType)
+        value_types = (db.session.query(UserValueType, ValueType)
                        .join(ValueType)
-                       .filter(UserCondition.usercond_id_pk==cond.usercond_id_pk)
+                       .filter(UserValueType.usercond_id==cond.usercond_id_pk)
                        .all())
 
-        count_types = (db.session.query(UserCondition.user_id, 
-                                        CountType.count_name,
-                                        UserCountType.usercond_id, 
-                                        UserCountType.user_count_id_pk, 
-                                        UserCountType.count_id)
-                       .join(UserCountType)
+        count_types = (db.session.query(UserCountType, CountType)
                        .join(CountType)
-                       .filter(UserCondition.usercond_id_pk==cond.usercond_id_pk)
+                       .filter(UserCountType.usercond_id==cond.usercond_id_pk)
                        .all())
 
         conds[name]['symptoms'] = symptoms
         conds[name]['value_types'] = value_types
         conds[name]['count_types'] = count_types
 
+    print(conds)
     return conds
 
 

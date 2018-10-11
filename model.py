@@ -197,8 +197,7 @@ class UserValueType(db.Model):
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        return """<Value type id={}, 
-                  user condition id={}>""".format(self.value_id, 
+        return "<Value type id={}, user condition id={}>".format(self.value_id, 
                                                   self.usercond_id)
 
 
@@ -275,8 +274,7 @@ class UserCountType(db.Model):
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        return """<Count type id={}, 
-                  user condition id={}>""".format(self.count_id, 
+        return "<Count type id={}, user condition id={}>".format(self.count_id, 
                                                   self.usercond_id)
 
 
