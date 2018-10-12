@@ -216,10 +216,10 @@ def update_user_symptom():
 
     if datarecord:
 
-        #########
+#########
         # This string is coming from usemainpage.js
         # UPDATE THIS STRING if JavaScript file changes!!!!!!!!!!!
-        #########
+#########
         if TF == 'true':
             datarecord.symptom_present = True
         else:
@@ -234,6 +234,22 @@ def update_user_symptom():
     db.session.add(new_symptom)
     db.session.commit()
     return "Record Added"
+
+@app.route('/get-user-symptom', methods=['GET'])
+def get_user_symptom():
+
+    symptom_id = request.args.get("symptom_id")
+    date = request.args.get("date")
+
+    datarecord = SymptomItem.query.filter(
+                    SymptomItem.user_symptom_id==symptom_id,
+                    func.date(SymptomItem.symptom_date)==date).first()
+
+    if datarecord:
+        value = datarecord.symptom_present
+        return str(value)
+
+    return "False"    
 
 
 def user_tracked_info():
