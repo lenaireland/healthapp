@@ -197,7 +197,7 @@ def user_day_page(userid, date):
                                    next_date=(date+timedelta(1)))
 
         flash('You do not have permission to view this page.')
-        return redirect('/user/{}/{}'.format(session['userid'], date))
+        return redirect('/user/{}'.format(session['userid']))
 
     flash('You do not have permission to view this page.')
     return redirect('/')
