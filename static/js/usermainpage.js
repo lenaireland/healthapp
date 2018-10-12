@@ -8,7 +8,6 @@ function successFunction(results) {
 function updateSymptom(evt) {
   evt.preventDefault();
   const buttonId = evt.currentTarget.id;
-  console.log(buttonId);
   const params = buttonId.split(" ");
 
   let dbInputs = {

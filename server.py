@@ -49,12 +49,12 @@ def login_form():
     """Show login/registration form"""
 
     # if user is logged in, take to personal page
-    # if not logged in, go to '/' route to login/register
     if session.get('userid'):
         flash('Already logged in.')
 
         return redirect('/user/{}'.format(session['userid']))
 
+    # if not logged in, go to '/' route to login/register
     return redirect('/') 
 
 @app.route('/process-login', methods=['POST'])
@@ -82,12 +82,12 @@ def register_form():
     """Show login/registration form"""
 
     # if user is logged in, take to personal page
-    # if not logged in, go to '/' route to login/register
     if session.get('userid'):
         flash('Already logged in.')
 
         return redirect('/user/{}'.format(session['userid']))
 
+    # if not logged in, go to '/' route to login/register
     return redirect('/')
 
 @app.route('/process-register', methods=['POST'])
@@ -211,17 +211,28 @@ def update_user_symptom():
     TF = request.form.get("TF")
 
     datarecord = SymptomItem.query.filter(
-                    SymptomItem.user_symptom_id == symptom_id,
+                    SymptomItem.user_symptom_id==symptom_id,
                     func.date(SymptomItem.symptom_date)==date).first()
 
     if datarecord:
-        datarecord.symptom_present=TF
+
+        #########
+        # This string is coming from usemainpage.js
+        # UPDATE THIS STRING if JavaScript file changes!!!!!!!!!!!
+        #########
+        if TF == 'true':
+            datarecord.symptom_present = True
+        else:
+            datarecord.symptom_present = False
+        db.session.commit()
         return "Record Updated"
 
-    SymptomItem(symptom_date=date, 
-                symptom_present=TF, 
+    new_symptom = SymptomItem(symptom_date=date, 
+                symptom_present=bool(TF), 
                 user_symptom_id=symptom_id)
 
+    db.session.add(new_symptom)
+    db.session.commit()
     return "Record Added"
 
 
@@ -244,13 +255,13 @@ def user_tracked_info():
     #         conds[name]['count_types'].append(ucount_type.count_type.count_name)
 
 
-    user = User.query.get(session['userid'])
-    conds = {}
+    # user = User.query.get(session['userid'])
+    # conds = {}
 
-    for cond in user.user_conditions:
+    # for cond in user.user_conditions:
 
-        name = cond.condition.cond_name
-        conds[name]={}
+    #     name = cond.condition.cond_name
+    #     conds[name]={}
 
         # symptoms = (db.session.query(UserCondition.user_id, 
         #                              Symptom.symptom_name,
@@ -282,6 +293,14 @@ def user_tracked_info():
         #                .filter(UserCondition.usercond_id_pk==cond.usercond_id_pk)
         #                .all())
 
+    user = User.query.get(session['userid'])
+    conds = {}
+
+    for cond in user.user_conditions:
+
+        name = cond.condition.cond_name
+        conds[name]={}
+
         symptoms = (db.session.query(UserSymptom, Symptom)
                     .join(Symptom)
                     .filter(UserSymptom.usercond_id==cond.usercond_id_pk)
@@ -301,7 +320,6 @@ def user_tracked_info():
         conds[name]['value_types'] = value_types
         conds[name]['count_types'] = count_types
 
-    # print(conds)
     return conds
 
 
