@@ -28,31 +28,22 @@ function updateValueForms() {
   }
 }
 
-// TO DO: GET THIS WORKING!!!!!!!!!!
 function updateValue(evt) {
   evt.preventDefault();
   const valueId = evt.currentTarget.id;
+  const value = evt.currentTarget.value.value;
+
+  console.log(value);
   console.log(valueId);
 
-  const dbInputs = getButtonParams(valueId);
+  const dbInputs = getValueParams(valueId);
+  dbInputs.value = value;
 
   console.log(dbInputs);
 
   $.post('/update-user-value-item', dbInputs, function (results) {
     console.log(results);
   });
-
-
-
-
-  //   evt.currentTarget.innerText = "False";
-  // } else {
-  //   dbInputs.TF = true;
-  //   $.post('/update-user-symptom', dbInputs, function (results) {
-  //     console.log(results);
-  //   });
-  //   evt.currentTarget.innerText = "True";
-  // }
 }
 
 // event listener called when the DOM is ready

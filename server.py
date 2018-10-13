@@ -273,15 +273,25 @@ def update_user_value_item():
 
     value_id = request.form.get("value_id")
     date = request.form.get("date")
+    value = request.form.get("value")
 
     datarecord = ValueItem.query.filter(
                     ValueItem.user_value_id==value_id,
                     func.date(ValueItem.value_date)==date).first()   
                     
-    # if datarecord: 
-##########
-# TO DO: GET THIS WORKING!!!!!!!!
-###########
+    if datarecord: 
+        datarecord.value = value
+        db.session.commit()
+        return "Record Updated"
+
+    new_value = ValueItem(value_date=date,
+                          value=value,
+                          user_value_id=value_id)
+
+    db.session.add(new_value)
+    db.session.commit()
+    return "Record Added"
+
 
 def user_tracked_info():
     """Query database for information user is tracking"""
