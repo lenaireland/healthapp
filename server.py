@@ -202,6 +202,22 @@ def user_day_page(userid, date):
     flash('You do not have permission to view this page.')
     return redirect('/')
 
+@app.route('/get-user-symptom', methods=['GET'])
+def get_user_symptom():
+
+    symptom_id = request.args.get("symptom_id")
+    date = request.args.get("date")
+
+    datarecord = SymptomItem.query.filter(
+                    SymptomItem.user_symptom_id==symptom_id,
+                    func.date(SymptomItem.symptom_date)==date).first()
+
+    if datarecord:
+        value = datarecord.symptom_present
+        return str(value)
+
+    return "False" 
+
 @app.route('/update-user-symptom', methods=['POST'])
 def update_user_symptom():
     """Process user symptoms"""
@@ -235,22 +251,37 @@ def update_user_symptom():
     db.session.commit()
     return "Record Added"
 
-@app.route('/get-user-symptom', methods=['GET'])
-def get_user_symptom():
+@app.route('/get-user-value-item', methods=['GET'])
+def get_user_valueitem():
 
-    symptom_id = request.args.get("symptom_id")
+    value_id = request.args.get("value_id")
     date = request.args.get("date")
 
-    datarecord = SymptomItem.query.filter(
-                    SymptomItem.user_symptom_id==symptom_id,
-                    func.date(SymptomItem.symptom_date)==date).first()
+    datarecord = ValueItem.query.filter(
+                    ValueItem.user_value_id==value_id,
+                    func.date(ValueItem.value_date)==date).first()
 
     if datarecord:
-        value = datarecord.symptom_present
+        value = datarecord.value
         return str(value)
 
-    return "False"    
+    return "False" 
 
+@app.route('/update-user-value-item', methods=['POST'])
+def update_user_value_item():
+    """Process user value items"""
+
+    value_id = request.form.get("value_id")
+    date = request.form.get("date")
+
+    datarecord = ValueItem.query.filter(
+                    ValueItem.user_value_id==value_id,
+                    func.date(ValueItem.value_date)==date).first()   
+                    
+    # if datarecord: 
+##########
+# TO DO: GET THIS WORKING!!!!!!!!
+###########
 
 def user_tracked_info():
     """Query database for information user is tracking"""

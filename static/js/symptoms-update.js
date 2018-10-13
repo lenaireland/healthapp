@@ -50,7 +50,7 @@ function updateSymptom(evt) {
   }
 }
 
-// event listeners called when the DOM is ready
+// event listener called when the DOM is ready
 $(document).ready(updateSymptomButtons);
 
 // event listener on click for any symptom button

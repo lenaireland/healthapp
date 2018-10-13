@@ -52,10 +52,10 @@
 
     {% for item in info[condition]['value_types'] %}
       <p>
-        <form>{{item.ValueType.value_name}}
-          <input type="text" 
-                 name= "valueform" 
-                 id="uservalue-{{item.ValueType.value_id_pk}}">
+        <form name="valueform" 
+          id="uservalue {{item.ValueType.value_id_pk}} {{ date.date() }}">
+        {{item.ValueType.value_name}}
+          <input type="text" name="value">
           <input type="submit">
         </form>
       </p> 
@@ -64,10 +64,10 @@
 
     {% for item in info[condition]['count_types'] %}
       <p>
-        <form>{{item.CountType.count_name}}
-          <input type="text" 
-                 name="countform"
-                 id="usercount-{{item.CountType.count_id_pk}}">
+        <form name="countform" 
+          id="usercount {{item.CountType.count_id_pk}} {{ date.date() }}">
+        {{item.CountType.count_name}}
+          <input type="text" name="count">
           <input type="submit">
         </form>
       </p> 
@@ -80,5 +80,6 @@
   <p id="user_tracking"></p>
 
   <script src="/static/js/symptoms-update.js"></script>
+  <script src="/static/js/value-items-update.js"></script>
 
 {% endblock %}
