@@ -44,6 +44,7 @@ function updateCount(evt) {
 
   $.post('/update-user-count-item', dbInputs, function (results) {
     console.log(results);
+    evt.currentTarget.submit.value = "Update";
   });
 }
 

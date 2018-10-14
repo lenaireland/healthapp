@@ -43,6 +43,7 @@ function updateValue(evt) {
 
   $.post('/update-user-value-item', dbInputs, function (results) {
     console.log(results);
+    evt.currentTarget.submit.value = "Update";
   });
 }
 
