@@ -31,16 +31,10 @@ function updateCountForms() {
 function updateCount(evt) {
   evt.preventDefault();
   const countId = evt.currentTarget.id;
-  console.log(countId)
   const count = evt.currentTarget.count.value;
-
-  console.log(count);
-  console.log(countId);
 
   const dbInputs = getCountParams(countId);
   dbInputs.count = count;
-
-  console.log(dbInputs);
 
   $.post('/update-user-count-item', dbInputs, function (results) {
     console.log(results);

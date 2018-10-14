@@ -33,13 +33,8 @@ function updateValue(evt) {
   const valueId = evt.currentTarget.id;
   const value = evt.currentTarget.value.value;
 
-  console.log(value);
-  console.log(valueId);
-
   const dbInputs = getValueParams(valueId);
   dbInputs.value = value;
-
-  console.log(dbInputs);
 
   $.post('/update-user-value-item', dbInputs, function (results) {
     console.log(results);
