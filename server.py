@@ -204,6 +204,7 @@ def user_day_page(userid, date):
 
 @app.route('/get-user-symptom', methods=['GET'])
 def get_user_symptom():
+    """Get user symptom values from database"""
 
     symptom_id = request.args.get("symptom_id")
     date = request.args.get("date")
@@ -253,6 +254,7 @@ def update_user_symptom():
 
 @app.route('/get-user-value-item', methods=['GET'])
 def get_user_valueitem():
+    """Get user value items from database"""
 
     value_id = request.args.get("value_id")
     date = request.args.get("date")
@@ -289,6 +291,48 @@ def update_user_value_item():
                           user_value_id=value_id)
 
     db.session.add(new_value)
+    db.session.commit()
+    return "Record Added"
+
+@app.route('/get-user-count-item', methods=['GET'])
+def get_user_countitem():
+    """Get user count items from database"""
+
+    count_id = request.args.get("count_id")
+    date = request.args.get("date")
+
+    datarecord = CountItem.query.filter(
+                    CountItem.user_count_id==count_id,
+                    func.date(CountItem.count_date)==date).first()
+
+    if datarecord:
+        count = datarecord.count
+        return str(count)
+
+    return "False" 
+
+@app.route('/update-user-count-item', methods=['POST'])
+def update_user_count_item():
+    """Process user count items"""
+
+    count_id = request.form.get("count_id")
+    date = request.form.get("date")
+    count = request.form.get("count")
+
+    datarecord = CountItem.query.filter(
+                    CountItem.user_count_id==count_id,
+                    func.date(CountItem.count_date)==date).first()   
+                    
+    if datarecord: 
+        datarecord.count = count
+        db.session.commit()
+        return "Record Updated"
+
+    new_count = CountItem(count_date=date,
+                          count=count,
+                          user_count_id=count_id)
+
+    db.session.add(new_count)
     db.session.commit()
     return "Record Added"
 

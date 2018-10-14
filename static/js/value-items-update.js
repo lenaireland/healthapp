@@ -6,7 +6,7 @@ function getValueParams(valueId) {
   const params = valueId.split(" ");
 
   let dbInputs = {
-    value_id: parseInt(params[1], 10),
+    value_id: parseFloat(params[1], 10),
     date: params[2]
   };
   return dbInputs;
@@ -21,7 +21,7 @@ function updateValueForms() {
 
     $.get('/get-user-value-item', dbInputs, function (results) {
       if (results !== "False") {
-        valueItem[0].value = parseInt(results, 10);
+        valueItem[0].value = parseFloat(results, 10);
         valueItem[1].value = "Update Value";
       }
     });
