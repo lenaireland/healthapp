@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Health Tracker - New Tracking{% endblock %}
+
+{% block content %}
+
+<a href="/user/{{session['userid']}}">Return to daily log page</a>
+
+<p><form id="new_condition_form">
+  Choose a new condition you would like to track:
+  <select name="new_conditions">
+    {% for condition in unused_conditions %}
+      <option value={{ condition.cond_name }}>{{ condition.cond_name }}
+      </option>
+    {% endfor %}
+  </select>
+  <div id="new_condition_desc"></div>
+  <input type="submit" id="new_condition_submit">
+</form></p>
+
+Or
+
+<p><form id="user_condition_form">
+  Choose a condition for which you would like to track a new item:
+  <select name="user_conditions">
+    {% for condition in user_conditions %}
+      <option value={{ condition.cond_name }}>{{ condition.cond_name }}
+      </option>
+    {% endfor %}
+  </select>
+  <div id="user_condition_desc"></div>
+  <input type="submit" id="user_condtion_submit">
+</form></p>
+
+
+
+{% endblock %}

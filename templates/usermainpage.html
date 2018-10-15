@@ -1,8 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Health Tracker
-
-{% endblock %}
+{% block title %}Health Tracker{% endblock %}
 
 {% block content %}
 
@@ -34,6 +32,10 @@
     <a href="/user/{{ session['userid'] }}/{{ today.date() }}">
     Today ({{ today.date() }})</a>
   {% endif %}
+  </p>
+
+  <p>
+    <a href="/add-tracking">Add new condition/item to track</a>
   </p>
 
   {% for condition in info %}
@@ -76,8 +78,6 @@
 
   {% endfor %}
 
-
-  <p id="user_tracking"></p>
 
   <script src="/static/js/symptoms-update.js"></script>
   <script src="/static/js/value-items-update.js"></script>

@@ -202,6 +202,29 @@ def user_day_page(userid, date):
     flash('You do not have permission to view this page.')
     return redirect('/')
 
+@app.route('/add-tracking')
+def add_tracking():
+    """Add new condition/symptom/count/value items for tracking"""
+
+    if session.get('userid'):
+
+        all_conditions = Condition.query.all()
+        user_conditions = (db.session.query(Condition)
+                            .join(UserCondition)
+                            .filter(UserCondition.user_id==session['userid'])
+                            .all())
+
+        unused_conditions = []
+        for condition in all_conditions:
+            if condition not in user_conditions:
+                unused_conditions.append(condition)
+
+        return render_template('add_tracking.html', 
+                               unused_conditions=unused_conditions,
+                               user_conditions=user_conditions)  
+    
+    return redirect('/')     
+
 @app.route('/get-user-symptom', methods=['GET'])
 def get_user_symptom():
     """Get user symptom values from database"""
