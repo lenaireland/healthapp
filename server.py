@@ -223,7 +223,53 @@ def add_tracking():
                                unused_conditions=unused_conditions,
                                user_conditions=user_conditions)  
     
-    return redirect('/')     
+    return redirect('/')
+
+@app.route('/get-condition-desc', methods=['GET'])
+def get_condition_description():
+    """Get description of condition from database"""
+
+    cond_id = request.args.get("cond_id")
+
+    if cond_id:
+        cond_record = (db.session.query(Condition)
+                                 .filter(Condition.cond_id_pk==cond_id)
+                                 .first())
+
+        if cond_record:
+            return cond_record.cond_desc
+
+    return ("")    
+
+@app.route('/add-user-condition', methods=['POST'])
+def add_user_condition():
+    """Add new condition to database for user to track"""
+
+    cond_id = request.form.get("cond_id")
+
+    ############
+    #Might not need this query and checking database if already tracked...
+    ###############
+    user_conditions = (UserCondition.query
+                       .filter(UserCondition.user_id==session['userid'])
+                       .all())
+
+    # user_conditions = (db.session.query(UserCondition, Condition)
+    #                         .join(Condition)
+    #                         .filter(UserCondition.user_id==session['userid'])
+    #                         .all())
+
+    for user_condition in user_conditions:
+        print(user_condition)
+        if cond_id == user_condition.cond_id:
+            return "Add condition failed"
+
+    new_condition = UserCondition(user_id=session['userid'],
+                                  cond_id=cond_id)
+
+    db.session.add(new_condition)
+    db.session.commit()
+    return "Condition Added"
 
 @app.route('/get-user-symptom', methods=['GET'])
 def get_user_symptom():

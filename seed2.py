@@ -16,18 +16,21 @@ def example_data():
     """Create some sample data."""
 
     users = [
-        User(email="hi@gmail.com", 
+        User(user_id_pk=1,
+             email="hi@gmail.com", 
              password="123456", 
              fname="Bob", 
              lname="Bee", 
              zipcode="94030",
              is_superuser=True),
-        User(email="hello@gmail.com", 
+        User(user_id_pk=2,
+             email="hello@gmail.com", 
              password="123456", 
              fname="Patty", 
              lname="Pi", 
              zipcode="02738"),
-        User(email="howdy@gmail.com",
+        User(user_id_pk=3,
+             email="howdy@gmail.com",
              password="123456",
              fname="Al",
              lname="Aboard",
@@ -35,11 +38,14 @@ def example_data():
     ]
 
     conditions = [
-        Condition(cond_name="Asthma", 
+        Condition(cond_id_pk=1,
+                  cond_name="Asthma", 
                   cond_desc="Condition with swollen and narrowed airways"),
-        Condition(cond_name="Migraines", 
+        Condition(cond_id_pk=2,
+                  cond_name="Migraines", 
                   cond_desc="Severe headaches"),
-        Condition(cond_name="Diabetes", 
+        Condition(cond_id_pk=3,
+                  cond_name="Diabetes", 
                   cond_desc="Diseases affecting how body uses insulin")
     ]
 
@@ -51,35 +57,35 @@ def example_data():
     ]
 
     symptoms = [
-        Symptom(symptom_name="Wheezing", symptom_desc="Whistling with breath"),
-        Symptom(symptom_name="Difficulty Breathing"),
-        Symptom(symptom_name="Backache", symptom_desc="Muscle pain in back"),
-        Symptom(symptom_name="Headache"),
-        Symptom(symptom_name="Sleep-deprived"),
-        Symptom(symptom_name="Fatigued"),
-        Symptom(symptom_name="Stressed"),
-        Symptom(symptom_name="Peanuts"),
-        Symptom(symptom_name="Chocolate"),
-        Symptom(symptom_name="Hormones"),
-        Symptom(symptom_name="Bright Lights"),
-        Symptom(symptom_name="Dehydrated")
+        Symptom(symptom_id_pk=1, symptom_name="Wheezing", symptom_desc="Whistling with breath"),
+        Symptom(symptom_id_pk=2, symptom_name="Difficulty Breathing"),
+        Symptom(symptom_id_pk=3, symptom_name="Backache", symptom_desc="Muscle pain in back"),
+        Symptom(symptom_id_pk=4, symptom_name="Headache"),
+        Symptom(symptom_id_pk=5, symptom_name="Sleep-deprived"),
+        Symptom(symptom_id_pk=6, symptom_name="Fatigued"),
+        Symptom(symptom_id_pk=7, symptom_name="Stressed"),
+        Symptom(symptom_id_pk=8, symptom_name="Peanuts"),
+        Symptom(symptom_id_pk=9, symptom_name="Chocolate"),
+        Symptom(symptom_id_pk=10, symptom_name="Hormones"),
+        Symptom(symptom_id_pk=11, symptom_name="Bright Lights"),
+        Symptom(symptom_id_pk=12, symptom_name="Dehydrated")
     ]
 
     user_symptoms = [
-        UserSymptom(usercond_id=1, symptom_id=1),
-        UserSymptom(usercond_id=1, symptom_id=2),
-        UserSymptom(usercond_id=1, symptom_id=3),
-        UserSymptom(usercond_id=2, symptom_id=4),
-        UserSymptom(usercond_id=2, symptom_id=5),
-        UserSymptom(usercond_id=2, symptom_id=7),
-        UserSymptom(usercond_id=2, symptom_id=8),
-        UserSymptom(usercond_id=2, symptom_id=10),
-        UserSymptom(usercond_id=3, symptom_id=1),
-        UserSymptom(usercond_id=3, symptom_id=2),
-        UserSymptom(usercond_id=3, symptom_id=3),
-        UserSymptom(usercond_id=4, symptom_id=1),
-        UserSymptom(usercond_id=4, symptom_id=2),
-        UserSymptom(usercond_id=4, symptom_id=3),
+        UserSymptom(user_symptom_id_pk=1, usercond_id=1, symptom_id=1),
+        UserSymptom(user_symptom_id_pk=2, usercond_id=1, symptom_id=2),
+        UserSymptom(user_symptom_id_pk=3, usercond_id=1, symptom_id=3),
+        UserSymptom(user_symptom_id_pk=4, usercond_id=2, symptom_id=4),
+        UserSymptom(user_symptom_id_pk=5, usercond_id=2, symptom_id=5),
+        UserSymptom(user_symptom_id_pk=6, usercond_id=2, symptom_id=7),
+        UserSymptom(user_symptom_id_pk=7, usercond_id=2, symptom_id=8),
+        UserSymptom(user_symptom_id_pk=8, usercond_id=2, symptom_id=10),
+        UserSymptom(user_symptom_id_pk=9, usercond_id=3, symptom_id=1),
+        UserSymptom(user_symptom_id_pk=10, usercond_id=3, symptom_id=2),
+        UserSymptom(user_symptom_id_pk=11, usercond_id=3, symptom_id=3),
+        UserSymptom(user_symptom_id_pk=12, usercond_id=4, symptom_id=1),
+        UserSymptom(user_symptom_id_pk=13, usercond_id=4, symptom_id=2),
+        UserSymptom(user_symptom_id_pk=14, usercond_id=4, symptom_id=3),
     ]
 
     symptom_items = [
@@ -128,14 +134,14 @@ def example_data():
     ]
 
     value_types = [
-        ValueType(value_name="AQI", value_desc="Air Quality Index"),
-        ValueType(value_name="Hemoglobin Level"),
+        ValueType(value_id_pk=1, value_name="AQI", value_desc="Air Quality Index"),
+        ValueType(value_id_pk=2, value_name="Hemoglobin Level"),
     ]
 
     user_value_types = [
-        UserValueType(usercond_id=1, value_id=1),
-        UserValueType(usercond_id=3, value_id=1),
-        UserValueType(usercond_id=4, value_id=1),
+        UserValueType(user_value_id_pk=1, usercond_id=1, value_id=1),
+        UserValueType(user_value_id_pk=2, usercond_id=3, value_id=1),
+        UserValueType(user_value_id_pk=3, usercond_id=4, value_id=1),
     ]
 
     value_items = [
@@ -205,20 +211,20 @@ def example_data():
     ]
 
     count_types = [
-        CountType(count_name="Ventolin", count_desc="Rescue Inhaler"),
-        CountType(count_name="QVAR", count_desc="Steroid Inhaler"),
-        CountType(count_name="Tylenol", count_desc="Acetaminophen"),
-        CountType(count_name="Advil", count_desc="Ibuprofen"),
-        CountType(count_name="Caffeine")
+        CountType(count_id_pk=1, count_name="Ventolin", count_desc="Rescue Inhaler"),
+        CountType(count_id_pk=2, count_name="QVAR", count_desc="Steroid Inhaler"),
+        CountType(count_id_pk=3, count_name="Tylenol", count_desc="Acetaminophen"),
+        CountType(count_id_pk=4, count_name="Advil", count_desc="Ibuprofen"),
+        CountType(count_id_pk=5, count_name="Caffeine")
     ]
 
     user_count_types = [
-        UserCountType(usercond_id=1, count_id=1),
-        UserCountType(usercond_id=1, count_id=2),
-        UserCountType(usercond_id=3, count_id=1),
-        UserCountType(usercond_id=3, count_id=2),
-        UserCountType(usercond_id=4, count_id=1),
-        UserCountType(usercond_id=4, count_id=2)
+        UserCountType(user_count_id_pk=1, usercond_id=1, count_id=1),
+        UserCountType(user_count_id_pk=2, usercond_id=1, count_id=2),
+        UserCountType(user_count_id_pk=3, usercond_id=3, count_id=1),
+        UserCountType(user_count_id_pk=4, usercond_id=3, count_id=2),
+        UserCountType(user_count_id_pk=5, usercond_id=4, count_id=1),
+        UserCountType(user_count_id_pk=6, usercond_id=4, count_id=2)
     ]
 
     count_items = [

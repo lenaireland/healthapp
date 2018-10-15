@@ -8,30 +8,35 @@
 
 <p><form id="new_condition_form">
   Choose a new condition you would like to track:
-  <select name="new_conditions">
+  <select id="new_conditions">
     {% for condition in unused_conditions %}
-      <option value={{ condition.cond_name }}>{{ condition.cond_name }}
+      <option name="new_condition" value={{ condition.cond_id_pk }}>
+        {{ condition.cond_name }}
       </option>
     {% endfor %}
   </select>
-  <div id="new_condition_desc"></div>
-  <input type="submit" id="new_condition_submit">
+  <p>Description:
+  <span id="new_condition_desc"></span></p>
+  <input type="submit" id="new_condition_submit" value="Start Tracking">
 </form></p>
 
-Or
+OR
 
 <p><form id="user_condition_form">
   Choose a condition for which you would like to track a new item:
-  <select name="user_conditions">
+  <select id="user_conditions">
     {% for condition in user_conditions %}
-      <option value={{ condition.cond_name }}>{{ condition.cond_name }}
+      <option value={{ condition.cond_id_pk }}>
+        {{ condition.cond_name }}
       </option>
     {% endfor %}
   </select>
-  <div id="user_condition_desc"></div>
+  <p>Description:
+  <span id="user_condition_desc"></span></p>
   <input type="submit" id="user_condtion_submit">
 </form></p>
 
-
+<script src="/static/js/add-condition-tracking.js"></script>
+<script src="/static/js/add-item-tracking.js"></script>
 
 {% endblock %}
