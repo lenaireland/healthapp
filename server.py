@@ -208,6 +208,10 @@ def add_tracking():
 
     if session.get('userid'):
 
+        symptoms = Symptom.query.all()
+        values = ValueType.query.all()
+        counts = CountType.query.all()
+
         all_conditions = Condition.query.all()
         user_conditions = (db.session.query(Condition)
                             .join(UserCondition)
@@ -221,7 +225,10 @@ def add_tracking():
 
         return render_template('add_tracking.html', 
                                unused_conditions=unused_conditions,
-                               user_conditions=user_conditions)  
+                               user_conditions=user_conditions,
+                               symptoms=symptoms,
+                               counts=counts,
+                               values=values)  
     
     return redirect('/')
 
@@ -232,14 +239,14 @@ def get_condition_description():
     cond_id = request.args.get("cond_id")
 
     if cond_id:
-        cond_record = (db.session.query(Condition)
-                                 .filter(Condition.cond_id_pk==cond_id)
-                                 .first())
+        cond_record = (Condition.query
+                                .filter(Condition.cond_id_pk==cond_id)
+                                .first())
 
-        if cond_record:
+        if cond_record.cond_desc:
             return cond_record.cond_desc
 
-    return ("")    
+    return ("n/a")    
 
 @app.route('/add-user-condition', methods=['POST'])
 def add_user_condition():
@@ -254,13 +261,7 @@ def add_user_condition():
                        .filter(UserCondition.user_id==session['userid'])
                        .all())
 
-    # user_conditions = (db.session.query(UserCondition, Condition)
-    #                         .join(Condition)
-    #                         .filter(UserCondition.user_id==session['userid'])
-    #                         .all())
-
     for user_condition in user_conditions:
-        print(user_condition)
         if cond_id == user_condition.cond_id:
             return "Add condition failed"
 
@@ -270,6 +271,49 @@ def add_user_condition():
     db.session.add(new_condition)
     db.session.commit()
     return "Condition Added"
+
+@app.route('/get-symptom-desc', methods=['GET'])
+def get_symptom_description():
+    """Get description of symptom from database"""
+
+    symptom_id = request.args.get("symptom_id")
+
+    if symptom_id:
+        symptom_record = (Symptom.query
+                                 .filter(Symptom.symptom_id_pk==symptom_id)
+                                 .first())
+
+        if symptom_record.symptom_desc:
+            return symptom_record.symptom_desc
+
+    return ("n/a")    
+
+@app.route('/add-user-symptom', methods=['POST'])
+def add_user_symptom():
+    """Add new symptom to database for user to track"""
+
+    symptom_id = request.form.get("symptom_id")
+    usercond_id = request.form.get("usercond_id")
+
+    user_symptoms = (db.session
+                       .query(UserSymptom, UserCondition)
+                       .join(UserCondition)
+                       .filter(UserCondition.user_id==session['userid'])
+                       .all())
+
+    for user_symptom in user_symptoms:
+        print(user_symptom)
+        print(symptom_id)
+        print(type(symptom_id))
+        if int(symptom_id) == user_symptom.UserSymptom.symptom_id:
+            return "Add symptom failed - this symptom is already tracked"
+
+    new_symptom = UserSymptom(symptom_id=symptom_id,
+                              usercond_id=usercond_id)
+
+    db.session.add(new_symptom)
+    db.session.commit()
+    return "Symptom Added"
 
 @app.route('/get-user-symptom', methods=['GET'])
 def get_user_symptom():
@@ -408,60 +452,6 @@ def update_user_count_item():
 
 def user_tracked_info():
     """Query database for information user is tracking"""
-
-    # user = User.query.get(session['userid'])
-    # conds = {}
-    # for cond in user.user_conditions:
-    #     name = cond.condition.cond_name
-    #     conds[name]={}
-    #     conds[name]['symptoms'] = []
-    #     conds[name]['value_types'] = []
-    #     conds[name]['count_types'] = []
-    #     for usymptom in cond.user_symptoms:
-    #         conds[name]['symptoms'].append(usymptom.symptom.symptom_name)
-    #     for uvalue_type in cond.user_value_types:
-    #         conds[name]['value_types'].append(uvalue_type.value_type.value_name)
-    #     for ucount_type in cond.user_count_types:
-    #         conds[name]['count_types'].append(ucount_type.count_type.count_name)
-
-
-    # user = User.query.get(session['userid'])
-    # conds = {}
-
-    # for cond in user.user_conditions:
-
-    #     name = cond.condition.cond_name
-    #     conds[name]={}
-
-        # symptoms = (db.session.query(UserCondition.user_id, 
-        #                              Symptom.symptom_name,
-        #                              UserSymptom.usercond_id, 
-        #                              UserSymptom.user_symptom_id_pk, 
-        #                              UserSymptom.symptom_id)
-        #             .join(UserSymptom)
-        #             .join(Symptom)
-        #             .filter(UserCondition.usercond_id_pk==cond.usercond_id_pk)
-        #             .all())
-
-        # value_types = (db.session.query(UserCondition.user_id, 
-        #                                 ValueType.value_name,
-        #                                 UserValueType.usercond_id, 
-        #                                 UserValueType.user_value_id_pk, 
-        #                                 UserValueType.value_id)
-        #                .join(UserValueType)
-        #                .join(ValueType)
-        #                .filter(UserCondition.usercond_id_pk==cond.usercond_id_pk)
-        #                .all())
-
-        # count_types = (db.session.query(UserCondition.user_id, 
-        #                                 CountType.count_name,
-        #                                 UserCountType.usercond_id, 
-        #                                 UserCountType.user_count_id_pk, 
-        #                                 UserCountType.count_id)
-        #                .join(UserCountType)
-        #                .join(CountType)
-        #                .filter(UserCondition.usercond_id_pk==cond.usercond_id_pk)
-        #                .all())
 
     user = User.query.get(session['userid'])
     conds = {}

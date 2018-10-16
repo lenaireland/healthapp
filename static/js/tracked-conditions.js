@@ -17,6 +17,3 @@ $(document).ready(updateTrackedCondDesc);
 
 // event listener on change for add new condition button
 $("#user_condition_form").on("change", updateTrackedCondDesc);
-
-// event listener on submit for add new condition button
-// $("#new_condition_form").on("submit", addCondition);

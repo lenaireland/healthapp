@@ -33,10 +33,54 @@ OR
   </select>
   <p>Description:
   <span id="user_condition_desc"></span></p>
-  <input type="submit" id="user_condtion_submit">
+</form>
+
+<p><form id="user_symptom_form">
+  Choose a symptom to track:
+  <select id="symptoms">
+    {% for symptom in symptoms %}
+      <option value={{ symptom.symptom_id_pk }}>
+        {{ symptom.symptom_name}}
+      </option>
+    {% endfor %}
+  </select>
+  <p>Description:
+  <span id="symptom_desc"></span></p>
+  <input type="submit" id="user_symptom_submit">
+</form></p>
+
+<p><form id="user_value_form">
+  Choose a value item/test result to track:
+  <select id="values">
+    {% for value in values %}
+      <option value={{ value.value_id_pk }}>
+        {{ value.value_name}}
+      </option>
+    {% endfor %}
+  </select>
+  <p>Description:
+  <span id="value_desc"></span></p>
+  <input type="submit" id="user_value_submit">
+</form></p>
+
+<p><form id="user_count_form">
+  Choose a medication/count item to track:
+  <select id="counts">
+    {% for count in counts %}
+      <option value={{ count.count_id_pk }}>
+        {{ count.count_name}}
+      </option>
+    {% endfor %}
+  </select>
+  <p>Description:
+  <span id="count_desc"></span></p>
+  <input type="submit" id="user_count_submit">
 </form></p>
 
 <script src="/static/js/add-condition-tracking.js"></script>
-<script src="/static/js/add-item-tracking.js"></script>
+<script src="/static/js/tracked-conditions.js"></script>
+<script src="/static/js/add-symptom-tracking.js"></script>
+<script src="/static/js/add-value-tracking.js"></script>
+<script src="/static/js/add-count-tracking.js"></script>
 
 {% endblock %}
