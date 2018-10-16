@@ -315,6 +315,86 @@ def add_user_symptom():
     db.session.commit()
     return "Symptom Added"
 
+@app.route('/get-value-desc', methods=['GET'])
+def get_value_description():
+    """Get description of value item from database"""
+
+    value_id = request.args.get("value_id")
+
+    if value_id:
+        value_record = (ValueType.query
+                                 .filter(ValueType.value_id_pk==value_id)
+                                 .first())
+
+        if value_record.value_desc:
+            return value_record.value_desc
+
+    return ("n/a")    
+
+@app.route('/add-user-value', methods=['POST'])
+def add_user_value():
+    """Add new value to database for user to track"""
+
+    value_id = request.form.get("value_id")
+    usercond_id = request.form.get("usercond_id")
+
+    user_values = (db.session
+                       .query(UserValueType, UserCondition)
+                       .join(UserCondition)
+                       .filter(UserCondition.user_id==session['userid'])
+                       .all())
+
+    for user_value in user_values:
+        if int(value_id) == user_value.UserValueType.value_id:
+            return "Add value item failed - this value item is already tracked"
+
+    new_value = UserValueType(value_id=value_id,
+                              usercond_id=usercond_id)
+
+    db.session.add(new_value)
+    db.session.commit()
+    return "Value Item Added"
+
+@app.route('/get-count-desc', methods=['GET'])
+def get_count_description():
+    """Get description of count item from database"""
+
+    count_id = request.args.get("count_id")
+
+    if count_id:
+        count_record = (CountType.query
+                                 .filter(CountType.count_id_pk==count_id)
+                                 .first())
+
+        if count_record.count_desc:
+            return count_record.count_desc
+
+    return ("n/a")    
+
+@app.route('/add-user-count', methods=['POST'])
+def add_user_count():
+    """Add new count to database for user to track"""
+
+    count_id = request.form.get("count_id")
+    usercond_id = request.form.get("usercond_id")
+
+    user_counts = (db.session
+                       .query(UserCountType, UserCondition)
+                       .join(UserCondition)
+                       .filter(UserCondition.user_id==session['userid'])
+                       .all())
+
+    for user_count in user_counts:
+        if int(count_id) == user_count.UserCountType.count_id:
+            return "Add count item failed - this count item is already tracked"
+
+    new_count = UserCountType(count_id=count_id,
+                              usercond_id=usercond_id)
+
+    db.session.add(new_count)
+    db.session.commit()
+    return "Count Item Added"
+
 @app.route('/get-user-symptom', methods=['GET'])
 def get_user_symptom():
     """Get user symptom values from database"""
