@@ -21,8 +21,10 @@ function updateValueForms() {
 
     $.get('/get-user-value-item', dbInputs, function (results) {
       if (results !== "False") {
-        valueItem[0].value = parseFloat(results, 10);
-        valueItem[1].value = "Update Value";
+        if (results !== "None") {
+          valueItem[0].value = parseFloat(results, 10);
+          valueItem[1].value = "Update Value";
+        }
       }
     });
   }

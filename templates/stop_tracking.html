@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Health Tracker - Stop Tracking{% endblock %}
+
+{% block content %}
+
+<a href="/user/{{session['userid']}}">Return to daily log page</a>
+
+<p><br><form id="user_condition_form">
+  Choose a condition to stop tracking:
+  <select id="conditions">
+    {% for condition in user_conditions %}
+      <option value={{ condition.cond_id }}>
+        {{ condition.condition.cond_name}}
+      </option>
+    {% endfor %}
+  </select>
+  <input type="submit" id="user_condition_submit">
+</form></p><br>
+
+
+<p><form id="user_symptom_form">
+  Choose a symptom to stop tracking:
+  <select id="symptoms">
+    {% for symptom in symptoms %}
+      <option value={{ symptom.Symptom.symptom_id_pk }}>
+        {{ symptom.Symptom.symptom_name}}
+      </option>
+    {% endfor %}
+  </select>
+  <input type="submit" id="user_symptom_submit">
+</form></p>
+
+<p><form id="user_value_form">
+  Choose a value item/test to stop tracking:
+  <select id="values">
+    {% for value in values %}
+      <option value={{ value.ValueType.value_id_pk }}>
+        {{ value.ValueType.value_name}}
+      </option>
+    {% endfor %}
+  </select>
+  <input type="submit" id="user_value_submit">
+</form></p>
+
+<p><form id="user_count_form">
+  Choose a medication/count item to stop tracking:
+  <select id="counts">
+    {% for count in counts %}
+      <option value={{ count.CountType.count_id_pk }}>
+        {{ count.CountType.count_name}}
+      </option>
+    {% endfor %}
+  </select>
+  <input type="submit" id="user_count_submit">
+</form></p>
+
+{% endblock %}

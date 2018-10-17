@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import func
 
 from model import connect_to_db, db
-from model import User, UserCondition, Condition
+from model import User, UserLog, UserCondition, Condition
 from model import Symptom, UserSymptom, SymptomItem
 from model import ValueType, UserValueType, ValueItem
 from model import CountType, UserCountType, CountItem
@@ -232,6 +232,213 @@ def add_tracking():
     
     return redirect('/')
 
+@app.route('/stop-tracking')
+def stop_tracking():
+    """Remove condition/symptom/count/value items from tracking"""
+
+    if session.get('userid'):
+
+        user_conditions = user_tracked_conditions()
+
+        symptoms = []
+        values = []
+        counts = []
+
+        for cond in user_tracked_conditions():
+            symptoms += user_tracked_symptoms(cond)
+            values += user_tracked_value_types(cond)
+            counts += user_tracked_count_types(cond)
+
+        return render_template('stop_tracking.html', 
+                               user_conditions=user_conditions,
+                               symptoms=symptoms,
+                               counts=counts,
+                               values=values)  
+    
+    return redirect('/')
+
+# The next 8 routes are used from usermainpage.html and 
+# associated .js files to display tracked user symptoms and 
+# update values
+
+@app.route('/get-user-symptom', methods=['GET'])
+def get_user_symptom():
+    """Get user symptom values from database"""
+
+    symptom_id = request.args.get("symptom_id")
+    date = request.args.get("date")
+
+    datarecord = SymptomItem.query.filter(
+                    SymptomItem.user_symptom_id==symptom_id,
+                    func.date(SymptomItem.symptom_date)==date).first()
+
+    if datarecord:
+        value = datarecord.symptom_present
+        return str(value)
+
+    return "False" 
+
+@app.route('/update-user-symptom', methods=['POST'])
+def update_user_symptom():
+    """Process user symptoms"""
+
+    symptom_id = request.form.get("symptom_id")
+    date = request.form.get("date")
+    TF = request.form.get("TF")
+
+    datarecord = SymptomItem.query.filter(
+                    SymptomItem.user_symptom_id==symptom_id,
+                    func.date(SymptomItem.symptom_date)==date).first()
+
+    if datarecord:
+
+        # This string ('true') is coming from usemainpage.js
+        # UPDATE THIS STRING if JavaScript file changes!
+        if TF == 'true':
+            datarecord.symptom_present = True
+        else:
+            datarecord.symptom_present = False
+        db.session.commit()
+        return "Record Updated"
+
+    new_symptom = SymptomItem(symptom_date=date, 
+                symptom_present=bool(TF), 
+                user_symptom_id=symptom_id)
+
+    db.session.add(new_symptom)
+    db.session.commit()
+    return "Record Added"
+
+@app.route('/get-user-value-item', methods=['GET'])
+def get_user_valueitem():
+    """Get user value items from database"""
+
+    value_id = request.args.get("value_id")
+    date = request.args.get("date")
+
+    datarecord = ValueItem.query.filter(
+                    ValueItem.user_value_id==value_id,
+                    func.date(ValueItem.value_date)==date).first()
+
+    if datarecord:
+        value = datarecord.value
+        return str(value)
+
+    return "False" 
+
+@app.route('/update-user-value-item', methods=['POST'])
+def update_user_value_item():
+    """Process user value items"""
+
+    value_id = request.form.get("value_id")
+    date = request.form.get("date")
+    value = request.form.get("value")
+
+    if value=="":
+        value = None
+
+    datarecord = ValueItem.query.filter(
+                    ValueItem.user_value_id==value_id,
+                    func.date(ValueItem.value_date)==date).first()   
+
+    if datarecord: 
+        datarecord.value = value
+        db.session.commit()
+        return "Record Updated"
+
+    new_value = ValueItem(value_date=date,
+                          value=value,
+                          user_value_id=value_id)
+
+    db.session.add(new_value)
+    db.session.commit()
+    return "Record Added"
+
+@app.route('/get-user-count-item', methods=['GET'])
+def get_user_countitem():
+    """Get user count items from database"""
+
+    count_id = request.args.get("count_id")
+    date = request.args.get("date")
+
+    datarecord = CountItem.query.filter(
+                    CountItem.user_count_id==count_id,
+                    func.date(CountItem.count_date)==date).first()
+
+    if datarecord:
+        count = datarecord.count
+        return str(count)
+
+    return "False" 
+
+@app.route('/update-user-count-item', methods=['POST'])
+def update_user_count_item():
+    """Process user count items"""
+
+    count_id = request.form.get("count_id")
+    date = request.form.get("date")
+    count = request.form.get("count")
+
+    if count=="":
+        count = None
+
+    datarecord = CountItem.query.filter(
+                    CountItem.user_count_id==count_id,
+                    func.date(CountItem.count_date)==date).first()   
+                    
+    if datarecord: 
+        datarecord.count = count
+        db.session.commit()
+        return "Record Updated"
+
+    new_count = CountItem(count_date=date,
+                          count=count,
+                          user_count_id=count_id)
+
+    db.session.add(new_count)
+    db.session.commit()
+    return "Record Added"
+
+@app.route('/get-user-log', methods=['GET'])
+def get_user_log():
+    """Get user daily log from database"""
+
+    date = request.args.get("date")
+
+    datarecord = UserLog.query.filter(func.date(UserLog.log_date)==date).first()
+
+    if datarecord:
+        log_text = datarecord.log_text
+        return log_text
+
+    return "False"
+
+@app.route('/update-user-log', methods=['POST'])
+def update_user_log():
+    """Process user count items"""
+
+    date = request.form.get("date")
+    text = request.form.get("text")
+
+    datarecord = UserLog.query.filter(func.date(UserLog.log_date)==date).first()   
+                    
+    if datarecord: 
+        datarecord.log_text = text
+        db.session.commit()
+        return "Record Updated"
+
+    new_log = UserLog(log_date=date,
+                      log_text=text,
+                      user_id=session['userid'])
+
+    db.session.add(new_log)
+    db.session.commit()
+    return "Record Added"
+
+
+# The next 8 routes are used from add_tracking.html
+# and associated .js files to display and add new tracking
+
 @app.route('/get-condition-desc', methods=['GET'])
 def get_condition_description():
     """Get description of condition from database"""
@@ -302,9 +509,6 @@ def add_user_symptom():
                        .all())
 
     for user_symptom in user_symptoms:
-        print(user_symptom)
-        print(symptom_id)
-        print(type(symptom_id))
         if int(symptom_id) == user_symptom.UserSymptom.symptom_id:
             return "Add symptom failed - this symptom is already tracked"
 
@@ -395,172 +599,91 @@ def add_user_count():
     db.session.commit()
     return "Count Item Added"
 
-@app.route('/get-user-symptom', methods=['GET'])
-def get_user_symptom():
-    """Get user symptom values from database"""
 
-    symptom_id = request.args.get("symptom_id")
-    date = request.args.get("date")
-
-    datarecord = SymptomItem.query.filter(
-                    SymptomItem.user_symptom_id==symptom_id,
-                    func.date(SymptomItem.symptom_date)==date).first()
-
-    if datarecord:
-        value = datarecord.symptom_present
-        return str(value)
-
-    return "False" 
-
-@app.route('/update-user-symptom', methods=['POST'])
-def update_user_symptom():
-    """Process user symptoms"""
-
-    symptom_id = request.form.get("symptom_id")
-    date = request.form.get("date")
-    TF = request.form.get("TF")
-
-    datarecord = SymptomItem.query.filter(
-                    SymptomItem.user_symptom_id==symptom_id,
-                    func.date(SymptomItem.symptom_date)==date).first()
-
-    if datarecord:
-
-#########
-        # This string is coming from usemainpage.js
-        # UPDATE THIS STRING if JavaScript file changes!!!!!!!!!!!
-#########
-        if TF == 'true':
-            datarecord.symptom_present = True
-        else:
-            datarecord.symptom_present = False
-        db.session.commit()
-        return "Record Updated"
-
-    new_symptom = SymptomItem(symptom_date=date, 
-                symptom_present=bool(TF), 
-                user_symptom_id=symptom_id)
-
-    db.session.add(new_symptom)
-    db.session.commit()
-    return "Record Added"
-
-@app.route('/get-user-value-item', methods=['GET'])
-def get_user_valueitem():
-    """Get user value items from database"""
-
-    value_id = request.args.get("value_id")
-    date = request.args.get("date")
-
-    datarecord = ValueItem.query.filter(
-                    ValueItem.user_value_id==value_id,
-                    func.date(ValueItem.value_date)==date).first()
-
-    if datarecord:
-        value = datarecord.value
-        return str(value)
-
-    return "False" 
-
-@app.route('/update-user-value-item', methods=['POST'])
-def update_user_value_item():
-    """Process user value items"""
-
-    value_id = request.form.get("value_id")
-    date = request.form.get("date")
-    value = request.form.get("value")
-
-    datarecord = ValueItem.query.filter(
-                    ValueItem.user_value_id==value_id,
-                    func.date(ValueItem.value_date)==date).first()   
-                    
-    if datarecord: 
-        datarecord.value = value
-        db.session.commit()
-        return "Record Updated"
-
-    new_value = ValueItem(value_date=date,
-                          value=value,
-                          user_value_id=value_id)
-
-    db.session.add(new_value)
-    db.session.commit()
-    return "Record Added"
-
-@app.route('/get-user-count-item', methods=['GET'])
-def get_user_countitem():
-    """Get user count items from database"""
-
-    count_id = request.args.get("count_id")
-    date = request.args.get("date")
-
-    datarecord = CountItem.query.filter(
-                    CountItem.user_count_id==count_id,
-                    func.date(CountItem.count_date)==date).first()
-
-    if datarecord:
-        count = datarecord.count
-        return str(count)
-
-    return "False" 
-
-@app.route('/update-user-count-item', methods=['POST'])
-def update_user_count_item():
-    """Process user count items"""
-
-    count_id = request.form.get("count_id")
-    date = request.form.get("date")
-    count = request.form.get("count")
-
-    datarecord = CountItem.query.filter(
-                    CountItem.user_count_id==count_id,
-                    func.date(CountItem.count_date)==date).first()   
-                    
-    if datarecord: 
-        datarecord.count = count
-        db.session.commit()
-        return "Record Updated"
-
-    new_count = CountItem(count_date=date,
-                          count=count,
-                          user_count_id=count_id)
-
-    db.session.add(new_count)
-    db.session.commit()
-    return "Record Added"
-
+# helper functions
 
 def user_tracked_info():
     """Query database for information user is tracking"""
 
-    user = User.query.get(session['userid'])
     conds = {}
 
-    for cond in user.user_conditions:
+    for cond in user_tracked_conditions():
 
         name = cond.condition.cond_name
         conds[name]={}
 
-        symptoms = (db.session.query(UserSymptom, Symptom)
-                    .join(Symptom)
-                    .filter(UserSymptom.usercond_id==cond.usercond_id_pk)
-                    .all())
-
-        value_types = (db.session.query(UserValueType, ValueType)
-                       .join(ValueType)
-                       .filter(UserValueType.usercond_id==cond.usercond_id_pk)
-                       .all())
-
-        count_types = (db.session.query(UserCountType, CountType)
-                       .join(CountType)
-                       .filter(UserCountType.usercond_id==cond.usercond_id_pk)
-                       .all())
-
-        conds[name]['symptoms'] = symptoms
-        conds[name]['value_types'] = value_types
-        conds[name]['count_types'] = count_types
+        conds[name]['symptoms']=user_tracked_symptoms(cond)
+        conds[name]['value_types']=user_tracked_value_types(cond)
+        conds[name]['count_types']=user_tracked_count_types(cond)            
 
     return conds
+
+
+def user_tracked_conditions():
+    """Query database for conditions user is tracking"""
+
+    user_conditions = (db.session.query(UserCondition)
+              .filter(UserCondition.user_id==session['userid'])
+              .all())
+
+    cond_list = []
+
+    for cond in user_conditions:
+        if cond.is_tracked:
+            cond_list.append(cond)
+
+    return cond_list
+
+
+def user_tracked_symptoms(cond):
+    """Query database for symptoms user is tracking"""
+
+    symptoms = (db.session.query(UserSymptom, Symptom)
+                  .join(Symptom)
+                  .filter(UserSymptom.usercond_id==cond.usercond_id_pk)
+                  .all())
+
+    symptom_list = []
+
+    for symptom in symptoms:
+        if symptom.UserSymptom.is_tracked:
+            symptom_list.append(symptom)
+
+    return symptom_list
+
+
+def user_tracked_value_types(cond):
+    """Query database for value types user is tracking"""
+
+    value_types = (db.session.query(UserValueType, ValueType)
+                   .join(ValueType)
+                   .filter(UserValueType.usercond_id==cond.usercond_id_pk)
+                   .all())
+
+    value_list = []
+
+    for value in value_types:
+        if value.UserValueType.is_tracked:
+            value_list.append(value)
+
+    return value_list
+
+
+def user_tracked_count_types(cond):
+    """Query database for count types user is tracking"""
+
+    count_types = (db.session.query(UserCountType, CountType)
+                   .join(CountType)
+                   .filter(UserCountType.usercond_id==cond.usercond_id_pk)
+                   .all())
+
+    count_list = []
+
+    for count in count_types:
+        if count.UserCountType.is_tracked:
+            count_list.append(count)
+
+    return count_list
 
 
 ##############################################################################

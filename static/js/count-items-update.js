@@ -21,8 +21,10 @@ function updateCountForms() {
 
     $.get('/get-user-count-item', dbInputs, function (results) {
       if (results !== "False") {
-        countItem[0].value = parseInt(results, 10);
-        countItem[1].value = "Update";
+        if (results !== "None") {
+          countItem[0].value = parseInt(results, 10);
+          countItem[1].value = "Update";
+        }
       }
     });
   }

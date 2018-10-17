@@ -23,6 +23,7 @@ class User(db.Model):
 
     #Define relationships
     user_conditions=db.relationship("UserCondition")
+    user_logs = db.relationship("UserLog")
 
     def __repr__(self):
         """Provide helpful representation when printed."""
@@ -63,6 +64,7 @@ class UserCondition(db.Model):
     cond_id = db.Column(db.Integer, 
                         db.ForeignKey("conditions.cond_id_pk"), 
                         nullable=False)
+    is_tracked = db.Column(db.Boolean, nullable=False, default=True)
 
     # Define relationships
     user = db.relationship("User")
@@ -111,6 +113,7 @@ class UserSymptom(db.Model):
     usercond_id = db.Column(db.Integer, 
                             db.ForeignKey("user_conditions.usercond_id_pk"), 
                             nullable=False)
+    is_tracked = db.Column(db.Boolean, nullable=False, default=True)
 
     # Define relationships
     user_condition = db.relationship("UserCondition")
@@ -133,7 +136,7 @@ class SymptomItem(db.Model):
                                 autoincrement=True, 
                                 primary_key=True)
     symptom_date = db.Column(db.DateTime, nullable=False)
-    symptom_present = db.Column(db.Boolean, nullable=False)
+    symptom_present = db.Column(db.Boolean, nullable=True)
     user_symptom_id = db.Column(db.Integer, 
                             db.ForeignKey("user_symptoms.user_symptom_id_pk"), 
                             nullable=False)
@@ -144,13 +147,11 @@ class SymptomItem(db.Model):
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        return """<ID: {},
-                   DateTime: {},
-                   present? {},  
-                   user symp id={}>""".format(self.symptom_item_id,
-                                                 self.symptom_date,
-                                                 self.symptom_present, 
-                                                 self.user_symptom_id)
+        return ("<ID: {}, DateTime: {}, present? {}, user symp id={}>"
+                .format(self.symptom_item_id,
+                        self.symptom_date,
+                        self.symptom_present, 
+                        self.user_symptom_id))
 
 
 class ValueType(db.Model):
@@ -188,6 +189,7 @@ class UserValueType(db.Model):
     usercond_id = db.Column(db.Integer, 
                             db.ForeignKey("user_conditions.usercond_id_pk"), 
                             nullable=False)
+    is_tracked = db.Column(db.Boolean, nullable=False, default=True)
 
     # Define relationships
     user_condition = db.relationship("UserCondition")
@@ -210,7 +212,7 @@ class ValueItem(db.Model):
                                 autoincrement=True, 
                                 primary_key=True)
     value_date = db.Column(db.DateTime, nullable=False)
-    value = db.Column(db.Numeric, nullable=False)
+    value = db.Column(db.Numeric, nullable=True)
     user_value_id = db.Column(db.Integer, 
                               db.ForeignKey("user_value_types.user_value_id_pk"), 
                               nullable=False)
@@ -221,13 +223,11 @@ class ValueItem(db.Model):
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        return """<ID: {},
-                   DateTime:{}, 
-                   value= {}, 
-                   user value id={}>""".format(self.value_item_id,
-                                               self.value_date,
-                                               self.value, 
-                                               self.user_value_id)
+        return ("<ID: {}, DateTime:{}, value= {}, user value id={}>"
+                .format(self.value_item_id,
+                        self.value_date,
+                        self.value, 
+                        self.user_value_id))
 
 
 class CountType(db.Model):
@@ -265,6 +265,7 @@ class UserCountType(db.Model):
     usercond_id = db.Column(db.Integer, 
                             db.ForeignKey("user_conditions.usercond_id_pk"), 
                             nullable=False)
+    is_tracked = db.Column(db.Boolean, nullable=False, default=True)
 
     # Define relationships
     user_condition = db.relationship("UserCondition")
@@ -287,7 +288,7 @@ class CountItem(db.Model):
                                 autoincrement=True, 
                                 primary_key=True)
     count_date = db.Column(db.DateTime, nullable=False)
-    count = db.Column(db.Integer, nullable=False)
+    count = db.Column(db.Integer, nullable=True)
     user_count_id = db.Column(db.Integer, 
                             db.ForeignKey("user_count_types.user_count_id_pk"), 
                             nullable=False)
@@ -298,13 +299,36 @@ class CountItem(db.Model):
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        return """<ID: {},
-                   DateTime: {}, 
-                   count= {}, 
-                   user value id={}>""".format(self.count_item_id,
-                                               self.count_date,
-                                               self.count, 
-                                               self.user_value_id)
+        return ("<ID: {}, DateTime: {}, count= {}, user value id={}>"
+                .format(self.count_item_id,
+                        self.count_date,
+                        self.count, 
+                        self.user_count_id))
+
+class UserLog(db.Model):
+    """Daily notes logged by user"""
+
+    __tablename__ = "user_logs"
+
+    log_id = db.Column(db.Integer, 
+                       autoincrement=True, 
+                       primary_key=True)
+    log_date = db.Column(db.DateTime, nullable=False)
+    log_text = db.Column(db.String(400), nullable=True)
+    user_id = db.Column(db.Integer, 
+                        db.ForeignKey("users.user_id_pk"), 
+                        nullable=False)
+
+    # Define relationships
+    user = db.relationship("User")
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return ("<ID: {}, DateTime: {}, user id={}>"
+                .format(self.log_id,
+                        self.log_date, 
+                        self.user_id))
 
 
 ##############################################################################

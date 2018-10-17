@@ -35,7 +35,15 @@
   </p>
 
   <p>
-    <a href="/add-tracking">Add new condition/item to track</a>
+    <a href="/add-tracking">
+    Add new condition/item to track
+    </a>
+  </p>
+
+  <p>
+    <a href="/stop-tracking">
+    Select condition/item to stop tracking
+    </a>
   </p>
 
   {% for condition in info %}
@@ -78,8 +86,16 @@
 
   {% endfor %}
 
+  <p>Daily Log
+    <form name="dailylog" id="userlog {{ date.date() }}">
+      <textarea name="dailylogtext"></textarea>
+      <input type="submit" name="submit">
+    </form>
+  </p>
+
   <script src="/static/js/symptoms-update.js"></script>
   <script src="/static/js/value-items-update.js"></script>
   <script src="/static/js/count-items-update.js"></script>
+  <script src="/static/js/log-update.js"></script>
 
 {% endblock %}
