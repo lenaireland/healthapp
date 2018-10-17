@@ -435,7 +435,6 @@ def update_user_log():
     db.session.commit()
     return "Record Added"
 
-
 # The next 8 routes are used from add_tracking.html
 # and associated .js files to display and add new tracking
 
@@ -461,15 +460,17 @@ def add_user_condition():
 
     cond_id = request.form.get("cond_id")
 
-    ############
-    #Might not need this query and checking database if already tracked...
-    ###############
     user_conditions = (UserCondition.query
                        .filter(UserCondition.user_id==session['userid'])
                        .all())
 
     for user_condition in user_conditions:
-        if cond_id == user_condition.cond_id:
+        if int(cond_id) == user_condition.cond_id:
+
+            if user_condition.UserCondition.is_tracked==False:
+                user_condition.UserCondition.is_tracked = True
+                db.session.commit()
+                return "Condition is now tracked again"
             return "Add condition failed"
 
     new_condition = UserCondition(user_id=session['userid'],
@@ -503,13 +504,20 @@ def add_user_symptom():
     usercond_id = request.form.get("usercond_id")
 
     user_symptoms = (db.session
-                       .query(UserSymptom, UserCondition)
+                       .query(UserSymptom)
                        .join(UserCondition)
                        .filter(UserCondition.user_id==session['userid'])
                        .all())
 
     for user_symptom in user_symptoms:
-        if int(symptom_id) == user_symptom.UserSymptom.symptom_id:
+        if int(symptom_id) == user_symptom.symptom_id:
+
+            if user_symptom.is_tracked==False:
+                user_symptom.is_tracked = True
+                user_symptom.usercond_id = usercond_id
+                db.session.commit()
+                return "Symptom is now tracked again"
+
             return "Add symptom failed - this symptom is already tracked"
 
     new_symptom = UserSymptom(symptom_id=symptom_id,
@@ -543,13 +551,20 @@ def add_user_value():
     usercond_id = request.form.get("usercond_id")
 
     user_values = (db.session
-                       .query(UserValueType, UserCondition)
+                       .query(UserValueType)
                        .join(UserCondition)
                        .filter(UserCondition.user_id==session['userid'])
                        .all())
 
     for user_value in user_values:
-        if int(value_id) == user_value.UserValueType.value_id:
+        if int(value_id) == user_value.value_id:
+
+            if user_value.is_tracked==False:
+                user_value.is_tracked = True
+                user_value.UserValueType.usercond_id = usercond_id
+                db.session.commit()
+                return "Value item is now tracked again"
+
             return "Add value item failed - this value item is already tracked"
 
     new_value = UserValueType(value_id=value_id,
@@ -583,13 +598,20 @@ def add_user_count():
     usercond_id = request.form.get("usercond_id")
 
     user_counts = (db.session
-                       .query(UserCountType, UserCondition)
+                       .query(UserCountType)
                        .join(UserCondition)
                        .filter(UserCondition.user_id==session['userid'])
                        .all())
 
     for user_count in user_counts:
-        if int(count_id) == user_count.UserCountType.count_id:
+        if int(count_id) == user_count.count_id:
+
+            if user_count.is_tracked==False:
+                user_count.is_tracked = True
+                user_count.usercond_id = usercond_id
+                db.session.commit()
+                return "Count item is now tracked again"
+
             return "Add count item failed - this count item is already tracked"
 
     new_count = UserCountType(count_id=count_id,
@@ -598,6 +620,111 @@ def add_user_count():
     db.session.add(new_count)
     db.session.commit()
     return "Count Item Added"
+
+# The next 4 routes are used from stop_tracking.html
+# and associated .js files to stop tracking items
+
+@app.route('/stop-user-condition', methods=['POST'])
+def stop_tracking_user_condition():
+    """Stop tracking condition and associated data in database"""
+
+    cond_id = request.form.get("cond_id")
+
+    user_conditions = (UserCondition.query
+                       .filter(UserCondition.user_id==session['userid'])
+                       .all())
+
+    for user_condition in user_conditions:
+        if int(cond_id) == user_condition.cond_id:
+            user_condition.UserCondition.is_tracked = False
+
+            user_symptoms = (db.session.query(UserSymptom)
+                               .join(UserCondition)
+                               .filter((UserCondition.user_id==1), 
+                                       (UserSymptom.usercond_id==1))
+                               .all())
+            user_values = (db.session.query(UserValueType)
+                             .join(UserCondition)
+                             .filter((UserCondition.user_id==1), 
+                                     (UserValueType.usercond_id==1))
+                             .all())
+            user_counts = (db.session.query(UserCountType)
+                             .join(UserCondition)
+                             .filter((UserCondition.user_id==1), 
+                                     (UserCountType.usercond_id==1))
+                             .all())
+
+            for user_symptom in user_symptoms:
+                user_symptom.is_tracked = False
+            for user_value in user_values:
+                user_value.is_tracked = False
+            for user_count in user_counts:
+                user_count.is_tracked = False
+
+            db.session.commit()
+            return "Condition (and sub data) are no longer tracked"
+
+    return "Condition was not tracked - no change"
+
+@app.route('/stop-user-symptom', methods=['POST'])
+def stop_tracking_user_symptom():
+    """Stop tracking symptoms in database"""
+
+    symptom_id = request.form.get("symptom_id")
+
+    user_symptoms = (db.session
+                       .query(UserSymptom)
+                       .join(UserCondition)
+                       .filter(UserCondition.user_id==session['userid'])
+                       .all())
+
+    for user_symptom in user_symptoms:
+        if int(symptom_id) == user_symptom.symptom_id:
+            user_symptom.is_tracked = False
+            db.session.commit()
+            return "Symptom is no longer tracked"
+
+    return "Symptom was not tracked - no change"
+
+@app.route('/stop-user-value', methods=['POST'])
+def stop_tracking_user_value():
+    """Stop tracking value items in database"""
+
+    value_id = request.form.get("value_id")
+
+    user_values = (db.session
+                       .query(UserValueType)
+                       .join(UserCondition)
+                       .filter(UserCondition.user_id==session['userid'])
+                       .all())
+
+    for user_value in user_values:
+        if int(value_id) == user_value.value_id:
+            user_value.is_tracked = False
+            db.session.commit()
+            return "Value item is no longer tracked"
+
+    return "Value was not tracked - no change"
+
+@app.route('/stop-user-count', methods=['POST'])
+def stop_tracking_user_count():
+    """Stop tracking count items in database"""
+
+    count_id = request.form.get("count_id")
+
+    user_counts = (db.session
+                       .query(UserCountType)
+                       .join(UserCondition)
+                       .filter(UserCondition.user_id==session['userid'])
+                       .all())
+
+    for user_count in user_counts:
+        if int(count_id) == user_count.count_id:
+            user_count.is_tracked = False
+            db.session.commit()
+            return "Symptom is no longer tracked"
+
+    return "Symptom was not tracked - no change"
 
 
 # helper functions

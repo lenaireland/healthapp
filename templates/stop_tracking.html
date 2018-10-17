@@ -6,7 +6,7 @@
 
 <a href="/user/{{session['userid']}}">Return to daily log page</a>
 
-<p><br><form id="user_condition_form">
+<p><br><form id="user_condition_stop_form">
   Choose a condition to stop tracking:
   <select id="conditions">
     {% for condition in user_conditions %}
@@ -19,7 +19,7 @@
 </form></p><br>
 
 
-<p><form id="user_symptom_form">
+<p><form id="user_symptom_stop_form">
   Choose a symptom to stop tracking:
   <select id="symptoms">
     {% for symptom in symptoms %}
@@ -28,10 +28,10 @@
       </option>
     {% endfor %}
   </select>
-  <input type="submit" id="user_symptom_submit">
+  <input type="submit" id="user_symptom_submit" value="Stop Tracking">
 </form></p>
 
-<p><form id="user_value_form">
+<p><form id="user_value_stop_form">
   Choose a value item/test to stop tracking:
   <select id="values">
     {% for value in values %}
@@ -40,10 +40,10 @@
       </option>
     {% endfor %}
   </select>
-  <input type="submit" id="user_value_submit">
+  <input type="submit" id="user_value_submit" value="Stop Tracking">
 </form></p>
 
-<p><form id="user_count_form">
+<p><form id="user_count_stop_form">
   Choose a medication/count item to stop tracking:
   <select id="counts">
     {% for count in counts %}
@@ -52,7 +52,12 @@
       </option>
     {% endfor %}
   </select>
-  <input type="submit" id="user_count_submit">
+  <input type="submit" id="user_count_submit" value="Stop Tracking">
 </form></p>
+
+<script src="/static/js/stop-condition-tracking.js"></script>
+<script src="/static/js/stop-symptom-tracking.js"></script>
+<script src="/static/js/stop-value-tracking.js"></script>
+<script src="/static/js/stop-count-tracking.js"></script>
 
 {% endblock %}
