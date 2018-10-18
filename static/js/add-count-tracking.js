@@ -24,7 +24,7 @@ function addCount(evt) {
   $.post('/add-user-count', count, function (results) {
     console.log(results);
   });
-  // location.reload(true);
+  location.reload(true);
 }
 
 // event listener called when the DOM is ready

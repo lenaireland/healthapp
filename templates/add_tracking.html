@@ -38,7 +38,7 @@ OR
 <p><form id="user_symptom_form">
   Choose a symptom to track:
   <select id="symptoms">
-    {% for symptom in symptoms %}
+    {% for symptom in unused_symptoms %}
       <option value={{ symptom.symptom_id_pk }}>
         {{ symptom.symptom_name}}
       </option>
@@ -52,7 +52,7 @@ OR
 <p><form id="user_value_form">
   Choose a value item/test result to track:
   <select id="values">
-    {% for value in values %}
+    {% for value in unused_values %}
       <option value={{ value.value_id_pk }}>
         {{ value.value_name}}
       </option>
@@ -66,7 +66,7 @@ OR
 <p><form id="user_count_form">
   Choose a medication/count item to track:
   <select id="counts">
-    {% for count in counts %}
+    {% for count in unused_counts %}
       <option value={{ count.count_id_pk }}>
         {{ count.count_name}}
       </option>

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Health Tracker - Query{% endblock %}
+
+{% block content %}
+
+<a href="/user/{{session['userid']}}">Return to daily log page</a>
+
+<p><form id="user_symptom_query_form">
+  Choose a symptom to query on:
+  <select id="symptoms">
+    {% for symptom in symptoms %}
+      <option value={{ symptom.Symptom.symptom_id_pk }}>
+        {{ symptom.Symptom.symptom_name}}
+      </option>
+    {% endfor %}
+  </select>
+  <input type="submit" id="user_symptom_submit" value="Query">
+</form></p>
+
+<p><form id="user_value_query_form">
+  Choose a value item/test to query on:
+  <select id="values">
+    {% for value in values %}
+      <option value={{ value.ValueType.value_id_pk }}>
+        {{ value.ValueType.value_name}}
+      </option>
+    {% endfor %}
+  </select>
+  <input type="submit" id="user_value_submit" value="Query">
+</form></p>
+
+<p><form id="user_count_query_form">
+  Choose a medication/count item to query on:
+  <select id="counts">
+    {% for count in counts %}
+      <option value={{ count.CountType.count_id_pk }}>
+        {{ count.CountType.count_name}}
+      </option>
+    {% endfor %}
+  </select>
+  <input type="submit" id="user_count_submit" value="Query">
+</form></p>
+
+<script src="/static/js/query-symptom.js"></script>
+<script src="/static/js/query-value.js"></script>
+<script src="/static/js/query-count.js"></script>
+
+{% endblock %}

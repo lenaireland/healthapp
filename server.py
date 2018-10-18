@@ -208,27 +208,19 @@ def add_tracking():
 
     if session.get('userid'):
 
-        symptoms = Symptom.query.all()
-        values = ValueType.query.all()
-        counts = CountType.query.all()
+        user_conditions = user_tracked_conditions_name()
 
-        all_conditions = Condition.query.all()
-        user_conditions = (db.session.query(Condition)
-                            .join(UserCondition)
-                            .filter(UserCondition.user_id==session['userid'])
-                            .all())
-
-        unused_conditions = []
-        for condition in all_conditions:
-            if condition not in user_conditions:
-                unused_conditions.append(condition)
+        unused_conditions = user_not_tracked_conditions()
+        unused_symptoms = user_not_tracked_symptoms()
+        unused_values = user_not_tracked_value_types()
+        unused_counts = user_not_tracked_count_types()
 
         return render_template('add_tracking.html', 
                                unused_conditions=unused_conditions,
                                user_conditions=user_conditions,
-                               symptoms=symptoms,
-                               counts=counts,
-                               values=values)  
+                               unused_symptoms=unused_symptoms,
+                               unused_counts=unused_counts,
+                               unused_values=unused_values)  
     
     return redirect('/')
 
@@ -257,6 +249,31 @@ def stop_tracking():
     
     return redirect('/')
 
+@app.route('/query')
+def query_database():
+    """Query database to find correlations between tracked items"""
+
+    if session.get('userid'):
+
+        user_conditions = user_tracked_conditions()
+
+        symptoms = []
+        values = []
+        counts = []
+
+        for cond in user_tracked_conditions():
+            symptoms += user_tracked_symptoms(cond)
+            values += user_tracked_value_types(cond)
+            counts += user_tracked_count_types(cond)
+
+        return render_template('query.html', 
+                               user_conditions=user_conditions,
+                               symptoms=symptoms,
+                               counts=counts,
+                               values=values)
+
+    return redirect('/')
+
 # The next 8 routes are used from usermainpage.html and 
 # associated .js files to display tracked user symptoms and 
 # update values
@@ -268,9 +285,10 @@ def get_user_symptom():
     symptom_id = request.args.get("symptom_id")
     date = request.args.get("date")
 
-    datarecord = SymptomItem.query.filter(
-                    SymptomItem.user_symptom_id==symptom_id,
-                    func.date(SymptomItem.symptom_date)==date).first()
+    datarecord = (SymptomItem.query
+                             .filter(SymptomItem.user_symptom_id==symptom_id,
+                                     func.date(SymptomItem.symptom_date)==date)
+                             .first())
 
     if datarecord:
         value = datarecord.symptom_present
@@ -286,9 +304,10 @@ def update_user_symptom():
     date = request.form.get("date")
     TF = request.form.get("TF")
 
-    datarecord = SymptomItem.query.filter(
-                    SymptomItem.user_symptom_id==symptom_id,
-                    func.date(SymptomItem.symptom_date)==date).first()
+    datarecord = (SymptomItem.query
+                             .filter(SymptomItem.user_symptom_id==symptom_id,
+                                     func.date(SymptomItem.symptom_date)==date)
+                             .first())
 
     if datarecord:
 
@@ -316,9 +335,10 @@ def get_user_valueitem():
     value_id = request.args.get("value_id")
     date = request.args.get("date")
 
-    datarecord = ValueItem.query.filter(
-                    ValueItem.user_value_id==value_id,
-                    func.date(ValueItem.value_date)==date).first()
+    datarecord = (ValueItem.query
+                           .filter(ValueItem.user_value_id==value_id,
+                                   func.date(ValueItem.value_date)==date)
+                           .first())
 
     if datarecord:
         value = datarecord.value
@@ -337,9 +357,10 @@ def update_user_value_item():
     if value=="":
         value = None
 
-    datarecord = ValueItem.query.filter(
-                    ValueItem.user_value_id==value_id,
-                    func.date(ValueItem.value_date)==date).first()   
+    datarecord = (ValueItem.query
+                           .filter(ValueItem.user_value_id==value_id,
+                                   func.date(ValueItem.value_date)==date)
+                           .first())   
 
     if datarecord: 
         datarecord.value = value
@@ -361,9 +382,10 @@ def get_user_countitem():
     count_id = request.args.get("count_id")
     date = request.args.get("date")
 
-    datarecord = CountItem.query.filter(
-                    CountItem.user_count_id==count_id,
-                    func.date(CountItem.count_date)==date).first()
+    datarecord = (CountItem.query
+                           .filter(CountItem.user_count_id==count_id,
+                                   func.date(CountItem.count_date)==date)
+                           .first())
 
     if datarecord:
         count = datarecord.count
@@ -382,9 +404,10 @@ def update_user_count_item():
     if count=="":
         count = None
 
-    datarecord = CountItem.query.filter(
-                    CountItem.user_count_id==count_id,
-                    func.date(CountItem.count_date)==date).first()   
+    datarecord = (CountItem.query
+                           .filter(CountItem.user_count_id==count_id,
+                                   func.date(CountItem.count_date)==date)
+                           .first())   
                     
     if datarecord: 
         datarecord.count = count
@@ -467,8 +490,8 @@ def add_user_condition():
     for user_condition in user_conditions:
         if int(cond_id) == user_condition.cond_id:
 
-            if user_condition.UserCondition.is_tracked==False:
-                user_condition.UserCondition.is_tracked = True
+            if user_condition.is_tracked==False:
+                user_condition.is_tracked = True
                 db.session.commit()
                 return "Condition is now tracked again"
             return "Add condition failed"
@@ -561,7 +584,7 @@ def add_user_value():
 
             if user_value.is_tracked==False:
                 user_value.is_tracked = True
-                user_value.UserValueType.usercond_id = usercond_id
+                user_value.usercond_id = usercond_id
                 db.session.commit()
                 return "Value item is now tracked again"
 
@@ -636,22 +659,22 @@ def stop_tracking_user_condition():
 
     for user_condition in user_conditions:
         if int(cond_id) == user_condition.cond_id:
-            user_condition.UserCondition.is_tracked = False
+            user_condition.is_tracked = False
 
             user_symptoms = (db.session.query(UserSymptom)
-                               .join(UserCondition)
-                               .filter((UserCondition.user_id==1), 
-                                       (UserSymptom.usercond_id==1))
-                               .all())
+                             .join(UserCondition)
+                             .filter((UserCondition.user_id==session['userid']), 
+                                     (UserCondition.cond_id==cond_id))
+                             .all())
             user_values = (db.session.query(UserValueType)
                              .join(UserCondition)
-                             .filter((UserCondition.user_id==1), 
-                                     (UserValueType.usercond_id==1))
+                             .filter((UserCondition.user_id==session['userid']), 
+                                     (UserCondition.cond_id==cond_id))
                              .all())
             user_counts = (db.session.query(UserCountType)
                              .join(UserCondition)
-                             .filter((UserCondition.user_id==1), 
-                                     (UserCountType.usercond_id==1))
+                             .filter((UserCondition.user_id==session['userid']), 
+                                     (UserCondition.cond_id==cond_id))
                              .all())
 
             for user_symptom in user_symptoms:
@@ -726,8 +749,128 @@ def stop_tracking_user_count():
 
     return "Symptom was not tracked - no change"
 
+# The next 3 routes are used by query.html and associated js files
+# to query data and find correlations
 
-# helper functions
+@app.route('/query-user-symptom', methods=['GET'])
+def query_user_symptom():
+    """Query database for correlations with symptom data items"""
+
+    symptom_id = request.args.get("symptom_id")
+
+    user_symptom_logs = (db.session.query(SymptomItem)
+                                  .join(UserSymptom)
+                                  .join(Symptom)
+                                  .filter(Symptom.symptom_id_pk==symptom_id, 
+                                          SymptomItem.symptom_present==True)
+                                  .all())
+    dates = set()
+
+    for entry in user_symptom_logs:
+        dates.add(entry.symptom_date.date())
+
+    query_result = query_dates(dates)
+
+    return jsonify(query_result)
+
+@app.route('/query-user-value', methods=['GET'])
+def query_user_value():
+    """Query database for correlations with value type data items"""
+
+    value_id = request.args.get("value_id")
+
+    user_value_logs = (db.session.query(ValueItem)
+                                  .join(UserValueType)
+                                  .join(ValueType)
+                                  .filter(ValueType.value_id_pk==value_id, 
+                                          ValueItem.value > 0)
+                                  .all())
+    dates = set()
+
+    for entry in user_value_logs:
+        dates.add(entry.value_date.date())
+
+    query_result = query_dates(dates)
+
+    return jsonify(query_result)
+
+@app.route('/query-user-count', methods=['GET'])
+def query_user_count():
+    """Query database for correlations with count type data items"""
+
+    count_id = request.args.get("count_id")
+
+    user_count_logs = (db.session.query(CountItem)
+                                  .join(UserCountType)
+                                  .join(CountType)
+                                  .filter(CountType.count_id_pk==count_id, 
+                                          CountItem.count > 0)
+                                  .all())
+    dates = set()
+
+    for entry in user_count_logs:
+        dates.add(entry.count_date.date())
+
+    query_result = query_dates(dates)
+
+    return jsonify(query_result)
+
+
+# Helper functions
+
+def query_dates(dates):
+    """Query database for events that happened on given dates"""
+
+    user_symptoms = (db.session.query(UserSymptom)
+                     .join(UserCondition)
+                     .filter((UserCondition.user_id==session['userid']), 
+                             (UserSymptom.is_tracked==True))
+                     .all())
+    user_values = (db.session.query(UserValueType)
+                     .join(UserCondition)
+                     .filter((UserCondition.user_id==session['userid']), 
+                             (UserValueType.is_tracked==True))
+                     .all())
+    user_counts = (db.session.query(UserCountType)
+                     .join(UserCondition)
+                     .filter((UserCondition.user_id==session['userid']), 
+                             (UserCountType.is_tracked==True))
+                     .all())
+
+    query_result = {}
+
+    for symptom in user_symptoms:
+        name = symptom.symptom.symptom_name
+        query_result[name] = 0
+        for item in symptom.symptom_items:
+            if (
+                item.symptom_date.date() in dates and 
+                item.symptom_present == True
+                ):
+                query_result[name] += 1
+
+    for value in user_values:
+        name = value.value_type.value_name
+        query_result[name] = 0
+        for item in value.value_items:
+            if (
+                item.value_date.date() in dates and 
+                item.value > 0
+                ):
+                query_result[name] += 1    
+
+    for count in user_counts:
+        name = count.count_type.count_name
+        query_result[name] = 0
+        for item in count.count_items:
+            if (
+                item.count_date.date() in dates and 
+                item.count > 0
+                ):
+                query_result[name] += 1
+
+    return query_result
+
 
 def user_tracked_info():
     """Query database for information user is tracking"""
@@ -747,7 +890,7 @@ def user_tracked_info():
 
 
 def user_tracked_conditions():
-    """Query database for conditions user is tracking"""
+    """Query database for UserConditions user is tracking"""
 
     user_conditions = (db.session.query(UserCondition)
               .filter(UserCondition.user_id==session['userid'])
@@ -763,7 +906,7 @@ def user_tracked_conditions():
 
 
 def user_tracked_symptoms(cond):
-    """Query database for symptoms user is tracking"""
+    """Query database for symptoms user is tracking for given condition"""
 
     symptoms = (db.session.query(UserSymptom, Symptom)
                   .join(Symptom)
@@ -780,7 +923,7 @@ def user_tracked_symptoms(cond):
 
 
 def user_tracked_value_types(cond):
-    """Query database for value types user is tracking"""
+    """Query database for value types user is tracking for given condition"""
 
     value_types = (db.session.query(UserValueType, ValueType)
                    .join(ValueType)
@@ -797,7 +940,7 @@ def user_tracked_value_types(cond):
 
 
 def user_tracked_count_types(cond):
-    """Query database for count types user is tracking"""
+    """Query database for count types user is tracking for given condition"""
 
     count_types = (db.session.query(UserCountType, CountType)
                    .join(CountType)
@@ -811,6 +954,90 @@ def user_tracked_count_types(cond):
             count_list.append(count)
 
     return count_list
+
+
+def user_tracked_conditions_name():
+    """Condition objects user is tracking"""
+
+    user_conditions = (db.session.query(Condition)
+                         .join(UserCondition)
+                         .filter((UserCondition.user_id==session['userid']),
+                                 (UserCondition.is_tracked==True))
+                         .all())
+
+    return user_conditions  
+
+
+def user_not_tracked_conditions():
+    """Conditions user is not tracking"""
+
+    unused_conditions = []
+
+    all_conditions = Condition.query.all()
+    user_conditions = user_tracked_conditions_name()
+
+    for condition in all_conditions:
+        if condition not in user_conditions:
+            unused_conditions.append(condition)
+
+    return unused_conditions     
+
+
+def user_not_tracked_symptoms():
+    """Symptoms user is not tracking"""
+
+    unused_symptoms = []
+    all_symptoms = Symptom.query.all()
+    user_symptoms = (db.session.query(Symptom)
+                       .join(UserSymptom)
+                       .join(UserCondition)
+                       .filter((UserSymptom.is_tracked==True),
+                               (UserCondition.user_id==session['userid']))
+                       .all())
+
+    for symptom in all_symptoms:
+        if symptom not in user_symptoms:
+            unused_symptoms.append(symptom)
+
+    return unused_symptoms
+
+
+def user_not_tracked_value_types():
+    """Value types user is not tracking"""
+
+    unused_values = []
+    all_values = ValueType.query.all()
+    user_values = (db.session.query(ValueType)
+                     .join(UserValueType)
+                     .join(UserCondition)
+                     .filter((UserValueType.is_tracked==True),
+                             (UserCondition.user_id==session['userid']))
+                     .all())
+
+    for value in all_values:
+        if value not in user_values:
+            unused_values.append(value)    
+
+    return unused_values
+
+
+def user_not_tracked_count_types():
+    """Count types user is not tracking"""
+
+    unused_counts = []
+    all_counts = CountType.query.all()
+    user_counts = (db.session.query(CountType)
+                     .join(UserCountType)
+                     .join(UserCondition)
+                     .filter((UserCountType.is_tracked==True),
+                             (UserCondition.user_id==session['userid']))
+                     .all())
+
+    for count in all_counts:
+        if count not in user_counts:
+            unused_counts.append(count)
+
+    return unused_counts
 
 
 ##############################################################################

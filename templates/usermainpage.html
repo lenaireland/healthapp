@@ -35,14 +35,20 @@
   </p>
 
   <p>
+    <a href="/query">
+      Data Query
+    </a>
+  </p>
+
+  <p>
     <a href="/add-tracking">
-    Add new condition/item to track
+      Add new condition/item to track
     </a>
   </p>
 
   <p>
     <a href="/stop-tracking">
-    Select condition/item to stop tracking
+      Stop tracking condition/item
     </a>
   </p>
 
@@ -77,7 +83,7 @@
         <form name="countform" 
           id="usercount {{item.CountType.count_id_pk}} {{ date.date() }}">
         {{item.CountType.count_name}}
-          <input type="number" name="count">
+          <input type="number" name="count" min="0">
           <input type="submit" name="submit">
         </form>
       </p> 

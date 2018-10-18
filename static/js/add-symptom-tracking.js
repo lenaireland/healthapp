@@ -24,7 +24,7 @@ function addSymptom(evt) {
   $.post('/add-user-symptom', symptom, function (results) {
     console.log(results);
   });
-  // location.reload(true);
+  location.reload(true);
 }
 
 // event listener called when the DOM is ready
