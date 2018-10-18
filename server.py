@@ -752,7 +752,7 @@ def stop_tracking_user_count():
 # The next 3 routes are used by query.html and associated js files
 # to query data and find correlations
 
-@app.route('/query-user-symptom', methods=['GET'])
+@app.route('/query-user-symptom.json', methods=['GET'])
 def query_user_symptom():
     """Query database for correlations with symptom data items"""
 
@@ -771,9 +771,13 @@ def query_user_symptom():
 
     query_result = query_dates(dates)
 
-    return jsonify(query_result)
+    sorted_result = []
+    for item in sorted(query_result, key=query_result.get, reverse=True):
+        sorted_result.append((item, query_result[item]))
 
-@app.route('/query-user-value', methods=['GET'])
+    return jsonify(sorted_result)
+
+@app.route('/query-user-value.json', methods=['GET'])
 def query_user_value():
     """Query database for correlations with value type data items"""
 
@@ -792,9 +796,13 @@ def query_user_value():
 
     query_result = query_dates(dates)
 
-    return jsonify(query_result)
+    sorted_result = []
+    for item in sorted(query_result, key=query_result.get, reverse=True):
+        sorted_result.append((item, query_result[item]))
 
-@app.route('/query-user-count', methods=['GET'])
+    return jsonify(sorted_result)
+
+@app.route('/query-user-count.json', methods=['GET'])
 def query_user_count():
     """Query database for correlations with count type data items"""
 
@@ -813,7 +821,11 @@ def query_user_count():
 
     query_result = query_dates(dates)
 
-    return jsonify(query_result)
+    sorted_result = []
+    for item in sorted(query_result, key=query_result.get, reverse=True):
+        sorted_result.append((item, query_result[item]))
+
+    return jsonify(sorted_result)
 
 
 # Helper functions

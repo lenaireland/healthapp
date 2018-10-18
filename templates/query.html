@@ -10,8 +10,8 @@
   Choose a symptom to query on:
   <select id="symptoms">
     {% for symptom in symptoms %}
-      <option value={{ symptom.Symptom.symptom_id_pk }}>
-        {{ symptom.Symptom.symptom_name}}
+      <option value="{{ symptom.Symptom.symptom_name}} {{ symptom.Symptom.symptom_id_pk }}">
+        {{ symptom.Symptom.symptom_name }}
       </option>
     {% endfor %}
   </select>
@@ -22,8 +22,8 @@
   Choose a value item/test to query on:
   <select id="values">
     {% for value in values %}
-      <option value={{ value.ValueType.value_id_pk }}>
-        {{ value.ValueType.value_name}}
+      <option value="{{ value.ValueType.value_name }} {{ value.ValueType.value_id_pk }}">
+        {{ value.ValueType.value_name }}
       </option>
     {% endfor %}
   </select>
@@ -34,16 +34,31 @@
   Choose a medication/count item to query on:
   <select id="counts">
     {% for count in counts %}
-      <option value={{ count.CountType.count_id_pk }}>
-        {{ count.CountType.count_name}}
+      <option value="{{ count.CountType.count_name }} {{ count.CountType.count_id_pk }}">
+        {{ count.CountType.count_name }}
       </option>
     {% endfor %}
   </select>
   <input type="submit" id="user_count_submit" value="Query">
 </form></p>
 
-<div id="query_results">RESULTS HERE</div>
+<div id="query_results">
+  <h3 id="name"></h3>
+  <p id="nameResult"></p>
+  <h4 id="otherItems"></h4>
+  <p id="listOutput"></p>
+</div>
 
-<script src="/static/js/query.js"></script>
+<script src="/static/js/query.js"></script> 
+
+<!-- <script src="/static/js/query.js"></script> -->
+
+<!-- 
+<script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+
+<script src="http://unpkg.com/babel-standalone"></script>
+
+<script src="static/js/query.jsx" type="text/jsx"></script> -->
 
 {% endblock %}
