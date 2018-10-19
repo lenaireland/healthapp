@@ -357,6 +357,62 @@ def update_user_value_item():
     date = request.form.get("date")
     value = request.form.get("value")
 
+    return(update_value_item_db(value_id, date, value))
+
+@app.route('/update-airnow-item', methods=['POST'])
+def update_api_data():
+    """Update database with AirNOW API data"""
+
+    value_id = request.form.get("value_id")
+    date = request.form.get("date")
+
+    today=datetime.now().date()
+    distance = 200
+    
+    if session['userid']:
+        user = User.query.get(session['userid'])
+        zipcode = user.zipcode
+    else:
+        zipcode = ""
+
+    if date == str(today):
+        payload = {'format': "application/json",
+                   'zipCode': zipcode,
+                   'distance': distance,
+                   'API_KEY': AIRNOW
+                  }
+        url = 'http://www.airnowapi.org/aq/observation/zipCode/current'
+        response = requests.get(url, payload)
+        data = response.json()   
+    else:
+        # date=datetime.strptime(date, "%Y-%m-%d")
+        payload = {'format': "application/json",
+                   'zipCode': zipcode,
+                   'date': date+"T00-0000",
+                   'distance': distance,
+                   'API_KEY': AIRNOW
+                   }
+
+        url = 'http://www.airnowapi.org/aq/observation/zipCode/historical'
+        response = requests.get(url, payload)
+        data = response.json()
+
+    for item in data:
+        if (item['ParameterName'] == 'O3' or 
+            item['ParameterName'] == 'OZONE'):
+            value = item['AQI']
+
+    if value:
+        db_status = update_value_item_db(value_id, date, value)
+    else:
+        db_status = "Failed to create AQI record"
+
+    return jsonify([value, db_status])
+
+
+def update_value_item_db(value_id, date, value):
+    """Update database with new/updated value item"""
+
     if value=="":
         value = None
 
@@ -376,31 +432,8 @@ def update_user_value_item():
 
     db.session.add(new_value)
     db.session.commit()
-    return "Record Added"
 
-@app.route('/airnow-api', methods=['GET'])
-def get_api_data():
-    """Update database with AirNOW API data"""
-
-    value_id = request.args.get("value_id")
-    date = request.args.get("date")
-
-    #######FIX THIS TO LOOKUP!!!
-    zipcode = 95050
-    distance = 25
-
-    payload = {'format': "application/json",
-               'zipCode': zipcode,
-               'distance': distance,
-               'API_KEY': AIRNOW
-              }
-    url = 'http://www.airnowapi.org/aq/observation/zipCode/current'
-    response = requests.get(url, payload)
-    data = response.json()
-
-    print(data)
-
-    return "45"
+    return "Record Added"    
 
 @app.route('/get-user-count-item', methods=['GET'])
 def get_user_countitem():
