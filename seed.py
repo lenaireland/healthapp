@@ -146,7 +146,7 @@ def example_data():
     db.session.commit()
 
     value_types = [
-        ValueType(value_name="AQI", value_desc="Air Quality Index"),
+        ValueType(value_name="AQI", value_desc="Air Quality Index for Ozone"),
         ValueType(value_name="Hemoglobin Level"),
     ]
 

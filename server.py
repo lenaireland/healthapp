@@ -2,6 +2,7 @@
 """Health Tracker"""
 
 import os
+import requests
 from jinja2 import StrictUndefined
 
 from flask import Flask, render_template, redirect
@@ -22,6 +23,8 @@ app = Flask(__name__)
 
 # Required to use Flask sessions and the debug toolbar
 app.secret_key = os.environ['SECRET_KEY']
+
+AIRNOW = os.environ['AIRNOW_KEY']
 
 
 # Normally, if you use an undefined variable in Jinja2, it fails
@@ -274,7 +277,7 @@ def query_database():
 
     return redirect('/')
 
-# The next 8 routes are used from usermainpage.html and 
+# The next 9 routes are used from usermainpage.html and 
 # associated .js files to display tracked user symptoms and 
 # update values
 
@@ -374,6 +377,29 @@ def update_user_value_item():
     db.session.add(new_value)
     db.session.commit()
     return "Record Added"
+
+@app.route('/airnow-api', methods=['GET'])
+def get_api_data():
+    """Update database with AirNOW API data"""
+
+    value_id = request.args.get("value_id")
+    date = request.args.get("date")
+
+    #######FIX THIS TO LOOKUP!!!
+    zipcode = 95050
+    distance = 25
+
+    payload = {'zipCode': zipcode,
+               'distance': distance,
+               'API_KEY': AIRNOW
+              }
+    url = 'http://www.airnowapi.org/aq/observation/zipCode/current/?format=application/json'
+    response = requests.get(url, payload)
+    data = response.json()
+
+    print(data)
+
+    return 45
 
 @app.route('/get-user-count-item', methods=['GET'])
 def get_user_countitem():
