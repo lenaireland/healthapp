@@ -389,17 +389,18 @@ def get_api_data():
     zipcode = 95050
     distance = 25
 
-    payload = {'zipCode': zipcode,
+    payload = {'format': "application/json",
+               'zipCode': zipcode,
                'distance': distance,
                'API_KEY': AIRNOW
               }
-    url = 'http://www.airnowapi.org/aq/observation/zipCode/current/?format=application/json'
+    url = 'http://www.airnowapi.org/aq/observation/zipCode/current'
     response = requests.get(url, payload)
     data = response.json()
 
     print(data)
 
-    return 45
+    return "45"
 
 @app.route('/get-user-count-item', methods=['GET'])
 def get_user_countitem():

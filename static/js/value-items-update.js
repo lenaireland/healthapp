@@ -20,7 +20,7 @@ function updateValueForms() {
     let dbInputs = getValueParams(valueId);
     let valueType = valueItem.innerText.split(" ")[0];
 
-    if (valueType === "AQI:") {
+    if (valueType === "AQI") {
       valueItem[1].value = "Get AirNOW AQI data";
     }
 
@@ -28,7 +28,11 @@ function updateValueForms() {
       if (results !== "False") {
         if (results !== "None") {
           valueItem[0].value = parseFloat(results, 10);
-          valueItem[1].value = "Update Value";
+          if (valueType === "AQI") {
+            valueItem[1].value = "Get AirNOW AQI data";
+          } else {
+            valueItem[1].value = "Update Value";
+          }
         }
       }
     });
@@ -44,7 +48,8 @@ function updateValue(evt) {
 
   const dbInputs = getValueParams(valueId);
 
-  if (valueType === "AQI:") {
+  if (valueType === "AQI") {
+    console.log('got here')
     $.get('/airnow-api', dbInputs, function (results) {
       console.log(results);
       dbInputs.value = results;
