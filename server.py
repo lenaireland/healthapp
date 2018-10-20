@@ -365,15 +365,17 @@ def update_api_data():
 
     value_id = request.form.get("value_id")
     date = request.form.get("date")
+    zipcode = request.form.get("zipcode")
+
+    if not zipcode:
+        if session['userid']:
+            user = User.query.get(session['userid'])
+            zipcode = user.zipcode
+        else:
+            zipcode = ""
 
     today=datetime.now().date()
     distance = 200
-    
-    if session['userid']:
-        user = User.query.get(session['userid'])
-        zipcode = user.zipcode
-    else:
-        zipcode = ""
 
     if date == str(today):
         payload = {'format': "application/json",

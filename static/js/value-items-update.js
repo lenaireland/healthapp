@@ -43,15 +43,26 @@ function updateValue(evt) {
   evt.preventDefault();
   const valueId = evt.currentTarget.id;
   const valueType = evt.currentTarget.innerText.split(" ")[0];
-  const dbInputs = getValueParams(valueId);
 
-  if (valueType === "AQI") {
-    $.post('/update-airnow-item', dbInputs, function (results) {
-      console.log(results);
-      evt.currentTarget.value.value = results[0];
-      evt.currentTarget.submit.value = "Get AirNOW AQI Data";
-    });
-  } else {
+  // const dbInputs = getValueParams(valueId);
+  //
+  // if (valueType === "AQI") {
+  //   $.post('/update-airnow-item', dbInputs, function (results) {
+  //     console.log(results);
+  //     evt.currentTarget.value.value = results[0];
+  //     evt.currentTarget.submit.value = "Get AirNOW AQI Data";
+  //   });
+  // } else {
+  //   let value = evt.currentTarget.value.value;
+  //   dbInputs.value = value;
+  //   $.post('/update-user-value-item', dbInputs, function (results) {
+  //     console.log(results);
+  //     evt.currentTarget.submit.value = "Update";
+  //   });
+  // }
+
+  if (valueType !== "AQI") {
+    const dbInputs = getValueParams(valueId);
     let value = evt.currentTarget.value.value;
     dbInputs.value = value;
     $.post('/update-user-value-item', dbInputs, function (results) {
@@ -61,8 +72,59 @@ function updateValue(evt) {
   }
 }
 
+function defaultZip(evt) {
+  evt.preventDefault();
+  const target = evt.currentTarget;
+  console.log(target);
+
+  const valueForms = $("form[name='valueform']").get();
+
+  for (let valueItem of valueForms) {
+    let valueId = valueItem.id;
+    let valueType = valueItem.innerText.split(" ")[0];
+
+    if (valueType === "AQI") {
+      const dbInputs = getValueParams(valueId);
+      $.post('/update-airnow-item', dbInputs, function (results) {
+        console.log(results);
+        valueItem.value.value = results[0];
+        valueItem.submit.value = "Get AirNOW AQI Data";
+      });
+    }
+  }
+}
+
+function newZip(evt) {
+  evt.preventDefault();
+  const target = evt.currentTarget;
+  console.log(target);
+  console.log(target.newzip.value);
+
+  const valueForms = $("form[name='valueform']").get();
+
+  for (let valueItem of valueForms) {
+    let valueId = valueItem.id;
+    let valueType = valueItem.innerText.split(" ")[0];
+
+    if (valueType === "AQI") {
+      let dbInputs = getValueParams(valueId);
+      dbInputs.zipcode = target.newzip.value;
+      $.post('/update-airnow-item', dbInputs, function (results) {
+        console.log(results);
+        valueItem.value.value = results[0];
+        valueItem.submit.value = "Get AirNOW AQI Data";
+      });
+    }
+  }
+}
+
+
 // event listener called when the DOM is ready
 $(document).ready(updateValueForms);
 
 // event listener on click for any value form
 $("form[name='valueform']").on("submit", updateValue);
+
+$("#default-zip").on("click", defaultZip);
+
+$("form[name='zip-form']").on("submit", newZip);

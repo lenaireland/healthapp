@@ -68,12 +68,21 @@
 
     {% for item in info[condition]['value_types'] %}
       <p>
-        <form name="valueform" 
-          id="uservalue {{item.ValueType.value_id_pk}} {{ date.date() }}">
-        {{item.ValueType.value_name}}
-          <input type="text" name="value">
-          <input type="submit" name="submit">
-        </form>
+        {% if item.ValueType.value_name == "AQI" %}
+          <form name="valueform" data-toggle="modal" data-target="#exampleModal"
+            id="uservalue {{item.ValueType.value_id_pk}} {{ date.date() }}">
+          {{item.ValueType.value_name}}
+            <input type="text" name="value">
+            <input type="submit" name="submit" class="btn btn-primary">
+          </form>
+        {% else %}
+          <form name="valueform" 
+            id="uservalue {{item.ValueType.value_id_pk}} {{ date.date() }}">
+          {{item.ValueType.value_name}}
+            <input type="text" name="value">
+            <input type="submit" name="submit" class="btn btn-primary">
+          </form>
+        {% endif %}        
       </p> 
     {% endfor %}
     -----------
@@ -84,7 +93,7 @@
           id="usercount {{item.CountType.count_id_pk}} {{ date.date() }}">
         {{item.CountType.count_name}}
           <input type="number" name="count" min="0">
-          <input type="submit" name="submit">
+          <input type="submit" name="submit" class="btn btn-primary">
         </form>
       </p> 
     {% endfor %}
@@ -95,9 +104,38 @@
   <p>Daily Log
     <form name="dailylog" id="userlog {{ date.date() }}">
       <textarea name="dailylogtext"></textarea>
-      <input type="submit" name="submit">
+      <input type="submit" name="submit" class="btn btn-primary">
     </form>
   </p>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Get AirNOW AQI Data</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Do you want to use your default zipcode to get the Air Quality Index or enter another zipcode (US ONLY)?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="default-zip">Default Zipcode</button>
+      </div>
+      <div class="modal-footer">
+        <form name="zip-form">
+        Enter 5-digit zip
+          <input type="text" name="newzip">
+          <input type="submit" name="submit" class="btn btn-primary">
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
   <script src="/static/js/symptoms-update.js"></script>
   <script src="/static/js/value-items-update.js"></script>
