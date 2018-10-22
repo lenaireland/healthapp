@@ -1,8 +1,8 @@
 
 """Health Tracker"""
 
-import os
-import requests
+import os, requests, hashlib, base64
+
 from jinja2 import StrictUndefined
 
 from flask import Flask, render_template, redirect
@@ -38,14 +38,9 @@ app.jinja_env.undefined = StrictUndefined
 
 @app.route('/')
 def index():
-    """Homepage - show login/register form"""
+    """Homepage - show information about project - take to login"""
 
-    # if user is already logged in, take to personal page
-    if session.get('userid'):
-        return redirect('/user/{}'.format(session['userid']))
-
-    # if not logged in, show login/register form
-    return render_template('login_form.html')
+    return render_template('homepage.html')
 
 @app.route('/login', methods=['GET'])
 def login_form():
@@ -57,8 +52,8 @@ def login_form():
 
         return redirect('/user/{}'.format(session['userid']))
 
-    # if not logged in, go to '/' route to login/register
-    return redirect('/') 
+    # if not logged in, show login/register form
+    return render_template('login_form.html')
 
 @app.route('/process-login', methods=['POST'])
 def login_process():
@@ -72,7 +67,10 @@ def login_process():
 
     # if user email exists and password matches, login
     if user:
-        if password == user.password:
+        hashed = hashlib.sha512(password.encode() + user.salt.encode())
+        hashed_str = base64.urlsafe_b64encode(hashed.digest()).decode()
+
+        if hashed_str == user.passhash:
             session['userid']=user.user_id_pk
             flash('Log in successful')
             return redirect('/user/{}'.format(session['userid']))
@@ -91,7 +89,7 @@ def register_form():
         return redirect('/user/{}'.format(session['userid']))
 
     # if not logged in, go to '/' route to login/register
-    return redirect('/')
+    return redirect('/login')
 
 @app.route('/process-register', methods=['POST'])
 def register_process():
@@ -106,11 +104,18 @@ def register_process():
     # if there is a user in database that matches email redirect to '/'    
     if user:
         flash('Account already exists. Please login.')
-        return redirect('/')
+        return redirect('/login')
 
-    # if email is not already in database, create new instance of User
-    # class, add to database, login user, and take to settings page
-    new_user = User(email=email, password=password)
+    # if email is not already in database, create salt and hashed password, 
+    # create new instance of User class, add to database, 
+    # login user, and take to settings page
+    salt = base64.urlsafe_b64encode(os.urandom(16))
+    salt_str = salt.decode()
+    hashed = hashlib.sha512(password.encode() + salt)
+    hashed_str = base64.urlsafe_b64encode(hashed.digest()).decode()
+
+
+    new_user = User(email=email, salt=salt_str, passhash=hashed_str)
     db.session.add(new_user)
     db.session.commit()
 
@@ -131,7 +136,7 @@ def user_settings():
 
     else:
         flash('Not logged in')
-        return redirect('/')
+        return redirect('/login')
 
 @app.route('/process-settings', methods=['POST'])
 def process_user_settings():
@@ -170,7 +175,7 @@ def logout():
         session.pop('userid')
         flash('Logged out.')
     
-    return redirect('/')
+    return redirect('/login')
 
 @app.route('/user/<userid>', defaults={'date': None})
 @app.route('/user/<userid>/<date>')
@@ -203,7 +208,7 @@ def user_day_page(userid, date):
         return redirect('/user/{}'.format(session['userid']))
 
     flash('You do not have permission to view this page.')
-    return redirect('/')
+    return redirect('/login')
 
 @app.route('/add-tracking')
 def add_tracking():
@@ -225,7 +230,7 @@ def add_tracking():
                                unused_counts=unused_counts,
                                unused_values=unused_values)  
     
-    return redirect('/')
+    return redirect('/login')
 
 @app.route('/stop-tracking')
 def stop_tracking():
@@ -250,7 +255,7 @@ def stop_tracking():
                                counts=counts,
                                values=values)  
     
-    return redirect('/')
+    return redirect('/login')
 
 @app.route('/query')
 def query_database():
@@ -275,7 +280,7 @@ def query_database():
                                counts=counts,
                                values=values)
 
-    return redirect('/')
+    return redirect('/login')
 
 # The next 9 routes are used from usermainpage.html and 
 # associated .js files to display tracked user symptoms and 

@@ -16,19 +16,22 @@ def example_data():
     """Create some sample data."""
 
     users = [
-        User(email="hi@gmail.com", 
-             password="123456", 
+        User(email="hi@gmail.com",
+             salt="8UPqDHq-TOu0tePXZ3C-bQ==",
+             passhash="0w-70sS0QiKYQRxZdmADy-YhtDddH_4terPniZWx5sVNeBXxbJs_XqQ-RDVerrt1lL9v-N27CRvvIWHjNV4Qsw==", 
              fname="Bob", 
              lname="Bee", 
              zipcode="94030",
              is_superuser=True),
         User(email="hello@gmail.com", 
-             password="123456", 
+             salt="rpvcyXoYS3ShQfylIUo5tg==", 
+             passhash="Df90oQ0fKPIMyQ1-RtXrcGf7BZmkq4W6zGnB8KVmCuzuattfo7Gfy4zHjvIaYeGlTUtcc-RcxPLqro75i-SH7w==", 
              fname="Patty", 
              lname="Pi", 
              zipcode="02738"),
         User(email="howdy@gmail.com",
-             password="123456",
+             salt="xXa-CJbrQoKjq2WweH3ztg==", 
+             passhash="CN0dRpLS6ZhNLw8UPw9-oRfjJfjgwMgzXXDyjVXIF1-pV-_WeClc0q68LQzYgEWzI5Q4M-iS_Q4wT4f7kpfMnQ==",
              fname="Al",
              lname="Aboard",
              zipcode="63038")
