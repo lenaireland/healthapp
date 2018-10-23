@@ -76,7 +76,7 @@ def login_process():
             return redirect('/user/{}'.format(session['userid']))
 
     flash('Login Failed')
-    return redirect('/')
+    return redirect('/login')
 
 @app.route('/register', methods=['GET'])
 def register_form():
@@ -88,7 +88,7 @@ def register_form():
 
         return redirect('/user/{}'.format(session['userid']))
 
-    # if not logged in, go to '/' route to login/register
+    # if not logged in, go to '/login' route to login/register
     return redirect('/login')
 
 @app.route('/process-register', methods=['POST'])
@@ -101,7 +101,7 @@ def register_process():
 
     user = User.query.filter(User.email == email).first()
 
-    # if there is a user in database that matches email redirect to '/'    
+    # if there is a user in database that matches email redirect to '/login'    
     if user:
         flash('Account already exists. Please login.')
         return redirect('/login')
@@ -148,12 +148,11 @@ def process_user_settings():
 
     # check that e-mail does not yet exist in the system
     for user_email in db.session.query(User.email).all():
-        if email == user_email[0]:
+        if email == user_email[0] and email != user.email:
             flash('Error - this email is already in the system')
             return redirect('/settings')
 
     user.email = email
-    user.password = request.form.get('password')
     user.fname = request.form.get('fname')
     user.lname = request.form.get('lname')
     user.zipcode = request.form.get('zipcode')
@@ -166,6 +165,33 @@ def process_user_settings():
 # MAKE THIS A MODAL
 #######
     return redirect('/settings')
+
+@app.route('/update-password', methods=['POST'])
+def update_user_password():
+    """Update user password"""
+
+    user=User.query.get(session['userid'])
+
+    current_password = request.form.get('currentPassword')
+    new_password = request.form.get('newPassword')
+    new_password_2 = request.form.get('newPassword2')  
+
+    curr_hashed = hashlib.sha512(current_password.encode() + user.salt.encode())
+    curr_hash_str = base64.urlsafe_b64encode(curr_hashed.digest()).decode()
+
+    if curr_hash_str == user.passhash:
+        if new_password == new_password_2:
+            salt = base64.urlsafe_b64encode(os.urandom(16))
+            salt_str = salt.decode()
+            hashed = hashlib.sha512(new_password.encode() + salt)
+            hashed_str = base64.urlsafe_b64encode(hashed.digest()).decode()
+
+            user.salt = salt_str
+            user.passhash = hashed_str
+
+            return ("Password Updated")
+        return ("New passwords do not match")
+    return ("Current password does not match")
 
 @app.route('/logout')
 def logout():

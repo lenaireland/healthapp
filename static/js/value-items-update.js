@@ -44,32 +44,13 @@ function updateValue(evt) {
   const valueId = evt.currentTarget.id;
   const valueType = evt.currentTarget.innerText.split(" ")[0];
 
-  // const dbInputs = getValueParams(valueId);
-  //
-  // if (valueType === "AQI") {
-  //   $.post('/update-airnow-item', dbInputs, function (results) {
-  //     console.log(results);
-  //     evt.currentTarget.value.value = results[0];
-  //     evt.currentTarget.submit.value = "Get AirNOW AQI Data";
-  //   });
-  // } else {
-  //   let value = evt.currentTarget.value.value;
-  //   dbInputs.value = value;
-  //   $.post('/update-user-value-item', dbInputs, function (results) {
-  //     console.log(results);
-  //     evt.currentTarget.submit.value = "Update";
-  //   });
-  // }
-
-  if (valueType !== "AQI") {
-    const dbInputs = getValueParams(valueId);
-    let value = evt.currentTarget.value.value;
-    dbInputs.value = value;
-    $.post('/update-user-value-item', dbInputs, function (results) {
-      console.log(results);
-      evt.currentTarget.submit.value = "Update";
-    });
-  }
+  const dbInputs = getValueParams(valueId);
+  let value = evt.currentTarget.value.value;
+  dbInputs.value = value;
+  $.post('/update-user-value-item', dbInputs, function (results) {
+    console.log(results);
+    evt.currentTarget.submit.value = "Update";
+  });
 }
 
 function defaultZip(evt) {
@@ -92,6 +73,7 @@ function defaultZip(evt) {
       });
     }
   }
+  $("#AQIModal").modal('toggle');
 }
 
 function newZip(evt) {
@@ -116,6 +98,7 @@ function newZip(evt) {
       });
     }
   }
+  $("#AQIModal").modal('toggle');
 }
 
 
