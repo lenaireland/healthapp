@@ -1,6 +1,8 @@
 """Tests for Health Tracking Flask app."""
 
-import os, hashlib, base64
+import os, hashlib, base64, json
+import AirNOW_mock
+import server
 
 from unittest import TestCase
 from server import app
@@ -305,7 +307,7 @@ class LoggedInTestsDatabase(TestCase):
 
         # Create tables and add sample data
         db.create_all()
-        example_data()
+        example_data()            
 
     def tearDown(self):
         """Do at end of every test."""
@@ -627,6 +629,204 @@ class LoggedInTestsDatabase(TestCase):
 
             self.assertEqual(b"Record Added", result.data)
             self.assertEqual(None, datarecord.value)
+
+    def test_update_user_count_item(self):
+        """Test update user count item in database"""
+
+        user_count_id = 3
+        date = "2018-10-07"
+        count = 3
+
+        with self.client as c:
+            result = c.post('/update-user-count-item',
+                   data={"user_count_id": user_count_id, 
+                         "date": date,
+                         "count": count})
+
+            datarecord = (CountItem.query
+                          .filter(CountItem.user_count_id==user_count_id,
+                                  func.date(CountItem.count_date)==date)
+                          .one())
+
+            self.assertEqual(b"Record Updated", result.data)
+            self.assertEqual(count, datarecord.count)
+
+    def test_update_user_count_item_add(self):
+        """Test add user count item in database"""
+
+        user_count_id = 3
+        date = "2018-09-07"
+        count = 5
+
+        with self.client as c:
+            result = c.post('/update-user-count-item',
+                   data={"user_count_id": user_count_id, 
+                         "date": date,
+                         "count": count})
+
+            datarecord = (CountItem.query
+                          .filter(CountItem.user_count_id==user_count_id,
+                                  func.date(CountItem.count_date)==date)
+                          .one())
+
+            self.assertEqual(b"Record Added", result.data)
+            self.assertEqual(count, datarecord.count)
+
+
+class LoggedInTestsDatabaseAPI(TestCase):
+    """Tests for when a user is logged in."""
+
+    def setUp(self):
+        """Before every test"""
+
+        app.config['TESTING'] = True
+        app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
+        self.client = app.test_client()
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['userid'] = 2
+
+        # Connect to test database
+        connect_to_db(app, 'postgresql:///testdb')
+
+        # Drop all tables first
+        db.drop_all()
+
+        # Create tables and add sample data
+        db.create_all()
+        example_data()
+
+        def _mock_get_airnow_data(url, payload):
+            if payload.get('date'):
+                if payload['zipCode'] == "02738":
+                    return AirNOW_mock.previous_02738
+                elif payload['zipCode'] == "94030":
+                    return AirNOW_mock.previous_94030
+                else:
+                    return AirNOW_mock.bad_zip
+            else:
+                if payload['zipCode'] == "02738":
+                    return AirNOW_mock.current_02738
+                elif payload['zipCode'] == "94030":
+                    return AirNOW_mock.current_94030
+                else:
+                    return AirNOW_mock.bad_zip
+
+        server.get_airnow_data = _mock_get_airnow_data            
+
+    def tearDown(self):
+        """Do at end of every test."""
+
+        db.session.remove()
+        db.drop_all()
+        db.engine.dispose()
+
+    def test_airnow_api_add(self):
+        """Test airnow api logic"""
+
+        user_value_id = 2
+        date = "2018-10-24"
+        zipcode = "94030"
+
+        with self.client as c:
+            result = c.post('/update-airnow-item',
+                       data={"user_value_id": user_value_id, 
+                             "date": date,
+                             "zipcode": zipcode})
+
+            r = json.loads(result.data.decode())
+
+            datarecord = (ValueItem.query
+                          .filter(ValueItem.user_value_id==user_value_id,
+                                  func.date(ValueItem.value_date)==date)
+                          .one())
+
+            self.assertEqual(datarecord.value, r[0])
+            self.assertEqual("Record Added", r[1])
+
+    def test_airnow_api_update(self):
+        """Test airnow api logic"""
+
+        user_value_id = 2
+        date = "2018-10-01"
+        zipcode = "94030"
+
+        with self.client as c:
+            result = c.post('/update-airnow-item',
+                       data={"user_value_id": user_value_id, 
+                             "date": date,
+                             "zipcode": zipcode})
+
+            r = json.loads(result.data.decode())
+
+            datarecord = (ValueItem.query
+                          .filter(ValueItem.user_value_id==user_value_id,
+                                  func.date(ValueItem.value_date)==date)
+                          .one())
+
+            self.assertEqual(datarecord.value, r[0])
+            self.assertEqual("Record Updated", r[1])
+
+    def test_airnow_api_add_default(self):
+        """Test airnow api logic"""
+
+        user_value_id = 2
+        date = "2018-10-24"
+
+        with self.client as c:
+            result = c.post('/update-airnow-item',
+                       data={"user_value_id": user_value_id, 
+                             "date": date})
+
+            r = json.loads(result.data.decode())
+
+            datarecord = (ValueItem.query
+                          .filter(ValueItem.user_value_id==user_value_id,
+                                  func.date(ValueItem.value_date)==date)
+                          .one())
+
+            self.assertEqual(datarecord.value, r[0])
+            self.assertEqual("Record Added", r[1])
+
+    def test_airnow_api_update_default(self):
+        """Test airnow api logic"""
+
+        user_value_id = 2
+        date = "2018-10-01"
+
+        with self.client as c:
+            result = c.post('/update-airnow-item',
+                       data={"user_value_id": user_value_id, 
+                             "date": date})
+
+            r = json.loads(result.data.decode())
+
+            datarecord = (ValueItem.query
+                          .filter(ValueItem.user_value_id==user_value_id,
+                                  func.date(ValueItem.value_date)==date)
+                          .one())
+
+            self.assertEqual(datarecord.value, r[0])
+            self.assertEqual("Record Updated", r[1])
+
+    def test_airnow_api_badzip(self):
+        """Test airnow api logic with bad zip"""
+
+        user_value_id = 2
+        date = "2018-10-24"
+        zipcode = "as65aew"
+
+        with self.client as c:
+            result = c.post('/update-airnow-item',
+                       data={"user_value_id": user_value_id, 
+                             "date": date,
+                             "zipcode": zipcode})
+
+            r = json.loads(result.data.decode())
+
+            self.assertEqual(None, r[0])
+            self.assertEqual("Failed to create AQI record", r[1])
 
 #######################################################
 

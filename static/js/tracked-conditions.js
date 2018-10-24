@@ -4,10 +4,10 @@
 function updateTrackedCondDesc() {
   const condition_form = $("#user_condition_form").get();
   const condition = {
-    cond_id: condition_form[0][0].value
+    usercond_id: condition_form[0][0].value
   };
 
-  $.get('get-condition-desc', condition, function (results) {
+  $.get('get-tracked-condition-desc', condition, function (results) {
     $("#user_condition_desc").html(results);
   });
 }

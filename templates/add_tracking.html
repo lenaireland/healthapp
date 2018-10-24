@@ -26,8 +26,8 @@ OR
   Choose a condition for which you would like to track a new item:
   <select id="user_conditions">
     {% for condition in user_conditions %}
-      <option value={{ condition.cond_id_pk }}>
-        {{ condition.cond_name }}
+      <option value={{ condition.usercond_id_pk }}>
+        {{ condition.condition.cond_name }}
       </option>
     {% endfor %}
   </select>

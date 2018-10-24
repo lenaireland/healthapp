@@ -1,0 +1,53 @@
+current_02738 = [{"DateObserved":"2018-10-24 ",
+                  "HourObserved":14,
+                  "LocalTimeZone":"EST",
+                  "ReportingArea":"Fairhaven",
+                  "StateCode":"MA","Latitude":41.6353,
+                  "Longitude":-70.8814,
+                  "ParameterName":"O3",
+                  "AQI":21,
+                  "Category":{"Number":1,"Name":"Good"}}]
+
+current_94030 = [{"DateObserved":"2018-10-24 ",
+                  "HourObserved":11,
+                  "LocalTimeZone":"PST",
+                  "ReportingArea":"San Francisco",
+                  "StateCode":"CA",
+                  "Latitude":37.75,
+                  "Longitude":-122.43,
+                  "ParameterName":"O3",
+                  "AQI":17,
+                  "Category":{"Number":1,"Name":"Good"}}]
+
+previous_02738 = [{"DateObserved":"2018-10-01 ",
+                   "HourObserved":0,
+                   "LocalTimeZone":"EST",
+                   "ReportingArea":"Fairhaven",
+                   "StateCode":"MA",
+                   "Latitude":41.6353,
+                   "Longitude":-70.8814,
+                   "ParameterName":"OZONE",
+                   "AQI":35,
+                   "Category":{"Number":1,"Name":"Good"}}]
+
+previous_94030 = [{"DateObserved":"2018-10-01 ",
+                   "HourObserved":0,
+                   "LocalTimeZone":"PST",
+                   "ReportingArea":"San Francisco",
+                   "StateCode":"CA",
+                   "Latitude":37.75,
+                   "Longitude":-122.43,
+                   "ParameterName":"OZONE",
+                   "AQI":24,
+                   "Category":{"Number":1,"Name":"Good"}},
+                  {"DateObserved":"2018-10-01 ",
+                   "HourObserved":0,
+                   "LocalTimeZone":"PST",
+                   "ReportingArea":"San Francisco",
+                   "StateCode":"CA",
+                   "Latitude":37.75,
+                   "Longitude":-122.43,
+                   "ParameterName":"PM2.5",
+                   "AQI":34,"Category":{"Number":1,"Name":"Good"}}]
+
+bad_zip = []

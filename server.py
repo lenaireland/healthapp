@@ -244,7 +244,10 @@ def add_tracking():
 
     if session.get('userid'):
 
-        user_conditions = user_tracked_conditions_name()
+        user_conditions = (db.session.query(UserCondition)
+                           .filter((UserCondition.user_id==session['userid']),
+                                   (UserCondition.is_tracked==True))
+                           .all())
 
         unused_conditions = user_not_tracked_conditions()
         unused_symptoms = user_not_tracked_symptoms()
@@ -396,8 +399,10 @@ def update_user_value_item():
     return(update_value_item_db(user_value_id, date, value))
 
 @app.route('/update-airnow-item', methods=['POST'])
-def update_api_data():
+def update_aqi_data():
     """Update database with AirNOW API data"""
+
+    distance = 200
 
     user_value_id = request.form.get("user_value_id")
     date = request.form.get("date")
@@ -410,35 +415,7 @@ def update_api_data():
         else:
             zipcode = ""
 
-    today=datetime.now().date()
-    distance = 200
-
-    if date == str(today):
-        payload = {'format': "application/json",
-                   'zipCode': zipcode,
-                   'distance': distance,
-                   'API_KEY': AIRNOW
-                  }
-        url = 'http://www.airnowapi.org/aq/observation/zipCode/current'
-        response = requests.get(url, payload)
-        data = response.json()   
-    else:
-        # date=datetime.strptime(date, "%Y-%m-%d")
-        payload = {'format': "application/json",
-                   'zipCode': zipcode,
-                   'date': date+"T00-0000",
-                   'distance': distance,
-                   'API_KEY': AIRNOW
-                   }
-
-        url = 'http://www.airnowapi.org/aq/observation/zipCode/historical'
-        response = requests.get(url, payload)
-        data = response.json()
-
-    for item in data:
-        if (item['ParameterName'] == 'O3' or 
-            item['ParameterName'] == 'OZONE'):
-            value = item['AQI']
+    value = airnow_api(date, zipcode, distance)
 
     if value:
         db_status = update_value_item_db(user_value_id, date, value)
@@ -446,32 +423,6 @@ def update_api_data():
         db_status = "Failed to create AQI record"
 
     return jsonify([value, db_status])
-
-
-def update_value_item_db(user_value_id, date, value):
-    """Update database with new/updated value item"""
-
-    if value=="":
-        value = None
-
-    datarecord = (ValueItem.query
-                           .filter(ValueItem.user_value_id==user_value_id,
-                                   func.date(ValueItem.value_date)==date)
-                           .first())   
-
-    if datarecord: 
-        datarecord.value = value
-        db.session.commit()
-        return "Record Updated"
-
-    new_value = ValueItem(value_date=date,
-                          value=value,
-                          user_value_id=user_value_id)
-
-    db.session.add(new_value)
-    db.session.commit()
-
-    return "Record Added"    
 
 @app.route('/get-user-count-item', methods=['GET'])
 def get_user_countitem():
@@ -576,6 +527,22 @@ def get_condition_description():
 
         if cond_record.cond_desc:
             return cond_record.cond_desc
+
+    return ("n/a")
+
+@app.route('/get-tracked-condition-desc', methods=['GET'])
+def get_tracked_condition_description():
+    """Get description of condition from database"""
+
+    usercond_id = request.args.get("usercond_id")
+
+    if usercond_id:
+        usercond_record = (UserCondition.query
+                           .filter(UserCondition.usercond_id_pk==usercond_id)
+                           .first())
+
+        if usercond_record.condition.cond_desc:
+            return usercond_record.condition.cond_desc
 
     return ("n/a")    
 
@@ -931,6 +898,74 @@ def query_user_count():
 
 
 # Helper functions
+
+def update_value_item_db(user_value_id, date, value):
+    """Update database with new/updated value item"""
+
+    if value=="":
+        value = None
+
+    datarecord = (ValueItem.query
+                           .filter(ValueItem.user_value_id==user_value_id,
+                                   func.date(ValueItem.value_date)==date)
+                           .first())   
+
+    if datarecord: 
+        datarecord.value = value
+        db.session.commit()
+        return "Record Updated"
+
+    new_value = ValueItem(value_date=date,
+                          value=value,
+                          user_value_id=user_value_id)
+
+    db.session.add(new_value)
+    db.session.commit()
+
+    return "Record Added"
+
+
+def airnow_api(date, zipcode, distance):
+    """Process data to send to AirNOW API"""
+    
+    value = None
+    today=datetime.now().date()
+
+    if date == str(today):
+        payload = {'format': "application/json",
+                   'zipCode': zipcode,
+                   'distance': distance,
+                   'API_KEY': AIRNOW
+                  }
+        url = 'http://www.airnowapi.org/aq/observation/zipCode/current'
+   
+    else:
+        # date=datetime.strptime(date, "%Y-%m-%d")
+        payload = {'format': "application/json",
+                   'zipCode': zipcode,
+                   'date': date+"T00-0000",
+                   'distance': distance,
+                   'API_KEY': AIRNOW
+                   }
+
+        url = 'http://www.airnowapi.org/aq/observation/zipCode/historical'
+
+    data = get_airnow_data(url, payload)
+
+    for item in data:
+        if (item['ParameterName'] == 'O3' or 
+            item['ParameterName'] == 'OZONE'):
+            value = item['AQI']
+
+    return value
+
+
+def get_airnow_data(url, payload):
+    """Call to AirNOW API to get air quality data"""
+
+    response = requests.get(url,payload)
+    return response.json()
+
 
 def query_dates(dates):
     """Query database for events that happened on given dates"""
