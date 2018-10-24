@@ -6,7 +6,7 @@ function getCountParams(countId) {
   const params = countId.split(" ");
 
   let dbInputs = {
-    count_id: parseInt(params[1], 10),
+    user_count_id: parseInt(params[1], 10),
     date: params[2]
   };
   return dbInputs;

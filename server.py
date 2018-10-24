@@ -33,7 +33,7 @@ AIRNOW = os.environ['AIRNOW_KEY']
 app.jinja_env.undefined = StrictUndefined
 
 #######
-#TO DO: Make homepage have logo, project info.  Login/Register on own pages.
+#TO DO: Make homepage have logo, project info.
 #######
 
 @app.route('/')
@@ -78,18 +78,18 @@ def login_process():
     flash('Login Failed')
     return redirect('/login')
 
-@app.route('/register', methods=['GET'])
-def register_form():
-    """Show login/registration form"""
+# @app.route('/register', methods=['GET'])
+# def register_form():
+#     """Show login/registration form"""
 
-    # if user is logged in, take to personal page
-    if session.get('userid'):
-        flash('Already logged in.')
+#     # if user is logged in, take to personal page
+#     if session.get('userid'):
+#         flash('Already logged in.')
 
-        return redirect('/user/{}'.format(session['userid']))
+#         return redirect('/user/{}'.format(session['userid']))
 
-    # if not logged in, go to '/login' route to login/register
-    return redirect('/login')
+#     # if not logged in, go to '/login' route to login/register
+#     return redirect('/login')
 
 @app.route('/process-register', methods=['POST'])
 def register_process():
@@ -189,6 +189,8 @@ def update_user_password():
             user.salt = salt_str
             user.passhash = hashed_str
 
+            db.session.commit()
+
             return ("Password Updated")
         return ("New passwords do not match")
     return ("Current password does not match")
@@ -255,7 +257,8 @@ def add_tracking():
                                unused_symptoms=unused_symptoms,
                                unused_counts=unused_counts,
                                unused_values=unused_values)  
-    
+
+    flash('You do not have permission to view this page.')    
     return redirect('/login')
 
 @app.route('/stop-tracking')
@@ -280,7 +283,8 @@ def stop_tracking():
                                symptoms=symptoms,
                                counts=counts,
                                values=values)  
-    
+
+    flash('You do not have permission to view this page.')    
     return redirect('/login')
 
 @app.route('/query')
@@ -306,6 +310,7 @@ def query_database():
                                counts=counts,
                                values=values)
 
+    flash('You do not have permission to view this page.')
     return redirect('/login')
 
 # The next 9 routes are used from usermainpage.html and 
@@ -316,13 +321,13 @@ def query_database():
 def get_user_symptom():
     """Get user symptom values from database"""
 
-    symptom_id = request.args.get("symptom_id")
+    user_symptom_id = request.args.get("user_symptom_id")
     date = request.args.get("date")
 
     datarecord = (SymptomItem.query
-                             .filter(SymptomItem.user_symptom_id==symptom_id,
-                                     func.date(SymptomItem.symptom_date)==date)
-                             .first())
+                  .filter(SymptomItem.user_symptom_id==user_symptom_id,
+                          func.date(SymptomItem.symptom_date)==date)
+                  .first())
 
     if datarecord:
         value = datarecord.symptom_present
@@ -334,14 +339,14 @@ def get_user_symptom():
 def update_user_symptom():
     """Process user symptoms"""
 
-    symptom_id = request.form.get("symptom_id")
+    user_symptom_id = request.form.get("user_symptom_id")
     date = request.form.get("date")
     TF = request.form.get("TF")
 
     datarecord = (SymptomItem.query
-                             .filter(SymptomItem.user_symptom_id==symptom_id,
-                                     func.date(SymptomItem.symptom_date)==date)
-                             .first())
+                  .filter(SymptomItem.user_symptom_id==user_symptom_id,
+                          func.date(SymptomItem.symptom_date)==date)
+                  .first())
 
     if datarecord:
 
@@ -356,7 +361,7 @@ def update_user_symptom():
 
     new_symptom = SymptomItem(symptom_date=date, 
                 symptom_present=bool(TF), 
-                user_symptom_id=symptom_id)
+                user_symptom_id=user_symptom_id)
 
     db.session.add(new_symptom)
     db.session.commit()
@@ -366,13 +371,13 @@ def update_user_symptom():
 def get_user_valueitem():
     """Get user value items from database"""
 
-    value_id = request.args.get("value_id")
+    user_value_id = request.args.get("user_value_id")
     date = request.args.get("date")
 
     datarecord = (ValueItem.query
-                           .filter(ValueItem.user_value_id==value_id,
-                                   func.date(ValueItem.value_date)==date)
-                           .first())
+                  .filter(ValueItem.user_value_id==user_value_id,
+                          func.date(ValueItem.value_date)==date)
+                  .first())
 
     if datarecord:
         value = datarecord.value
@@ -384,17 +389,17 @@ def get_user_valueitem():
 def update_user_value_item():
     """Process user value items"""
 
-    value_id = request.form.get("value_id")
+    user_value_id = request.form.get("user_value_id")
     date = request.form.get("date")
     value = request.form.get("value")
 
-    return(update_value_item_db(value_id, date, value))
+    return(update_value_item_db(user_value_id, date, value))
 
 @app.route('/update-airnow-item', methods=['POST'])
 def update_api_data():
     """Update database with AirNOW API data"""
 
-    value_id = request.form.get("value_id")
+    user_value_id = request.form.get("user_value_id")
     date = request.form.get("date")
     zipcode = request.form.get("zipcode")
 
@@ -436,21 +441,21 @@ def update_api_data():
             value = item['AQI']
 
     if value:
-        db_status = update_value_item_db(value_id, date, value)
+        db_status = update_value_item_db(user_value_id, date, value)
     else:
         db_status = "Failed to create AQI record"
 
     return jsonify([value, db_status])
 
 
-def update_value_item_db(value_id, date, value):
+def update_value_item_db(user_value_id, date, value):
     """Update database with new/updated value item"""
 
     if value=="":
         value = None
 
     datarecord = (ValueItem.query
-                           .filter(ValueItem.user_value_id==value_id,
+                           .filter(ValueItem.user_value_id==user_value_id,
                                    func.date(ValueItem.value_date)==date)
                            .first())   
 
@@ -461,7 +466,7 @@ def update_value_item_db(value_id, date, value):
 
     new_value = ValueItem(value_date=date,
                           value=value,
-                          user_value_id=value_id)
+                          user_value_id=user_value_id)
 
     db.session.add(new_value)
     db.session.commit()
@@ -472,11 +477,11 @@ def update_value_item_db(value_id, date, value):
 def get_user_countitem():
     """Get user count items from database"""
 
-    count_id = request.args.get("count_id")
+    user_count_id = request.args.get("user_count_id")
     date = request.args.get("date")
 
     datarecord = (CountItem.query
-                           .filter(CountItem.user_count_id==count_id,
+                           .filter(CountItem.user_count_id==user_count_id,
                                    func.date(CountItem.count_date)==date)
                            .first())
 
@@ -490,7 +495,7 @@ def get_user_countitem():
 def update_user_count_item():
     """Process user count items"""
 
-    count_id = request.form.get("count_id")
+    user_count_id = request.form.get("user_count_id")
     date = request.form.get("date")
     count = request.form.get("count")
 
@@ -498,7 +503,7 @@ def update_user_count_item():
         count = None
 
     datarecord = (CountItem.query
-                           .filter(CountItem.user_count_id==count_id,
+                           .filter(CountItem.user_count_id==user_count_id,
                                    func.date(CountItem.count_date)==date)
                            .first())   
                     
@@ -509,7 +514,7 @@ def update_user_count_item():
 
     new_count = CountItem(count_date=date,
                           count=count,
-                          user_count_id=count_id)
+                          user_count_id=user_count_id)
 
     db.session.add(new_count)
     db.session.commit()
@@ -521,7 +526,9 @@ def get_user_log():
 
     date = request.args.get("date")
 
-    datarecord = UserLog.query.filter(func.date(UserLog.log_date)==date).first()
+    datarecord = (UserLog.query.filter(func.date(UserLog.log_date)==date,
+                                       UserLog.user_id==session['userid'])
+                               .first())
 
     if datarecord:
         log_text = datarecord.log_text
@@ -536,7 +543,9 @@ def update_user_log():
     date = request.form.get("date")
     text = request.form.get("text")
 
-    datarecord = UserLog.query.filter(func.date(UserLog.log_date)==date).first()   
+    datarecord = (UserLog.query.filter(func.date(UserLog.log_date)==date,
+                                       UserLog.user_id==session['userid'])
+                               .first())   
                     
     if datarecord: 
         datarecord.log_text = text

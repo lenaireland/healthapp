@@ -6,7 +6,7 @@ function getValueParams(valueId) {
   const params = valueId.split(" ");
 
   let dbInputs = {
-    value_id: parseInt(params[1], 10),
+    user_value_id: parseInt(params[1], 10),
     date: params[2]
   };
   return dbInputs;

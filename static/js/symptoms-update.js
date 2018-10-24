@@ -6,7 +6,7 @@ function getButtonParams(buttonId) {
   const params = buttonId.split(" ");
 
   let dbInputs = {
-    symptom_id: parseInt(params[1], 10),
+    user_symptom_id: parseInt(params[1], 10),
     date: params[2]
   };
   return dbInputs;

@@ -13,7 +13,7 @@ function updatePassword(evt) {
   $.post('/update-password', dbInputs, function (results) {
     console.log(results);
   });
-
+  $("#PasswordModal form")[0].reset();
   $("#PasswordModal").modal('toggle');
 }
 
