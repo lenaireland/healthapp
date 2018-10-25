@@ -409,11 +409,8 @@ def update_aqi_data():
     zipcode = request.form.get("zipcode")
 
     if not zipcode:
-        if session['userid']:
-            user = User.query.get(session['userid'])
-            zipcode = user.zipcode
-        else:
-            zipcode = ""
+        user = User.query.get(session['userid'])
+        zipcode = user.zipcode
 
     value = airnow_api(date, zipcode, distance)
 

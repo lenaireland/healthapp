@@ -33,8 +33,7 @@ def example_data():
              salt="xXa-CJbrQoKjq2WweH3ztg==", 
              passhash="CN0dRpLS6ZhNLw8UPw9-oRfjJfjgwMgzXXDyjVXIF1-pV-_WeClc0q68LQzYgEWzI5Q4M-iS_Q4wT4f7kpfMnQ==",
              fname="Al",
-             lname="Aboard",
-             zipcode="63038")
+             lname="Aboard")
     ]
 
     db.session.add_all(users)
@@ -46,7 +45,8 @@ def example_data():
         Condition(cond_name="Migraines", 
                   cond_desc="Severe headaches"),
         Condition(cond_name="Diabetes", 
-                  cond_desc="Diseases affecting how body uses insulin")
+                  cond_desc="Diseases affecting how body uses insulin"),
+        Condition(cond_name="Hypothyroid")
     ]
 
     db.session.add_all(conditions)
@@ -56,6 +56,7 @@ def example_data():
         UserCondition(user_id=users[0].user_id_pk, cond_id=conditions[0].cond_id_pk),
         UserCondition(user_id=users[0].user_id_pk, cond_id=conditions[1].cond_id_pk),
         UserCondition(user_id=users[1].user_id_pk, cond_id=conditions[0].cond_id_pk),
+        UserCondition(user_id=users[1].user_id_pk, cond_id=conditions[3].cond_id_pk),
         UserCondition(user_id=users[2].user_id_pk, cond_id=conditions[0].cond_id_pk)
     ]
 
@@ -298,7 +299,7 @@ def example_data():
                 log_text="Last night sleep was TERRIBLE.",
                 user_id=users[0].user_id_pk),
         UserLog(log_date=datetime(2018, 10, 7, 0, 0, 0), 
-                log_text="Need to cut back on the coffee",
+                log_text="Coming down with a cold",
                 user_id=users[1].user_id_pk),
         UserLog(log_date=datetime(2018, 10, 7, 0, 0, 0), 
                 log_text="Wildfire smoke today",

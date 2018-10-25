@@ -338,9 +338,6 @@ class LoggedInTestsDatabase(TestCase):
     def test_user_page_date(self):
         """Test user main page with date."""
 
-#################
-# figure out how to test values in form
-##########
         result = self.client.get('/user/2/2018-10-17')
         self.assertIn(b'Welcome Patty', result.data)
 
@@ -524,6 +521,53 @@ class LoggedInTestsDatabase(TestCase):
 
         self.assertEqual(b"False", result.data)
 
+    def test_get_user_log(self):
+        """Test get user log item from database"""
+
+        result = self.client.get('/get-user-log',
+                                 query_string={"date": "2018-10-07"})
+
+        self.assertEqual(b"Coming down with a cold", result.data)
+
+    def test_get_user_no_log(self):
+        """Test get user log item that doesn't exist in database"""
+
+        result = self.client.get('/get-user-log',
+                                 query_string={"date": "2018-09-07"})
+
+        self.assertEqual(b"False", result.data)
+
+    def test_get_cond_desc(self):
+        """Test get user condition description from database"""
+
+        result = self.client.get('/get-condition-desc',
+                                 query_string={"cond_id": 2})
+
+        self.assertEqual(b"Severe headaches", result.data)
+
+    def test_get_cond_desc_none(self):
+        """Test get user condition description from database"""
+
+        result = self.client.get('/get-condition-desc',
+                                 query_string={"cond_id": 4})
+
+        self.assertEqual(b"n/a", result.data)
+
+    def test_get_tracked_cond_desc(self):
+        """Test get tracked user condition description from database"""
+
+        result = self.client.get('/get-tracked-condition-desc',
+                                 query_string={"usercond_id": 3})
+
+        self.assertEqual(b"Condition with swollen and narrowed airways", result.data)
+
+    def test_get_tracked_cond_desc_none(self):
+        """Test get tracked user condition description from database"""
+
+        result = self.client.get('/get-tracked-condition-desc',
+                                 query_string={"usercond_id": 4})
+
+        self.assertEqual(b"n/a", result.data)        
 
     def test_update_user_symptom_true(self):
         """Test update user symptom for existing record in database"""
@@ -672,6 +716,44 @@ class LoggedInTestsDatabase(TestCase):
             self.assertEqual(b"Record Added", result.data)
             self.assertEqual(count, datarecord.count)
 
+    def test_update_user_log(self):
+        """Test update user log item in database"""
+
+        date = "2018-10-07"
+        text = "So tired"
+
+        with self.client as c:
+            result = c.post('/update-user-log',
+                   data={"date": date,
+                         "text": text})
+
+            datarecord = (UserLog.query
+                          .filter(func.date(UserLog.log_date)==date,
+                                  UserLog.user_id==2)
+                          .one())
+
+            self.assertEqual(b"Record Updated", result.data)
+            self.assertEqual(text, datarecord.log_text)
+
+    def test_update_user_log_add(self):
+        """Test add user log item in database"""
+
+        date = "2018-09-07"
+        text = "So tired"
+
+        with self.client as c:
+            result = c.post('/update-user-log',
+                   data={"date": date,
+                         "text": text})
+
+            datarecord = (UserLog.query
+                          .filter(func.date(UserLog.log_date)==date,
+                                  UserLog.user_id==2)
+                          .one())
+
+            self.assertEqual(b"Record Added", result.data)
+            self.assertEqual(text, datarecord.log_text)
+
 
 class LoggedInTestsDatabaseAPI(TestCase):
     """Tests for when a user is logged in."""
@@ -723,7 +805,7 @@ class LoggedInTestsDatabaseAPI(TestCase):
         db.engine.dispose()
 
     def test_airnow_api_add(self):
-        """Test airnow api logic"""
+        """Test airnow api add value with input zip"""
 
         user_value_id = 2
         date = "2018-10-24"
@@ -746,7 +828,7 @@ class LoggedInTestsDatabaseAPI(TestCase):
             self.assertEqual("Record Added", r[1])
 
     def test_airnow_api_update(self):
-        """Test airnow api logic"""
+        """Test airnow api update value with input zip"""
 
         user_value_id = 2
         date = "2018-10-01"
@@ -769,7 +851,7 @@ class LoggedInTestsDatabaseAPI(TestCase):
             self.assertEqual("Record Updated", r[1])
 
     def test_airnow_api_add_default(self):
-        """Test airnow api logic"""
+        """Test airnow api add value with default zip"""
 
         user_value_id = 2
         date = "2018-10-24"
@@ -790,7 +872,7 @@ class LoggedInTestsDatabaseAPI(TestCase):
             self.assertEqual("Record Added", r[1])
 
     def test_airnow_api_update_default(self):
-        """Test airnow api logic"""
+        """Test airnow api update value with default zip"""
 
         user_value_id = 2
         date = "2018-10-01"
@@ -811,7 +893,7 @@ class LoggedInTestsDatabaseAPI(TestCase):
             self.assertEqual("Record Updated", r[1])
 
     def test_airnow_api_badzip(self):
-        """Test airnow api logic with bad zip"""
+        """Test airnow api with bad zip"""
 
         user_value_id = 2
         date = "2018-10-24"
@@ -827,6 +909,74 @@ class LoggedInTestsDatabaseAPI(TestCase):
 
             self.assertEqual(None, r[0])
             self.assertEqual("Failed to create AQI record", r[1])
+
+
+class LoggedInUser3TestsDatabaseAPI(TestCase):
+    """Tests for when a user is logged in."""
+
+    def setUp(self):
+        """Before every test"""
+
+        app.config['TESTING'] = True
+        app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
+        self.client = app.test_client()
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['userid'] = 3
+
+        # Connect to test database
+        connect_to_db(app, 'postgresql:///testdb')
+
+        # Drop all tables first
+        db.drop_all()
+
+        # Create tables and add sample data
+        db.create_all()
+        example_data()
+
+        def _mock_get_airnow_data(url, payload):
+            if payload.get('date'):
+                if payload['zipCode'] == "02738":
+                    return AirNOW_mock.previous_02738
+                elif payload['zipCode'] == "94030":
+                    return AirNOW_mock.previous_94030
+                else:
+                    return AirNOW_mock.bad_zip
+            else:
+                if payload['zipCode'] == "02738":
+                    return AirNOW_mock.current_02738
+                elif payload['zipCode'] == "94030":
+                    return AirNOW_mock.current_94030
+                else:
+                    return AirNOW_mock.bad_zip
+
+        server.get_airnow_data = _mock_get_airnow_data            
+
+    def tearDown(self):
+        """Do at end of every test."""
+
+        db.session.remove()
+        db.drop_all()
+        db.engine.dispose()
+
+    def test_airnow_api_nozip(self):
+        """Test airnow api logic with no user zip and no input zip"""
+
+        user_value_id = 2
+        date = "2018-10-24"
+
+        with self.client as c:
+            result = c.post('/update-airnow-item',
+                       data={"user_value_id": user_value_id, 
+                             "date": date})
+
+            r = json.loads(result.data.decode())
+
+            self.assertEqual(None, r[0])
+            self.assertEqual("Failed to create AQI record", r[1])
+
+
 
 #######################################################
 
