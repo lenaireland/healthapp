@@ -10,7 +10,7 @@
   Choose a symptom to query on:
   <select id="symptoms">
     {% for symptom in symptoms %}
-      <option value="{{ symptom.Symptom.symptom_name}}/{{ symptom.Symptom.symptom_id_pk }}">
+      <option value="{{ symptom.Symptom.symptom_name}};{{ symptom.Symptom.symptom_id_pk }}">
         {{ symptom.Symptom.symptom_name }}
       </option>
     {% endfor %}
@@ -22,7 +22,7 @@
   Choose a value item/test to query on:
   <select id="values">
     {% for value in values %}
-      <option value="{{ value.ValueType.value_name }}/{{ value.ValueType.value_id_pk }}">
+      <option value="{{ value.ValueType.value_name }};{{ value.ValueType.value_id_pk }}">
         {{ value.ValueType.value_name }}
       </option>
     {% endfor %}
@@ -34,7 +34,7 @@
   Choose a medication/count item to query on:
   <select id="counts">
     {% for count in counts %}
-      <option value="{{ count.CountType.count_name }}/{{ count.CountType.count_id_pk }}">
+      <option value="{{ count.CountType.count_name }};{{ count.CountType.count_id_pk }}">
         {{ count.CountType.count_name }}
       </option>
     {% endfor %}

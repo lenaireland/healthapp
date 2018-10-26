@@ -58,7 +58,7 @@
 
       <p>{{symptom.Symptom.symptom_name}}
         <button name="symptombutton"
-          id="usersymptom/{{symptom.UserSymptom.user_symptom_id_pk}}/{{ date.date() }}">
+          id="usersymptom;{{symptom.UserSymptom.user_symptom_id_pk}};{{ date.date() }}">
           -
         </button>
       </p>
@@ -70,14 +70,14 @@
       <p>
         {% if item.ValueType.value_name == "AQI" %}
           <form name="valueform" data-toggle="modal" data-target="#AQIModal"
-            id="uservalue/{{item.UserValueType.user_value_id_pk}}/{{ date.date() }}">
+            id="uservalue;{{item.UserValueType.user_value_id_pk}};{{ date.date() }}">
           {{item.ValueType.value_name}}
             <input type="text" name="value">
             <input type="submit" name="submit" class="btn btn-primary">
           </form>
         {% else %}
           <form name="valueform" 
-            id="uservalue/{{item.UserValueType.user_value_id_pk}}/{{ date.date() }}">
+            id="uservalue;{{item.UserValueType.user_value_id_pk}};{{ date.date() }}">
           {{item.ValueType.value_name}}
             <input type="text" name="value">
             <input type="submit" name="submit" class="btn btn-primary">
@@ -90,7 +90,7 @@
     {% for item in info[condition]['count_types'] %}
       <p>
         <form name="countform" 
-          id="usercount/{{item.UserCountType.user_count_id_pk}}/{{ date.date() }}">
+          id="usercount;{{item.UserCountType.user_count_id_pk}};{{ date.date() }}">
         {{item.CountType.count_name}}
           <input type="number" name="count" min="0">
           <input type="submit" name="submit" class="btn btn-primary">

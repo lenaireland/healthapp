@@ -39,7 +39,7 @@ function displayResults(results, name) {
 function querySymptom(evt) {
   evt.preventDefault();
 
-  const params = evt.currentTarget.symptoms.value.split("/");
+  const params = evt.currentTarget.symptoms.value.split(";");
   const name = params[0];
   console.log(name);
 
@@ -60,7 +60,7 @@ $("#user_symptom_query_form").on("submit", querySymptom);
 function queryValue(evt) {
   evt.preventDefault();
 
-  const params = evt.currentTarget.values.value.split("/");
+  const params = evt.currentTarget.values.value.split(";");
   const name = params[0];
   console.log(name);
 
@@ -81,7 +81,7 @@ $("#user_value_query_form").on("submit", queryValue);
 function queryCount(evt) {
   evt.preventDefault();
 
-  const params = evt.currentTarget.counts.value.split("/");
+  const params = evt.currentTarget.counts.value.split(";");
   const name = params[0];
   console.log(name);
 

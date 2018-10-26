@@ -3,12 +3,13 @@
 
 
 function getValueParams(valueId) {
-  const params = valueId.split("/");
+  const params = valueId.split(";");
 
   let dbInputs = {
     user_value_id: parseInt(params[1], 10),
     date: params[2]
   };
+
   return dbInputs;
 }
 
@@ -19,6 +20,8 @@ function updateValueForms() {
     let valueId = valueItem.id;
     let dbInputs = getValueParams(valueId);
     let valueType = valueItem.innerText.split(" ")[0];
+
+    console.log(valueType);
 
     if (valueType === "AQI") {
       valueItem[1].value = "Get AirNOW AQI data";
