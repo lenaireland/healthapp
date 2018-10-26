@@ -3,7 +3,7 @@
 
 
 function getValueParams(valueId) {
-  const params = valueId.split(" ");
+  const params = valueId.split("/");
 
   let dbInputs = {
     user_value_id: parseInt(params[1], 10),

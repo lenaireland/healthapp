@@ -57,6 +57,7 @@ def example_data():
         UserCondition(user_id=users[0].user_id_pk, cond_id=conditions[1].cond_id_pk),
         UserCondition(user_id=users[1].user_id_pk, cond_id=conditions[0].cond_id_pk),
         UserCondition(user_id=users[1].user_id_pk, cond_id=conditions[3].cond_id_pk),
+        UserCondition(user_id=users[1].user_id_pk, cond_id=conditions[2].cond_id_pk, is_tracked=False),
         UserCondition(user_id=users[2].user_id_pk, cond_id=conditions[0].cond_id_pk)
     ]
 
@@ -93,9 +94,11 @@ def example_data():
         UserSymptom(usercond_id=user_conditions[2].usercond_id_pk, symptom_id=symptoms[0].symptom_id_pk),
         UserSymptom(usercond_id=user_conditions[2].usercond_id_pk, symptom_id=symptoms[1].symptom_id_pk),
         UserSymptom(usercond_id=user_conditions[2].usercond_id_pk, symptom_id=symptoms[2].symptom_id_pk),
-        UserSymptom(usercond_id=user_conditions[3].usercond_id_pk, symptom_id=symptoms[0].symptom_id_pk),
-        UserSymptom(usercond_id=user_conditions[3].usercond_id_pk, symptom_id=symptoms[1].symptom_id_pk),
-        UserSymptom(usercond_id=user_conditions[3].usercond_id_pk, symptom_id=symptoms[2].symptom_id_pk)
+        UserSymptom(usercond_id=user_conditions[3].usercond_id_pk, symptom_id=symptoms[4].symptom_id_pk),
+        UserSymptom(usercond_id=user_conditions[4].usercond_id_pk, symptom_id=symptoms[3].symptom_id_pk, is_tracked=False),
+        UserSymptom(usercond_id=user_conditions[5].usercond_id_pk, symptom_id=symptoms[0].symptom_id_pk),
+        UserSymptom(usercond_id=user_conditions[5].usercond_id_pk, symptom_id=symptoms[1].symptom_id_pk),
+        UserSymptom(usercond_id=user_conditions[5].usercond_id_pk, symptom_id=symptoms[2].symptom_id_pk)
     ]
 
     db.session.add_all(user_symptoms)
@@ -139,10 +142,10 @@ def example_data():
                     symptom_present=False, 
                     user_symptom_id=user_symptoms[11].user_symptom_id_pk),
         SymptomItem(symptom_date=datetime(2018, 10, 7, 0, 0, 0), 
-                    symptom_present=True, 
+                    symptom_present=False, 
                     user_symptom_id=user_symptoms[12].user_symptom_id_pk),
         SymptomItem(symptom_date=datetime(2018, 10, 7, 0, 0, 0), 
-                    symptom_present=False, 
+                    symptom_present=True, 
                     user_symptom_id=user_symptoms[13].user_symptom_id_pk)
     ]
 
@@ -152,6 +155,7 @@ def example_data():
     value_types = [
         ValueType(value_name="AQI", value_desc="Air Quality Index for Ozone"),
         ValueType(value_name="Hemoglobin Level"),
+        ValueType(value_name="Total Cholesterol")
     ]
 
     db.session.add_all(value_types)
@@ -160,7 +164,8 @@ def example_data():
     user_value_types = [
         UserValueType(usercond_id=user_conditions[0].usercond_id_pk, value_id=value_types[0].value_id_pk),
         UserValueType(usercond_id=user_conditions[2].usercond_id_pk, value_id=value_types[0].value_id_pk),
-        UserValueType(usercond_id=user_conditions[3].usercond_id_pk, value_id=value_types[0].value_id_pk),
+        UserValueType(usercond_id=user_conditions[3].usercond_id_pk, value_id=value_types[1].value_id_pk, is_tracked=False),
+        UserValueType(usercond_id=user_conditions[5].usercond_id_pk, value_id=value_types[0].value_id_pk)
     ]
 
     db.session.add_all(user_value_types)
@@ -211,25 +216,25 @@ def example_data():
                   user_value_id=user_value_types[1].user_value_id_pk),
         ValueItem(value_date=datetime(2018, 10, 1, 0, 0, 0), 
                   value=70, 
-                  user_value_id=user_value_types[2].user_value_id_pk),
+                  user_value_id=user_value_types[3].user_value_id_pk),
         ValueItem(value_date=datetime(2018, 10, 2, 0, 0, 0), 
                   value=110, 
-                  user_value_id=user_value_types[2].user_value_id_pk),
+                  user_value_id=user_value_types[3].user_value_id_pk),
         ValueItem(value_date=datetime(2018, 10, 3, 0, 0, 0), 
                   value=160, 
-                  user_value_id=user_value_types[2].user_value_id_pk),
+                  user_value_id=user_value_types[3].user_value_id_pk),
         ValueItem(value_date=datetime(2018, 10, 4, 0, 0, 0), 
                   value=170, 
-                  user_value_id=user_value_types[2].user_value_id_pk),
+                  user_value_id=user_value_types[3].user_value_id_pk),
         ValueItem(value_date=datetime(2018, 10, 5, 0, 0, 0), 
                   value=100, 
-                  user_value_id=user_value_types[2].user_value_id_pk),
+                  user_value_id=user_value_types[3].user_value_id_pk),
         ValueItem(value_date=datetime(2018, 10, 6, 0, 0, 0), 
                   value=60, 
-                  user_value_id=user_value_types[2].user_value_id_pk),
+                  user_value_id=user_value_types[3].user_value_id_pk),
         ValueItem(value_date=datetime(2018, 10, 7, 0, 0, 0), 
                   value=30, 
-                  user_value_id=user_value_types[2].user_value_id_pk)        
+                  user_value_id=user_value_types[3].user_value_id_pk)        
     ]
 
     db.session.add_all(value_items)
@@ -251,8 +256,9 @@ def example_data():
         UserCountType(usercond_id=user_conditions[0].usercond_id_pk, count_id=count_types[1].count_id_pk),
         UserCountType(usercond_id=user_conditions[2].usercond_id_pk, count_id=count_types[0].count_id_pk),
         UserCountType(usercond_id=user_conditions[2].usercond_id_pk, count_id=count_types[1].count_id_pk),
-        UserCountType(usercond_id=user_conditions[3].usercond_id_pk, count_id=count_types[0].count_id_pk),
-        UserCountType(usercond_id=user_conditions[3].usercond_id_pk, count_id=count_types[1].count_id_pk)
+        UserCountType(usercond_id=user_conditions[3].usercond_id_pk, count_id=count_types[2].count_id_pk, is_tracked=False),
+        UserCountType(usercond_id=user_conditions[5].usercond_id_pk, count_id=count_types[0].count_id_pk),
+        UserCountType(usercond_id=user_conditions[5].usercond_id_pk, count_id=count_types[1].count_id_pk)
     ]
 
     db.session.add_all(user_count_types)
@@ -279,13 +285,13 @@ def example_data():
                   user_count_id=user_count_types[3].user_count_id_pk),
         CountItem(count_date=datetime(2018, 10, 7, 9, 1, 0), 
                   count=1, 
-                  user_count_id=user_count_types[4].user_count_id_pk),
+                  user_count_id=user_count_types[5].user_count_id_pk),
         CountItem(count_date=datetime(2018, 10, 8, 22, 15, 0), 
                   count=1, 
-                  user_count_id=user_count_types[4].user_count_id_pk),
+                  user_count_id=user_count_types[5].user_count_id_pk),
         CountItem(count_date=datetime(2018, 10, 7, 14, 30, 0), 
                   count=2, 
-                  user_count_id=user_count_types[5].user_count_id_pk),
+                  user_count_id=user_count_types[6].user_count_id_pk),
     ]
 
     db.session.add_all(count_items)

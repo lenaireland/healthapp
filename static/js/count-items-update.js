@@ -3,7 +3,7 @@
 
 
 function getCountParams(countId) {
-  const params = countId.split(" ");
+  const params = countId.split("/");
 
   let dbInputs = {
     user_count_id: parseInt(params[1], 10),

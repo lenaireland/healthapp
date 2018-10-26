@@ -2,7 +2,7 @@
 'use strict';
 
 function getLogParams(id) {
-  const params = id.split(" ");
+  const params = id.split("/");
 
   let dbInputs = {
     date: params[1]

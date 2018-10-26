@@ -3,7 +3,7 @@
 
 
 function getButtonParams(buttonId) {
-  const params = buttonId.split(" ");
+  const params = buttonId.split("/");
 
   let dbInputs = {
     user_symptom_id: parseInt(params[1], 10),

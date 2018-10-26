@@ -549,18 +549,17 @@ def add_user_condition():
 
     cond_id = request.form.get("cond_id")
 
-    user_conditions = (UserCondition.query
-                       .filter(UserCondition.user_id==session['userid'])
-                       .all())
+    user_condition = (UserCondition.query
+                       .filter(UserCondition.user_id==session['userid'],
+                               UserCondition.cond_id==int(cond_id))
+                       .first())
 
-    for user_condition in user_conditions:
-        if int(cond_id) == user_condition.cond_id:
-
-            if user_condition.is_tracked==False:
-                user_condition.is_tracked = True
-                db.session.commit()
-                return "Condition is now tracked again"
-            return "Add condition failed"
+    if user_condition:
+        if user_condition.is_tracked==False:
+            user_condition.is_tracked = True
+            db.session.commit()
+            return "Condition is now tracked again"
+        return "Add condition failed"
 
     new_condition = UserCondition(user_id=session['userid'],
                                   cond_id=cond_id)
@@ -592,6 +591,7 @@ def add_user_symptom():
     symptom_id = request.form.get("symptom_id")
     usercond_id = request.form.get("usercond_id")
 
+    # Check if symptom is tracked (for any condition)
     user_symptoms = (db.session
                        .query(UserSymptom)
                        .join(UserCondition)
@@ -601,6 +601,8 @@ def add_user_symptom():
     for user_symptom in user_symptoms:
         if int(symptom_id) == user_symptom.symptom_id:
 
+            # if sympotom was previously tracked, change back to track again 
+            # and make sure associated with correct condition
             if user_symptom.is_tracked==False:
                 user_symptom.is_tracked = True
                 user_symptom.usercond_id = usercond_id
@@ -724,7 +726,8 @@ def stop_tracking_user_condition():
                        .all())
 
     for user_condition in user_conditions:
-        if int(cond_id) == user_condition.cond_id:
+        if (int(cond_id) == user_condition.cond_id and 
+        user_condition.is_tracked == True):
             user_condition.is_tracked = False
 
             user_symptoms = (db.session.query(UserSymptom)
@@ -768,7 +771,8 @@ def stop_tracking_user_symptom():
                        .all())
 
     for user_symptom in user_symptoms:
-        if int(symptom_id) == user_symptom.symptom_id:
+        if (int(symptom_id) == user_symptom.symptom_id and
+        user_symptom.is_tracked == True):
             user_symptom.is_tracked = False
             db.session.commit()
             return "Symptom is no longer tracked"
@@ -788,12 +792,13 @@ def stop_tracking_user_value():
                        .all())
 
     for user_value in user_values:
-        if int(value_id) == user_value.value_id:
+        if (int(value_id) == user_value.value_id and
+        user_value.is_tracked == True):
             user_value.is_tracked = False
             db.session.commit()
             return "Value item is no longer tracked"
 
-    return "Value was not tracked - no change"
+    return "Value item was not tracked - no change"
 
 @app.route('/stop-user-count', methods=['POST'])
 def stop_tracking_user_count():
@@ -808,12 +813,13 @@ def stop_tracking_user_count():
                        .all())
 
     for user_count in user_counts:
-        if int(count_id) == user_count.count_id:
+        if (int(count_id) == user_count.count_id and
+        user_count.is_tracked == True):
             user_count.is_tracked = False
             db.session.commit()
-            return "Symptom is no longer tracked"
+            return "Count item is no longer tracked"
 
-    return "Symptom was not tracked - no change"
+    return "Count item was not tracked - no change"
 
 # The next 3 routes are used by query.html and associated js files
 # to query data and find correlations
@@ -826,9 +832,10 @@ def query_user_symptom():
 
     user_symptom_logs = (db.session.query(SymptomItem)
                                   .join(UserSymptom)
-                                  .join(Symptom)
-                                  .filter(Symptom.symptom_id_pk==symptom_id, 
-                                          SymptomItem.symptom_present==True)
+                                  .join(UserCondition)
+                                  .filter(UserSymptom.symptom_id==symptom_id, 
+                                          SymptomItem.symptom_present==True,
+                                          UserCondition.user_id==session['userid'])
                                   .all())
     dates = set()
 
@@ -851,9 +858,10 @@ def query_user_value():
 
     user_value_logs = (db.session.query(ValueItem)
                                   .join(UserValueType)
-                                  .join(ValueType)
-                                  .filter(ValueType.value_id_pk==value_id, 
-                                          ValueItem.value > 0)
+                                  .join(UserCondition)
+                                  .filter(UserValueType.value_id==value_id, 
+                                          ValueItem.value > 0,
+                                          UserCondition.user_id==session['userid'])
                                   .all())
     dates = set()
 
@@ -876,9 +884,10 @@ def query_user_count():
 
     user_count_logs = (db.session.query(CountItem)
                                   .join(UserCountType)
-                                  .join(CountType)
-                                  .filter(CountType.count_id_pk==count_id, 
-                                          CountItem.count > 0)
+                                  .join(UserCondition)
+                                  .filter(UserCountType.count_id==count_id, 
+                                          CountItem.count > 0,
+                                          UserCondition.user_id==session['userid'])
                                   .all())
     dates = set()
 

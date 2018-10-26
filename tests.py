@@ -4,6 +4,7 @@ import os, hashlib, base64, json
 import AirNOW_mock
 import server
 
+from datetime import datetime
 from unittest import TestCase
 from server import app
 from seed import example_data
@@ -142,7 +143,7 @@ class FlaskTestsLogInRegister(TestCase):
 
 
 class LoggedOutTests(TestCase):
-    """Tests for when no one is logged in."""
+    """Tests pages when no one is logged in."""
 
     def setUp(self):
         """Before every test"""
@@ -236,7 +237,7 @@ class LoggedOutTests(TestCase):
 
 
 class LoggedInTests(TestCase):
-    """Tests for when a user is logged in."""
+    """Tests pages when a user is logged in."""
 
     def setUp(self):
         """Before every test"""
@@ -286,7 +287,7 @@ class LoggedInTests(TestCase):
 
 
 class LoggedInTestsDatabase(TestCase):
-    """Tests for when a user is logged in."""
+    """Tests pages when a user is logged in."""
 
     def setUp(self):
         """Before every test"""
@@ -369,6 +370,38 @@ class LoggedInTestsDatabase(TestCase):
         result = self.client.get('/query')
         self.assertIn(b'Choose a symptom to query on', result.data)
         self.assertIn(b'AQI', result.data)
+
+
+class SettingsPasswordsTests(TestCase):
+    """Tests for settings and passwords when a user is logged in."""
+
+    def setUp(self):
+        """Before every test"""
+
+        app.config['TESTING'] = True
+        app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
+        self.client = app.test_client()
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['userid'] = 2
+
+        # Connect to test database
+        connect_to_db(app, 'postgresql:///testdb')
+
+        # Drop all tables first
+        db.drop_all()
+
+        # Create tables and add sample data
+        db.create_all()
+        example_data()            
+
+    def tearDown(self):
+        """Do at end of every test."""
+
+        db.session.remove()
+        db.drop_all()
+        db.engine.dispose()
 
     def test_process_settings_same_email(self):
         """Test update user settings (other than password), keep email"""
@@ -465,6 +498,38 @@ class LoggedInTestsDatabase(TestCase):
 
             self.assertNotEqual(hashed_str, user.passhash)
             self.assertNotEqual(hashed_str2, user.passhash)
+
+
+class GetInformationTests(TestCase):
+    """Tests for getting database info."""
+
+    def setUp(self):
+        """Before every test"""
+
+        app.config['TESTING'] = True
+        app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
+        self.client = app.test_client()
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['userid'] = 2
+
+        # Connect to test database
+        connect_to_db(app, 'postgresql:///testdb')
+
+        # Drop all tables first
+        db.drop_all()
+
+        # Create tables and add sample data
+        db.create_all()
+        example_data()            
+
+    def tearDown(self):
+        """Do at end of every test."""
+
+        db.session.remove()
+        db.drop_all()
+        db.engine.dispose()
 
     def test_get_user_symptom(self):
         """Test get user symptom from database"""
@@ -567,7 +632,87 @@ class LoggedInTestsDatabase(TestCase):
         result = self.client.get('/get-tracked-condition-desc',
                                  query_string={"usercond_id": 4})
 
+        self.assertEqual(b"n/a", result.data)
+
+    def test_get_symptom_desc(self):
+        """Test get tracked symptom description from database"""
+
+        result = self.client.get('/get-symptom-desc',
+                                 query_string={"symptom_id": 1})
+
+        self.assertEqual(b"Whistling with breath", result.data)
+
+    def test_get_symptom_desc_none(self):
+        """Test get tracked symptom description from database"""
+
+        result = self.client.get('/get-symptom-desc',
+                                 query_string={"symptom_id": 2})
+
         self.assertEqual(b"n/a", result.data)        
+
+    def test_get_value_desc(self):
+        """Test get tracked value type description from database"""
+
+        result = self.client.get('/get-value-desc',
+                                 query_string={"value_id": 1})
+
+        self.assertEqual(b"Air Quality Index for Ozone", result.data)
+
+    def test_get_value_desc_none(self):
+        """Test get tracked value type description from database"""
+
+        result = self.client.get('/get-value-desc',
+                                 query_string={"value_id": 2})
+
+        self.assertEqual(b"n/a", result.data)
+
+    def test_get_count_desc(self):
+        """Test get tracked count type description from database"""
+
+        result = self.client.get('/get-count-desc',
+                                 query_string={"count_id": 1})
+
+        self.assertEqual(b"Rescue Inhaler", result.data)
+
+    def test_get_count_desc_none(self):
+        """Test get tracked count type description from database"""
+
+        result = self.client.get('/get-count-desc',
+                                 query_string={"count_id": 5})
+
+        self.assertEqual(b"n/a", result.data)
+
+
+class DailyItemsDatabaseTests(TestCase):
+    """Tests for tracking daily items."""
+
+    def setUp(self):
+        """Before every test"""
+
+        app.config['TESTING'] = True
+        app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
+        self.client = app.test_client()
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['userid'] = 2
+
+        # Connect to test database
+        connect_to_db(app, 'postgresql:///testdb')
+
+        # Drop all tables first
+        db.drop_all()
+
+        # Create tables and add sample data
+        db.create_all()
+        example_data()            
+
+    def tearDown(self):
+        """Do at end of every test."""
+
+        db.session.remove()
+        db.drop_all()
+        db.engine.dispose()
 
     def test_update_user_symptom_true(self):
         """Test update user symptom for existing record in database"""
@@ -755,7 +900,616 @@ class LoggedInTestsDatabase(TestCase):
             self.assertEqual(text, datarecord.log_text)
 
 
-class LoggedInTestsDatabaseAPI(TestCase):
+class AddItemsTests(TestCase):
+    """Tests for adding new tracking items."""
+
+    def setUp(self):
+        """Before every test"""
+
+        app.config['TESTING'] = True
+        app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
+        self.client = app.test_client()
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['userid'] = 2
+
+        # Connect to test database
+        connect_to_db(app, 'postgresql:///testdb')
+
+        # Drop all tables first
+        db.drop_all()
+
+        # Create tables and add sample data
+        db.create_all()
+        example_data()            
+
+    def tearDown(self):
+        """Do at end of every test."""
+
+        db.session.remove()
+        db.drop_all()
+        db.engine.dispose()
+
+    def test_add_user_condition(self):
+        """Test to add new user condition to track"""
+
+        cond_id = 2
+
+        with self.client as c:
+            result = c.post('/add-user-condition',
+                   data={"cond_id": cond_id})
+
+            datarecord = (UserCondition.query
+                          .filter(UserCondition.user_id==2,
+                                  UserCondition.cond_id==cond_id)
+                          .one())
+
+            self.assertEqual(b"Condition Added", result.data)        
+            self.assertEqual(True, datarecord.is_tracked)
+
+    def test_add_user_condition_toggle(self):
+        """Test to turn back on user condition marked as untracked"""
+
+        cond_id = 3
+
+        with self.client as c:
+            result = c.post('/add-user-condition',
+                   data={"cond_id": cond_id})
+
+            datarecord = (UserCondition.query
+                          .filter(UserCondition.user_id==2,
+                                  UserCondition.cond_id==cond_id)
+                          .one())
+
+            self.assertEqual(b"Condition is now tracked again", result.data)
+            self.assertEqual(True, datarecord.is_tracked)
+
+    def test_add_user_condition_bad(self):
+        """Trying to add already tracked user condition"""
+
+        cond_id = 1
+
+        with self.client as c:
+            result = c.post('/add-user-condition',
+                   data={"cond_id": cond_id})
+
+            datarecord = (UserCondition.query
+                          .filter(UserCondition.user_id==2,
+                                  UserCondition.cond_id==cond_id)
+                          .one())
+
+            self.assertEqual(b"Add condition failed", result.data)        
+            self.assertEqual(True, datarecord.is_tracked)
+
+    def test_add_symptom(self):
+        """Test to add new symptom to track"""
+
+        symptom_id = 10
+        usercond_id = 3
+
+        with self.client as c:
+            result = c.post('/add-user-symptom',
+                   data={"symptom_id": symptom_id,
+                         "usercond_id": usercond_id})
+
+            datarecord = (db.session
+                       .query(UserSymptom)
+                       .join(UserCondition)
+                       .filter(UserCondition.user_id==2,
+                               UserSymptom.symptom_id==symptom_id)
+                       .one())
+
+            self.assertEqual(b"Symptom Added", result.data)        
+            self.assertEqual(True, datarecord.is_tracked)
+
+    def test_add_user_symptom_toggle(self):
+        """Test to turn back on user symptom marked as untracked"""
+
+        symptom_id = 4
+        usercond_id = 5
+
+        with self.client as c:
+            result = c.post('/add-user-symptom',
+                   data={"symptom_id": symptom_id,
+                         "usercond_id": usercond_id})
+
+            datarecord = (db.session
+                       .query(UserSymptom)
+                       .join(UserCondition)
+                       .filter(UserCondition.user_id==2,
+                               UserSymptom.symptom_id==symptom_id)
+                       .one())
+
+            self.assertEqual(b"Symptom is now tracked again", result.data)
+            self.assertEqual(True, datarecord.is_tracked)
+
+    def test_add_user_symptom_bad(self):
+        """Trying to add already tracked user symptom"""
+
+        symptom_id = 1
+        usercond_id = 3
+
+        with self.client as c:
+            result = c.post('/add-user-symptom',
+                   data={"symptom_id": symptom_id,
+                         "usercond_id": usercond_id})
+
+            datarecord = (db.session
+                       .query(UserSymptom)
+                       .join(UserCondition)
+                       .filter(UserCondition.user_id==2,
+                               UserSymptom.symptom_id==symptom_id)
+                       .one())
+
+            self.assertEqual(b"Add symptom failed - this symptom is already tracked", result.data)        
+            self.assertEqual(True, datarecord.is_tracked)
+
+    def test_add_value(self):
+        """Test to add new value item to track"""
+
+        value_id = 3
+        usercond_id = 3
+
+        with self.client as c:
+            result = c.post('/add-user-value',
+                   data={"value_id": value_id,
+                         "usercond_id": usercond_id})
+
+            datarecord = (db.session
+                       .query(UserValueType)
+                       .join(UserCondition)
+                       .filter(UserCondition.user_id==2,
+                               UserValueType.value_id==value_id)
+                       .one())
+
+            self.assertEqual(b"Value Item Added", result.data)        
+            self.assertEqual(True, datarecord.is_tracked)
+
+    def test_add_user_value_toggle(self):
+        """Test to turn back on user value item marked as untracked"""
+
+        value_id = 2
+        usercond_id = 4
+
+        with self.client as c:
+            result = c.post('/add-user-value',
+                   data={"value_id": value_id,
+                         "usercond_id": usercond_id})
+
+            datarecord = (db.session
+                       .query(UserValueType)
+                       .join(UserCondition)
+                       .filter(UserCondition.user_id==2,
+                               UserValueType.value_id==value_id)
+                       .one())
+
+            self.assertEqual(b"Value item is now tracked again", result.data)
+            self.assertEqual(True, datarecord.is_tracked)
+
+    def test_add_user_value_bad(self):
+        """Trying to add already tracked user value item"""
+
+        value_id = 1
+        usercond_id = 3
+
+        with self.client as c:
+            result = c.post('/add-user-value',
+                   data={"value_id": value_id,
+                         "usercond_id": usercond_id})
+
+            datarecord = (db.session
+                       .query(UserValueType)
+                       .join(UserCondition)
+                       .filter(UserCondition.user_id==2,
+                               UserValueType.value_id==value_id)
+                       .one())
+
+            self.assertEqual(b"Add value item failed - this value item is already tracked", result.data)        
+            self.assertEqual(True, datarecord.is_tracked)
+
+    def test_add_count(self):
+        """Test to add new count item to track"""
+
+        count_id = 5
+        usercond_id = 3
+
+        with self.client as c:
+            result = c.post('/add-user-count',
+                   data={"count_id": count_id,
+                         "usercond_id": usercond_id})
+
+            datarecord = (db.session
+                       .query(UserCountType)
+                       .join(UserCondition)
+                       .filter(UserCondition.user_id==2,
+                               UserCountType.count_id==count_id)
+                       .one())
+
+            self.assertEqual(b"Count Item Added", result.data)        
+            self.assertEqual(True, datarecord.is_tracked)
+
+    def test_add_user_count_toggle(self):
+        """Test to turn back on user value item marked as untracked"""
+
+        count_id = 3
+        usercond_id = 4
+
+        with self.client as c:
+            result = c.post('/add-user-count',
+                   data={"count_id": count_id,
+                         "usercond_id": usercond_id})
+
+            datarecord = (db.session
+                       .query(UserCountType)
+                       .join(UserCondition)
+                       .filter(UserCondition.user_id==2,
+                               UserCountType.count_id==count_id)
+                       .one())
+
+            self.assertEqual(b"Count item is now tracked again", result.data)
+            self.assertEqual(True, datarecord.is_tracked)
+
+    def test_add_user_count_bad(self):
+        """Trying to add already tracked user count item"""
+
+        count_id = 2
+        usercond_id = 3
+
+        with self.client as c:
+            result = c.post('/add-user-count',
+                   data={"count_id": count_id,
+                         "usercond_id": usercond_id})
+
+            datarecord = (db.session
+                       .query(UserCountType)
+                       .join(UserCondition)
+                       .filter(UserCondition.user_id==2,
+                               UserCountType.count_id==count_id)
+                       .one())
+
+            self.assertEqual(b"Add count item failed - this count item is already tracked", result.data)        
+            self.assertEqual(True, datarecord.is_tracked)
+
+
+class StopTrackingItemsTests(TestCase):
+    """Tests for stopping tracking items."""
+
+    def setUp(self):
+        """Before every test"""
+
+        app.config['TESTING'] = True
+        app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
+        self.client = app.test_client()
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['userid'] = 2
+
+        # Connect to test database
+        connect_to_db(app, 'postgresql:///testdb')
+
+        # Drop all tables first
+        db.drop_all()
+
+        # Create tables and add sample data
+        db.create_all()
+        example_data()            
+
+    def tearDown(self):
+        """Do at end of every test."""
+
+        db.session.remove()
+        db.drop_all()
+        db.engine.dispose()
+
+    def test_stop_user_condition(self):
+        """Test to stop tracking user condition"""
+
+        cond_id = 1
+
+        with self.client as c:
+            result = c.post('/stop-user-condition',
+                   data={"cond_id": cond_id})
+
+            datarecord = (UserCondition.query
+                          .filter(UserCondition.user_id==2,
+                                  UserCondition.cond_id==cond_id)
+                          .one())
+
+            user_symptom = (db.session.query(UserSymptom)
+                             .join(UserCondition)
+                             .filter((UserCondition.user_id==2), 
+                                     (UserCondition.cond_id==cond_id))
+                             .first())
+
+            user_value = (db.session.query(UserValueType)
+                             .join(UserCondition)
+                             .filter((UserCondition.user_id==2), 
+                                     (UserCondition.cond_id==cond_id))
+                             .first())
+
+            user_count = (db.session.query(UserCountType)
+                             .join(UserCondition)
+                             .filter((UserCondition.user_id==2), 
+                                     (UserCondition.cond_id==cond_id))
+                             .first())
+
+            self.assertEqual(b"Condition (and sub data) are no longer tracked", result.data)        
+            self.assertEqual(False, datarecord.is_tracked)
+            self.assertEqual(False, user_symptom.is_tracked)
+            self.assertEqual(False, user_value.is_tracked)
+            self.assertEqual(False, user_count.is_tracked)
+
+    def test_stop_user_condition_bad(self):
+        """Test to stop tracking condition marked as not tracked"""
+
+        cond_id = 3
+
+        with self.client as c:
+            result = c.post('/stop-user-condition',
+                   data={"cond_id": cond_id})
+
+            datarecord = (UserCondition.query
+                          .filter(UserCondition.user_id==2,
+                                  UserCondition.cond_id==cond_id)
+                          .one())
+
+            self.assertEqual(b"Condition was not tracked - no change", result.data)        
+            self.assertEqual(False, datarecord.is_tracked)
+
+    def test_stop_user_condition_nottracked(self):
+        """Testing stop tracking condition not tracked"""
+
+        cond_id = 2
+
+        with self.client as c:
+            result = c.post('/stop-user-condition',
+                   data={"cond_id": cond_id})
+
+            self.assertEqual(b"Condition was not tracked - no change", result.data)        
+
+    def test_stop_symptom(self):
+        """Test to stop tracking symptom"""
+
+        symptom_id = 1
+
+        with self.client as c:
+            result = c.post('/stop-user-symptom',
+                   data={"symptom_id": symptom_id})
+
+            datarecord = (db.session
+                       .query(UserSymptom)
+                       .join(UserCondition)
+                       .filter(UserCondition.user_id==2,
+                               UserSymptom.symptom_id==symptom_id)
+                       .one())
+
+            self.assertEqual(b"Symptom is no longer tracked", result.data)        
+            self.assertEqual(False, datarecord.is_tracked)
+
+    def test_stop_symptom_bad(self):
+        """Test to stop tracking symptom marked as not tracked"""
+
+        symptom_id = 4
+
+        with self.client as c:
+            result = c.post('/stop-user-symptom',
+                   data={"symptom_id": symptom_id})
+
+            datarecord = (db.session
+                       .query(UserSymptom)
+                       .join(UserCondition)
+                       .filter(UserCondition.user_id==2,
+                               UserSymptom.symptom_id==symptom_id)
+                       .one())
+
+            self.assertEqual(b"Symptom was not tracked - no change", result.data)
+            self.assertEqual(False, datarecord.is_tracked)
+
+    def test_stop_symptom_nottracked(self):
+        """Testing stop tracking symptom not tracked"""
+
+        symptom_id = 10
+
+        with self.client as c:
+            result = c.post('/stop-user-symptom',
+                   data={"symptom_id": symptom_id})
+
+            self.assertEqual(b"Symptom was not tracked - no change", result.data)        
+
+    def test_stop_value(self):
+        """Test to stop tracking value item"""
+
+        value_id = 1
+
+        with self.client as c:
+            result = c.post('/stop-user-value',
+                   data={"value_id": value_id})
+
+            datarecord = (db.session
+                       .query(UserValueType)
+                       .join(UserCondition)
+                       .filter(UserCondition.user_id==2,
+                               UserValueType.value_id==value_id)
+                       .one())
+
+            self.assertEqual(b"Value item is no longer tracked", result.data)        
+            self.assertEqual(False, datarecord.is_tracked)
+
+    def test_stop_value_bad(self):
+        """Test to stop tracking value item marked as not tracked"""
+
+        value_id = 2
+
+        with self.client as c:
+            result = c.post('/stop-user-value',
+                   data={"value_id": value_id})
+
+            datarecord = (db.session
+                       .query(UserValueType)
+                       .join(UserCondition)
+                       .filter(UserCondition.user_id==2,
+                               UserValueType.value_id==value_id)
+                       .one())
+
+            self.assertEqual(b"Value item was not tracked - no change", result.data)
+            self.assertEqual(False, datarecord.is_tracked)
+
+    def test_stop_value_nottracked(self):
+        """Testing stop tracking value item not tracked"""
+
+        value_id = 3
+
+        with self.client as c:
+            result = c.post('/stop-user-value',
+                   data={"value_id": value_id})
+
+            self.assertEqual(b"Value item was not tracked - no change", result.data)
+
+    def test_stop_count(self):
+        """Test to stop tracking count item"""
+
+        count_id = 2
+
+        with self.client as c:
+            result = c.post('/stop-user-count',
+                   data={"count_id": count_id})
+
+            datarecord = (db.session
+                       .query(UserCountType)
+                       .join(UserCondition)
+                       .filter(UserCondition.user_id==2,
+                               UserCountType.count_id==count_id)
+                       .one())
+
+            self.assertEqual(b"Count item is no longer tracked", result.data)        
+            self.assertEqual(False, datarecord.is_tracked)
+
+    def test_stop_count_bad(self):
+        """Test to stop tracking count item marked as not tracked"""
+
+        count_id = 3
+
+        with self.client as c:
+            result = c.post('/stop-user-count',
+                   data={"count_id": count_id})
+
+            datarecord = (db.session
+                       .query(UserCountType)
+                       .join(UserCondition)
+                       .filter(UserCondition.user_id==2,
+                               UserCountType.count_id==count_id)
+                       .one())
+
+            self.assertEqual(b"Count item was not tracked - no change", result.data)
+            self.assertEqual(False, datarecord.is_tracked)
+
+    def test_stop_count_nottracked(self):
+        """Testing stop tracking count item not tracked"""
+
+        count_id = 5
+
+        with self.client as c:
+            result = c.post('/stop-user-count',
+                   data={"count_id": count_id})
+
+            self.assertEqual(b"Count item was not tracked - no change", result.data)
+
+
+class QueryItemsTests(TestCase):
+    """Tests for querying correlations on items."""
+
+    def setUp(self):
+        """Before every test"""
+
+        app.config['TESTING'] = True
+        app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
+        self.client = app.test_client()
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['userid'] = 2
+
+        # Connect to test database
+        connect_to_db(app, 'postgresql:///testdb')
+
+        # Drop all tables first
+        db.drop_all()
+
+        # Create tables and add sample data
+        db.create_all()
+        example_data()            
+
+    def tearDown(self):
+        """Do at end of every test."""
+
+        db.session.remove()
+        db.drop_all()
+        db.engine.dispose()
+
+    def test_query_symptom(self):
+        """Test to query database on symptom item"""
+
+        symptom_id = 1
+
+        result = self.client.get('/query-user-symptom.json',
+                                 query_string={"symptom_id": symptom_id})
+
+        self.assertTrue(b'["Backache",1]' in result.data)
+
+    def test_query_symptom_none(self):
+        """Test to query database on symptom item not tracked"""
+
+        symptom_id = 4
+
+        result = self.client.get('/query-user-symptom.json',
+                                 query_string={"symptom_id": symptom_id})
+
+        self.assertTrue(b'["Wheezing",0]' in result.data)
+
+    def test_query_value(self):
+        """Test to query database on value item"""
+
+        value_id = 1
+
+        result = self.client.get('/query-user-value.json',
+                                 query_string={"value_id": value_id})
+
+        self.assertTrue(b'["Wheezing",1]' in result.data)
+
+    def test_query_value_none(self):
+        """Test to query database on value item not tracked"""
+
+        value_id = 2
+
+        result = self.client.get('/query-user-value.json',
+                                 query_string={"value_id": value_id})
+
+        self.assertTrue(b'["Wheezing",0]' in result.data)
+
+    def test_query_count(self):
+        """Test to query database on count item"""
+
+        count_id = 1
+
+        result = self.client.get('/query-user-count.json',
+                                 query_string={"count_id": count_id})
+
+        self.assertTrue(b'["Wheezing",1]' in result.data)
+
+    def test_query_count_none(self):
+        """Test to query database on count item not tracked"""
+
+        count_id = 4
+
+        result = self.client.get('/query-user-count.json',
+                                 query_string={"count_id": count_id})
+
+        self.assertTrue(b'["Wheezing",0]' in result.data)
+
+
+class DailyItemsDatabaseAPITests(TestCase):
     """Tests for when a user is logged in."""
 
     def setUp(self):
@@ -808,7 +1562,7 @@ class LoggedInTestsDatabaseAPI(TestCase):
         """Test airnow api add value with input zip"""
 
         user_value_id = 2
-        date = "2018-10-24"
+        date = str(datetime.now().date())
         zipcode = "94030"
 
         with self.client as c:
@@ -854,7 +1608,7 @@ class LoggedInTestsDatabaseAPI(TestCase):
         """Test airnow api add value with default zip"""
 
         user_value_id = 2
-        date = "2018-10-24"
+        date = str(datetime.now().date())
 
         with self.client as c:
             result = c.post('/update-airnow-item',
@@ -896,7 +1650,7 @@ class LoggedInTestsDatabaseAPI(TestCase):
         """Test airnow api with bad zip"""
 
         user_value_id = 2
-        date = "2018-10-24"
+        date = str(datetime.now().date())
         zipcode = "as65aew"
 
         with self.client as c:
@@ -911,7 +1665,7 @@ class LoggedInTestsDatabaseAPI(TestCase):
             self.assertEqual("Failed to create AQI record", r[1])
 
 
-class LoggedInUser3TestsDatabaseAPI(TestCase):
+class User3DailyItemsDatabaseAPITests(TestCase):
     """Tests for when a user is logged in."""
 
     def setUp(self):
@@ -935,23 +1689,10 @@ class LoggedInUser3TestsDatabaseAPI(TestCase):
         db.create_all()
         example_data()
 
-        def _mock_get_airnow_data(url, payload):
-            if payload.get('date'):
-                if payload['zipCode'] == "02738":
-                    return AirNOW_mock.previous_02738
-                elif payload['zipCode'] == "94030":
-                    return AirNOW_mock.previous_94030
-                else:
-                    return AirNOW_mock.bad_zip
-            else:
-                if payload['zipCode'] == "02738":
-                    return AirNOW_mock.current_02738
-                elif payload['zipCode'] == "94030":
-                    return AirNOW_mock.current_94030
-                else:
-                    return AirNOW_mock.bad_zip
+        def _mock_get_airnow_data_badzip(url, payload):
+            return AirNOW_mock.bad_zip
 
-        server.get_airnow_data = _mock_get_airnow_data            
+        server.get_airnow_data = _mock_get_airnow_data_badzip            
 
     def tearDown(self):
         """Do at end of every test."""
