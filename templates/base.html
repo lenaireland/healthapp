@@ -9,6 +9,40 @@
 </head>
 
 <body>
+  {% block nav %}
+    {% if session.get('userid') %}
+      <nav class="navbar navbar-expand-md navbar-light bg-light">
+        <a class="navbar-brand" href="#">Health Tracker</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="/user/{{ session['userid'] }}">Daily Log</a>
+            </li>
+          </ul>
+          <ul class="navbar-nav mr-0">
+            <li class="nav-item">
+              <a class="nav-link" href="/add-tracking">Add Item</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/stop-tracking">Remove Item</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/settings">Settings</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/logout">Logout</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    {% endif %} 
+  {% endblock %}
+
+
   Track your way to a healthier you!
 
   <ul>
