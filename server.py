@@ -276,7 +276,7 @@ def stop_tracking():
         values = []
         counts = []
 
-        for cond in user_tracked_conditions():
+        for cond in user_conditions:
             symptoms += user_tracked_symptoms(cond)
             values += user_tracked_value_types(cond)
             counts += user_tracked_count_types(cond)
@@ -302,7 +302,7 @@ def query_database():
         values = []
         counts = []
 
-        for cond in user_tracked_conditions():
+        for cond in user_conditions:
             symptoms += user_tracked_symptoms(cond)
             values += user_tracked_value_types(cond)
             counts += user_tracked_count_types(cond)
@@ -315,6 +315,96 @@ def query_database():
 
     flash('You do not have permission to view this page.')
     return redirect('/login')
+
+@app.route('/plot')
+def plot_longitudinal():
+    """Plot longitudinal user data"""
+
+    if session.get('userid'):
+
+        return render_template('plot.html')
+
+    flash('You do not have permission to view this page.')
+    return redirect('/login')
+
+# The next 3 routes are used from plot.html and 
+# associated .js files to plot longitudinal time series
+
+@app.route('/get-symptom-timeseries', methods=['GET'])
+def get_symptom_timeseries():
+    """Get user symptom timeseries data from database"""
+
+
+    symptom_data = (db.session.query(SymptomItem)
+                          .join(UserSymptom)
+                          .join(UserCondition)
+                          .filter(UserSymptom.is_tracked==True,
+                                  SymptomItem.symptom_present==True,
+                                  UserCondition.user_id==session['userid'])
+                          .order_by(SymptomItem.symptom_date)
+                          .order_by(SymptomItem.user_symptom_id)
+                          .all())
+
+    symptom_data_dict = {}
+    for symptom_item in symptom_data:
+        user_symptom_name = symptom_item.user_symptom.symptom.symptom_name
+        if not symptom_data_dict.get(user_symptom_name):
+            symptom_data_dict[user_symptom_name] = []
+        symptom_data_dict[user_symptom_name].append({"date": str(symptom_item.symptom_date.date()),
+                                                 "sym_present": symptom_item.symptom_present})
+
+    return(jsonify(symptom_data_dict))
+
+@app.route('/get-value-timeseries', methods=['GET'])
+def get_value_timeseries():
+    """Get user value timeseries data from database"""
+
+
+    value_data = (db.session.query(ValueItem)
+                          .join(UserValueType)
+                          .join(UserCondition)
+                          .filter(UserValueType.is_tracked==True,
+                                  ValueItem.value > 0,
+                                  UserCondition.user_id==session['userid'])
+                          .order_by(ValueItem.value_date)
+                          .order_by(ValueItem.user_value_id)
+                          .all())
+
+    value_data_dict = {}
+    for value_item in value_data:
+        user_value_name = value_item.user_value_type.value_type.value_name
+        if not value_data_dict.get(user_value_name):
+            value_data_dict[user_value_name] = []
+        value_data_dict[user_value_name].append({"date": str(value_item.value_date.date()),
+                                                 "value": float(value_item.value)})
+
+
+    return(jsonify(value_data_dict))
+
+@app.route('/get-count-timeseries', methods=['GET'])
+def get_count_timeseries():
+    """Get user count timeseries data from database"""
+
+
+    count_data = (db.session.query(CountItem)
+                          .join(UserCountType)
+                          .join(UserCondition)
+                          .filter(UserCountType.is_tracked==True,
+                                  CountItem.count > 0,
+                                  UserCondition.user_id==session['userid'])
+                          .order_by(CountItem.count_date)
+                          .order_by(CountItem.user_count_id)
+                          .all())
+
+    count_data_dict = {}
+    for count_item in count_data:
+        user_count_name = count_item.user_count_type.count_type.count_name
+        if not count_data_dict.get(user_count_name):
+            count_data_dict[user_count_name] = []
+        count_data_dict[user_count_name].append({"date": str(count_item.count_date.date()),
+                                                 "count": count_item.count})
+
+    return(jsonify(count_data_dict))
 
 # The next 9 routes are used from usermainpage.html and 
 # associated .js files to display tracked user symptoms and 

@@ -219,7 +219,7 @@ class ValueItem(db.Model):
                               nullable=False)
 
     # Define relationships
-    user_value_item = db.relationship("UserValueType")
+    user_value_type = db.relationship("UserValueType")
 
     def __repr__(self):
         """Provide helpful representation when printed."""
