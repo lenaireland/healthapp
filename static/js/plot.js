@@ -49,7 +49,7 @@ $.get('get-value-timeseries', function (results) {
   // format the data
   data.forEach(function(d) {
       d.date = parseTime(d.date);
-      // d.close = +d.close;
+      // d.value = +d.value;
   });
 
   // Scale the range of the data
@@ -60,7 +60,10 @@ $.get('get-value-timeseries', function (results) {
   svg.append("path")
       .data([data])
       .attr("class", "line")
-      .attr("d", valueline);
+      .attr("d", valueline)
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-width", 1.5);
 
   // Add the X Axis
   svg.append("g")
@@ -72,8 +75,6 @@ $.get('get-value-timeseries', function (results) {
       .call(d3.axisLeft(y));
 
 });
-
-
 
 
 // event listener called when the DOM is ready
