@@ -3,7 +3,8 @@
 
 chart = {
   // const svg = d3.select(DOM.svg(width, height));
-  const svg = d3.select("body").append("svg")
+  const svg = d3.select("svg")
+  // const svg = d3.select("body").append("svg")
                 .attr("width", width)
                 .attr("height", height)
 
@@ -59,7 +60,7 @@ line = d3.line()
 
 let data;
 
-$.get('get-value-timeseries', function (results) {
+$.get('get-value-timeseries.json', function (results) {
   console.log(results);
   for (let result in results) {
     // console.log(results[result]);
@@ -71,3 +72,42 @@ $.get('get-value-timeseries', function (results) {
 });
 
 d3 = require("d3@5")
+
+
+// function drawChart(data) {
+
+//   const svgWidth = 960, svgHeight = 500
+//   const margin = { top:20, right: 20, bottom: 30, left: 50}
+//   const width = svgWidth - margin.left - margin.right;
+//   const height = svgHeight - margin.top - margin.bottom;
+
+//   const svg = d3.select('svg')
+//     .attr("width", svgWidth)
+//     .attr("height", svgHeight)
+// }
+
+
+// // event listener called when the DOM is ready
+// $(document).ready($.get('get-value-timeseries.json', function (results) {
+//   console.log(results)
+//   let data;
+
+//   // parse the date / time
+//   const parseTime = d3.timeParse("%Y-%m-%d");
+
+//   for (let result in results) {
+//     console.log(results[result]);
+
+//     if (result === 'AQI') {
+//       data = results[result];
+//       console.log(data); 
+
+//       .then(function (data) {
+//         data.forEach(function(d) {
+//           d.date = parseTime(d.date)
+//         });
+//         drawChart(data);
+//       });
+//     }
+//   }
+// }));
