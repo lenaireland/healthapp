@@ -353,6 +353,7 @@ def get_symptom_timeseries():
     #     symptom_data_dict[user_symptom_name].append({"date": str(symptom_item.symptom_date.date()),
     #                                              "sym_present": symptom_item.symptom_present})
 
+    # return(jsonify(symptom_data_dict))
 
     symptom_data_list = []
     for symptom_item in symptom_data:
@@ -385,6 +386,8 @@ def get_value_timeseries():
     #         value_data_dict[user_value_name] = []
     #     value_data_dict[user_value_name].append({"date": str(value_item.value_date.date()),
     #                                              "value": float(value_item.value)})
+
+    # return(jsonify(value_data_dict))
 
     value_data_list = []
     for value_item in value_data:
@@ -419,6 +422,8 @@ def get_count_timeseries():
     #     count_data_dict[user_count_name].append({"date": str(count_item.count_date.date()),
     #                                              "count": count_item.count})
 
+    # return(jsonify(count_data_dict))
+    
     count_data_list = []
     for count_item in count_data:
         user_count_name = count_item.user_count_type.count_type.count_name

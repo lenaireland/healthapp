@@ -3,14 +3,7 @@
 
 // adapted example D3 code from
 // https://bl.ocks.org/d3noob/402dd382a51a4f6eea487f9a35566de0
-
-// let groups = d3.select('svg').selectAll('g').data(data);
-
-// let groups_enter = groups.enter().append('g');
-
-// let groups_update = groups.merge(groups_enter)
-//                           .attr('transform', )
-
+// and http://bl.ocks.org/d3noob/d8be922a10cb0b148cd5
 
 // set the dimensions and margins of the graph
 const margin = {top: 20, right: 20, bottom: 30, left: 50},
@@ -32,15 +25,14 @@ const y = d3.scaleLinear().range([height, 0]);
 //     .orient("left").ticks(5);
 
 // define the line
-const valueline = d3.line()
+let valueline = d3.line()
   .x(function(d) { return x(d.date); })
   .y(function(d) { return y(d.value); });
 
-// append the svg obgect to the body of the page
+// append the svg object to the body of the page
 // appends a 'group' element to 'svg'
 // moves the 'group' element to the top left margin
-let svg = d3.select("body")
-  .append("svg")
+let svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
@@ -53,67 +45,54 @@ $.get('get-value-timeseries.json', function (results) {
 
   // console.log(results);
 
+// for list input
   results.forEach(function(d) {
     d.date = parseTime(d.date);
   });
 
 
-// to do: figure out how to not have "name" in values!!!!!
   let nests = d3.nest()
     .key(function(d) {return d.name; })
     .entries(results);
 
-    console.log(nests);
+// figure out how to do this in with .forEach instead
 
-  let xMin, xMax, yMax;
+  let xMin=results[0].date;
+  let xMax=results[0].date;
+  let yMax=results[0].value;
 
   for (let result in results) {
-    // console.log(results[result]);
 
     let data = results[result];
-    // console.log(data);
 
-    // data.forEach(function(d) {
-    //   d.date = parseTime(d.date);
-    // });
-
-    // let eachDataNest = d3.nest()
-    //   .key(function(d) {return result;})
-    //   .entries(data);
-
-    // console.log(eachDataNest);
-    // console.log(nests)
-
-    // Scale the range of the data
-    let localYMax = d3.max(data, function(d) { return d.value; });
-    if (yMax < localYMax) {
-      yMax = localYMax;
+    if (yMax < data.value) {
+      yMax = data.value;
     }
 
-    let localXMax = d3.max(data, function(d) { return d.date; });
-    if (xMax < localXMax) {
-      xMax= localXMax;
+    if (xMax < data.date) {
+      xMax= data.date;
     }
 
-    let localXMin = d3.min(data, function(d) { return d.date; });
-    if (xMin < localXMin) {
-      xMin= localXMin;
+    if (xMin > data.date) {
+      xMin= data.date;
     }
   }
-    // move outside for loop - and feed domain functions the xMin, xMax, etc vars
-    x.domain([xMin, xMax]);
-    y.domain([0, yMax]);
 
-    console.log(nests);
+  // Scale the range of the data   
+  x.domain([xMin, xMax]);
+  y.domain([0, yMax]);
 
-    nests.forEach(function(d) {
-      svg.append("path")      
-         .attr("class", "line")
-         .attr("d", valueline(d.values))
-         .attr("fill", "none")
-         .attr("stroke", "steelblue")
-         .attr("stroke-width", 1.5);
-    });
+  // Add the valueline path.
+  nests.forEach(function(d) {
+    svg.append("path")
+       .attr("class", "line")
+       .attr("d", valueline(d.values))
+       .attr("fill", "none")
+       .attr("stroke", "steelblue")
+       .attr("stroke-width", 1.5);
+  });
+
+    // debugger;
 
 
 
@@ -126,22 +105,6 @@ $.get('get-value-timeseries.json', function (results) {
   // // Scale the range of the data
   // x.domain(d3.extent(data, function(d) { return d.date; }));
   // y.domain([0, d3.max(data, function(d) { return d.value; })]);
-
-  // // Add the valueline path.
-  // svg.append("path")
-  //    .data([data])
-  //    .attr("class", "line")
-  //    .attr("d", valueline)
-  //    .attr("fill", "none")
-  //    .attr("stroke", "steelblue")
-  //    .attr("stroke-width", 1.5);
-
-  // Loop through each value item
-  // dataNest.forEach(function(d) {
-  //   svg.append("path")
-  //     .attr("class", "line")
-  //     .attr("d", valueline(d.values));
-  // });
 
   // Add the X Axis
   svg.append("g")
