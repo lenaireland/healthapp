@@ -11,6 +11,9 @@ const margin = {top: 20, right: 20, bottom: 70, left: 50},
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
+// Get today's date
+const now = new Date();
+
 // parse the date / time
 const parseTime = d3.timeParse("%Y-%m-%d");
 
@@ -28,24 +31,30 @@ let valueline = d3.line()
 // append the svg object to the body of the page
 // appends a 'group' element to 'svg'
 // moves the 'group' element to the top left margin
-let svg = d3.select("body").append("svg")
+let svg_value = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
     .attr("transform",
           "translate(" + margin.left + "," + margin.top + ")");
 
-// Get the data
+let svg_count = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
 
+// Get the value data
 $.get('get-value-timeseries.json', function (results) {
 
-// for list input
+  // for list input
   results.forEach(function(d) {
     d.date = parseTime(d.date);
   });
 
   // Scale the range of the data
-  x.domain(d3.extent(results, function(d) { return d.date; }));
+  x.domain([d3.min(results, function(d) { return d.date; }), d3.timeDay(now)]);
   y.domain([0, d3.max(results, function(d) { return d.value; })]);
 
   // let xMin = results[0].date;
@@ -69,17 +78,17 @@ $.get('get-value-timeseries.json', function (results) {
   // y.domain([0, yMax]);
 
   // create data nest
-  let dataNest = d3.nest()
+  let valueDataNest = d3.nest()
     .key(function(d) {return d.name; })
     .entries(results);
 
-  const legendSpace = width/dataNest.length;
+  const legendSpace = width/valueDataNest.length;
 
   // Loop through each symbol/key
-  dataNest.forEach(function(d,i) {
+  valueDataNest.forEach(function(d,i) {
 
     // Add the valueline path.
-    svg.append("path")
+    svg_value.append("path")
       .attr("class", "line")
       .style("stroke", function() {
         return d.color = color(d.key); })
@@ -90,7 +99,7 @@ $.get('get-value-timeseries.json', function (results) {
       // .attr("stroke-width", 1.5);
 
     // Add the legend
-    svg.append("text")            
+    svg_value.append("text")            
       .attr("x", (legendSpace/2)+i*legendSpace)
       .attr("y", height + (margin.bottom/2)+ 5)
       .attr("class", "legend")
@@ -111,17 +120,72 @@ $.get('get-value-timeseries.json', function (results) {
   });
 
   // Add the X Axis
-  svg.append("g")
+  svg_value.append("g")
      .attr("class", "x axis")
      .attr("transform", "translate(0," + height + ")")
      .call(d3.axisBottom(x));
 
   // Add the Y Axis
-  svg.append("g")
+  svg_value.append("g")
      .attr("class", "y axis")
      .call(d3.axisLeft(y));
 
 });
+
+
+// Get the count data
+$.get('get-count-timeseries.json', function (results) {
+
+  // for list input
+  results.forEach(function(d) {
+    d.date = parseTime(d.date);
+  });
+
+  const colorDomain = d3.extent(results, function(d) { return d.date; });
+
+  const colorScale = d3.scaleLinear()
+    .domain(colorDomain)
+    .range(["lightblue", "blue"]);
+
+  // create data nest
+  let countDataNest = d3.nest()
+    .key(function(d) {return d.name; })
+    .entries(results);
+
+  let xMin = d3.min(results, function(d) {return d.date});
+
+  let rectangles = svg_count.selectAll("rect")
+      .data(results)
+      .enter()
+      .append("rect")
+    //       .attr("x", function(d){ return ((d.date - xMin) * 50); })
+    // .attr("y", 50)
+    // .attr("width", 50)
+    // .attr("height", 50)
+    // .style("fill", function(d){
+    //   return colorScale(d.count);
+    // }); 
+
+  countDataNest.forEach(function(data, index) {
+    console.log(data);
+    console.log(index);
+
+    rectangles
+    .attr("x", function(d){ return ((d.date - xMin) * 50); })
+    .attr("y", function(d){ return index * 50; })
+    .attr("width", 50)
+    .attr("height", 50)
+    .style("fill", function(d){
+      return colorScale(d.count);
+    });  
+  })
+
+  // Scale the range of the data
+  x.domain([d3.min(results, function(d) { return d.date; }), d3.timeDay(now)]);
+  // y.domain([0, d3.max(results, function(d) { return d.value; })]);
+
+});
+
 
 
 // event listener called when the DOM is ready
