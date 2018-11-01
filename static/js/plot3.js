@@ -1,4 +1,4 @@
-
+3.
 'use strict';
 
 // adapted example D3 code from
@@ -7,7 +7,7 @@
 // and http://www.d3noob.org/2014/07/d3js-multi-line-graph-with-automatic.html
 
 // set the dimensions and margins of the graph
-const margin = {top: 20, right: 20, bottom: 70, left: 50},
+const margin = {top: 20, right: 20, bottom: 70, left: 100},
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
@@ -38,12 +38,26 @@ let svg_value = d3.select("body").append("svg")
     .attr("transform",
           "translate(" + margin.left + "," + margin.top + ")");
 
+let svg_symp = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
 let svg_count = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
     .attr("transform",
           "translate(" + margin.left + "," + margin.top + ")");
+
+let valueResults;
+let countResults;
+
+let dateMax;
+let dateMin;
+
 
 // Get the value data
 $.get('get-value-timeseries.json', function (results) {
@@ -56,26 +70,6 @@ $.get('get-value-timeseries.json', function (results) {
   // Scale the range of the data
   x.domain([d3.min(results, function(d) { return d.date; }), d3.timeDay(now)]);
   y.domain([0, d3.max(results, function(d) { return d.value; })]);
-
-  // let xMin = results[0].date;
-  // let xMax = results[0].date;
-  // let yMax = results[0].value;
-
-  // results.forEach(function(d) {
-  //   if (yMax < d.value) {
-  //     yMax = d.value;
-  //   }
-  //   if (xMax < d.date) {
-  //     xMax = d.date;
-  //   }
-  //   if (xMin > d.date) {
-  //     xMin = d.date;
-  //   }
-  // });
-
-  // // Scale the range of the data
-  // x.domain([xMin, xMax]);
-  // y.domain([0, yMax]);
 
   // create data nest
   let valueDataNest = d3.nest()
@@ -132,6 +126,116 @@ $.get('get-value-timeseries.json', function (results) {
 
 });
 
+// Get the symptom data
+$.get('get-symptom-timeseries.json', function (results) {
+
+  // for list input
+  results.forEach(function(d) {
+    d.date = parseTime(d.date);
+  });
+
+  // Scale the range of the data
+  x.domain([d3.min(results, function(d) { return d.date; }), d3.timeDay(now)]);
+  // y.domain([0, d3.max(results, function(d) { return d.count; })]);
+
+
+  const colorDomain = d3.extent(results, function(d) { return d.date; });
+
+  let colorScale = d3.scaleOrdinal(['pink', 'blue', 'orange', 'green']);
+
+  // const colorScale = d3.scaleLinear()
+  //   .domain(colorDomain)
+  //   .range(["lightblue", "blue"]);
+
+  // create data nest
+  let countDataNest = d3.nest()
+    .key(function(d) {return d.name; })
+    .entries(results);
+
+  let xMin = d3.min(results, function(d) {return d.date});
+  let xMax = d3.max(results, function(d) {return d.date});
+  let yNum = countDataNest.length;
+
+  let numDays = (xMax - xMin)/1000/3600/24;
+
+  let xScale = d3.scaleLinear()
+                 .domain([xMin, xMax])
+                 .range([0, 800]);
+
+  let yScale = d3.scaleLinear()
+                 .domain([0, yNum])
+                 .range([0, 400]);
+
+  allDays = Array.from(Array(numDays + 1).keys());
+
+
+  countDataNest.forEach(function(data, index) {
+    console.log(data);
+    console.log(index);
+    console.log(data.key);
+
+    // let label = svg_count.selectAll("labels")
+    //   .data(data)
+    //   .enter()
+    //   .append('g')
+    //   .attr("class", "name");
+
+    // label.append('name')
+    //   .attr('x', -150)
+    //   .attr('y', (d) => (100 * index+25))
+    //   .text((d) => d.key);
+
+    let boxes = svg_symp.selectAll("eachCount")
+      .data(data.values)
+      .enter()
+      .append('g')
+      .attr("class", "rect");
+
+    boxes.append('rect')
+      .attr('x', (d) => xScale(d.date))
+      .attr('y', () => yScale(index))
+      .attr("width", () => (xScale(xMax)/numDays))
+      .attr("height", () => (xScale(xMax)/numDays))
+      .style('fill', (d) => colorScale(d.name));
+
+    boxes.append('text')
+      .attr('x', (d) => (xScale(d.date) + (xScale(xMax)/numDays/2) ))
+      .attr('y', () => (yScale(index) + (xScale(xMax)/numDays/2) ))
+      .text((d) => d.count);
+
+    allDays.forEach(function(num) {
+
+      let empty_boxes = svg_symp.selectAll("eachCount")
+        .data(data.values)
+        .enter()
+        .append('g')
+        .attr("class", "rect");
+
+      empty_boxes.append('rect')
+        .attr('x', () => xScale(xMax)/numDays*num )
+        .attr('y', () => yScale(index))
+        .attr("width", () => (xScale(xMax)/numDays))
+        .attr("height", () => (xScale(xMax)/numDays))
+        .style('fill', 'transparent')
+        .style("stroke", 'black')
+        .style("stroke-width", 0.5);
+
+      empty_boxes.append('text')
+        .attr('x', -100)
+        .attr('y', (yScale(index) + (xScale(xMax)/numDays/2)))
+        .text((d) => d.name);
+    })
+
+  });
+
+
+  // Add the X Axis
+  svg_symp.append("g")
+     .attr("class", "x axis")
+     .attr("transform", "translate(0," + height + ")")
+     .call(d3.axisBottom(x));
+});
+
 
 // Get the count data
 $.get('get-count-timeseries.json', function (results) {
@@ -141,11 +245,18 @@ $.get('get-count-timeseries.json', function (results) {
     d.date = parseTime(d.date);
   });
 
+  // Scale the range of the data
+  x.domain([d3.min(results, function(d) { return d.date; }), d3.timeDay(now)]);
+  // y.domain([0, d3.max(results, function(d) { return d.count; })]);
+
+
   const colorDomain = d3.extent(results, function(d) { return d.date; });
 
-  const colorScale = d3.scaleLinear()
-    .domain(colorDomain)
-    .range(["lightblue", "blue"]);
+  let colorScale = d3.scaleOrdinal(['pink', 'blue', 'orange', 'green']);
+
+  // const colorScale = d3.scaleLinear()
+  //   .domain(colorDomain)
+  //   .range(["lightblue", "blue"]);
 
   // create data nest
   let countDataNest = d3.nest()
@@ -153,52 +264,109 @@ $.get('get-count-timeseries.json', function (results) {
     .entries(results);
 
   let xMin = d3.min(results, function(d) {return d.date});
+  let xMax = d3.max(results, function(d) {return d.date});
+  let yNum = countDataNest.length;
 
-  let rectangles = svg_count.selectAll("rect")
-      .data(results)
-      .enter()
-      .append("rect")
-    //       .attr("x", function(d){ return ((d.date - xMin) * 50); })
-    // .attr("y", 50)
-    // .attr("width", 50)
-    // .attr("height", 50)
-    // .style("fill", function(d){
-    //   return colorScale(d.count);
-    // }); 
+  let numDays = (xMax - xMin)/1000/3600/24;
+
+  let xScale = d3.scaleLinear()
+                 .domain([xMin, xMax])
+                 .range([0, 800]);
+
+  let yScale = d3.scaleLinear()
+                 .domain([0, yNum])
+                 .range([0, 400]);
+
+  allDays = Array.from(Array(numDays + 1).keys());
+
 
   countDataNest.forEach(function(data, index) {
     console.log(data);
     console.log(index);
+    console.log(data.key);
 
-    rectangles
-    .attr("x", function(d){ return ((d.date - xMin) * 50); })
-    .attr("y", function(d){ return index * 50; })
-    .attr("width", 50)
-    .attr("height", 50)
-    .style("fill", function(d){
-      return colorScale(d.count);
-    });  
-  })
+    // let label = svg_count.selectAll("labels")
+    //   .data(data)
+    //   .enter()
+    //   .append('g')
+    //   .attr("class", "name");
 
-  // Scale the range of the data
-  x.domain([d3.min(results, function(d) { return d.date; }), d3.timeDay(now)]);
-  // y.domain([0, d3.max(results, function(d) { return d.value; })]);
+    // label.append('name')
+    //   .attr('x', -150)
+    //   .attr('y', (d) => (100 * index+25))
+    //   .text((d) => d.key);
+
+    let boxes = svg_count.selectAll("eachCount")
+      .data(data.values)
+      .enter()
+      .append('g')
+      .attr("class", "rect");
+
+    boxes.append('rect')
+      .attr('x', (d) => xScale(d.date))
+      .attr('y', () => yScale(index))
+      .attr("width", () => (xScale(xMax)/numDays))
+      .attr("height", () => (xScale(xMax)/numDays))
+      .style('fill', (d) => colorScale(d.name));
+
+    boxes.append('text')
+      .attr('x', (d) => (xScale(d.date) + (xScale(xMax)/numDays/2) ))
+      .attr('y', () => (yScale(index) + (xScale(xMax)/numDays/2) ))
+      .text((d) => d.count);
+
+    allDays.forEach(function(num) {
+
+      let empty_boxes = svg_count.selectAll("eachCount")
+        .data(data.values)
+        .enter()
+        .append('g')
+        .attr("class", "rect");
+
+      empty_boxes.append('rect')
+        .attr('x', () => xScale(xMax)/numDays*num )
+        .attr('y', () => yScale(index))
+        .attr("width", () => (xScale(xMax)/numDays))
+        .attr("height", () => (xScale(xMax)/numDays))
+        .style('fill', 'transparent')
+        .style("stroke", 'black')
+        .style("stroke-width", 0.5);
+
+      empty_boxes.append('text')
+        .attr('x', -100)
+        .attr('y', (yScale(index) + (xScale(xMax)/numDays/2)))
+        .text((d) => d.name);
+    })
+
+  });
+
+
+  // Add the X Axis
+  svg_count.append("g")
+     .attr("class", "x axis")
+     .attr("transform", "translate(0," + height + ")")
+     .call(d3.axisBottom(x));
+
+  // // Add the Y Axis
+  // svg_count.append("g")
+  //    .attr("class", "y axis")
+  //    .call(d3.axisLeft(y));
 
 });
 
 
 
-// event listener called when the DOM is ready
-$(document).ready($.get('get-symptom-timeseries.json', function (results) {
-  console.log(results);
-}));
 
-// event listener called when the DOM is ready
-$(document).ready($.get('get-value-timeseries.json', function (results) {
-  console.log(results);
-}));
+// // event listener called when the DOM is ready
+// $(document).ready($.get('get-symptom-timeseries.json', function (results) {
+//   console.log(results);
+// }));
 
-// event listener called when the DOM is ready
-$(document).ready($.get('get-count-timeseries.json', function (results) {
-  console.log(results);
-}));
+// // event listener called when the DOM is ready
+// $(document).ready($.get('get-value-timeseries.json', function (results) {
+//   console.log(results);
+// }));
+
+// // event listener called when the DOM is ready
+// $(document).ready($.get('get-count-timeseries.json', function (results) {
+//   console.log(results);
+// }));
