@@ -54,12 +54,8 @@ function makePlots() {
       .attr("transform",
             "translate(" + boxes_margin.left + "," + boxes_margin.top + ")");
 
-  // let valueResults;
-  // let countResults;
-  // let sympResults;
 
-
-// to do: new route for # symptoms, min date
+// to get first date user tracked
   let valueDateMin;
   let countDateMin;
   let sympDateMin;
@@ -69,12 +65,10 @@ function makePlots() {
 
   // Get the value data
   const getValueData = $.get('get-value-timeseries.json', function (results) {
-      // for list input
+    // for list input
     results.forEach(function(d) {
       d.date = parseTime(d.date);
     });
-
-    // valueResults = results;
 
     valueDateMin = d3.min(results, function(d) { return d.date; });
   });
@@ -87,8 +81,6 @@ function makePlots() {
       sympNum.add(d.name);
     });
 
-    // sympResults = results;
-
     sympDateMin = d3.min(results, function(d) { return d.date; });
   });
 
@@ -98,8 +90,6 @@ function makePlots() {
     results.forEach(function(d) {
       d.date = parseTime(d.date);
     });
-
-    // countResults = results;
 
     countDateMin = d3.min(results, function(d) { return d.date; });
   });
@@ -140,9 +130,6 @@ function makePlots() {
             return d.color = color(d.key); })
           .attr("id", 'tag'+d.key.replace(/\s+/g, '')) // assign ID
           .attr("d", valueline(d.values))
-          // .attr("fill", "none")
-          // .attr("stroke", "steelblue")
-          // .attr("stroke-width", 1.5);
 
         // Add the legend
         svg_value.append("text")            
@@ -194,6 +181,7 @@ function makePlots() {
         .key(function(d) {return d.name; })
         .entries(results);
 
+      // parameters of data
       let xMax = d3.timeDay(now);
       let yNum = sympDataNest.length;
 
@@ -203,36 +191,39 @@ function makePlots() {
                      .domain([dateMin, xMax])
                      .range([0, boxes_width]);
 
-      // let yScale = d3.scaleLinear()
-      //                .domain([0, yNum])
-      //                .range([0, 400]);
-
       let allDays = Array.from(Array(numDays + 1).keys());
 
+      // create groups for each tracked item
       for (let y in Array.from(Array(yNum))) {
         svg_boxes.append('g')
           .attr("class", "Symp" + y);      
       }
 
-
+      // loop through datanest
       sympDataNest.forEach(function(data, index) {
 
         svg_boxes.select(".Symp" + index)
           .data(data.values)
-          .enter();
-//FIGURE OUT WHY THIS IS ONLY DOING FOR FIRST ENTRY!!!!!!!
+          .enter()
+
+        // Add item name label
         svg_boxes.select(".Symp" + index).append('text')
           .attr('x', -100)
           .attr('y', (index * 35 + 17.5 ))
           .text((d) => d.name);
 
-        svg_boxes.select(".Symp" + index).append('rect')
-          .attr('x', (d) => xScale(d.date) - (xScale(xMax)/numDays)/2)
-          .attr('y', () => (index * 35))
-          .attr("width", () => (xScale(xMax)/numDays))
-          .attr("height", 25)
-          .style('fill', (d) => color(d.name));
+        // For each data entry, add a colored box to correct day
+        data.values.forEach(function(d) {
 
+          svg_boxes.select(".Symp" + index).append('rect')
+            .attr('x', () => xScale(d.date) - (xScale(xMax)/numDays)/2)
+            .attr('y', () => (index * 35))
+            .attr("width", () => (xScale(xMax)/numDays))
+            .attr("height", 25)
+            .style('fill', () => color(d.name));
+        })
+
+        // For every day in range, add transparent box
         allDays.forEach(function(num) {
 
           svg_boxes.select(".Symp" + index).append('rect')
@@ -248,11 +239,6 @@ function makePlots() {
 
       });
 
-      // // Add the X Axis
-      // svg_boxes.append("g")
-      //    .attr("class", "x axis")
-      //    .attr("transform", "translate(0," + height + ")")
-      //    .call(d3.axisBottom(x));
     });
 
 
@@ -271,6 +257,7 @@ function makePlots() {
         .key(function(d) {return d.name; })
         .entries(results);
 
+      // parameters for data
       let xMax = d3.timeDay(now);
       let yNum = countDataNest.length;
 
@@ -280,42 +267,44 @@ function makePlots() {
                      .domain([dateMin, xMax])
                      .range([0, boxes_width]);
 
-      // let yScale = d3.scaleLinear()
-      //                .domain([0, yNum])
-      //                .range([0, 400]);
-
       let allDays = Array.from(Array(numDays + 1).keys());
 
+      // create groups for each tracked item
       for (let y in Array.from(Array(yNum))) {
         svg_boxes.append('g')
           .attr("class", "Count" + y);      
       }
 
+      // loop through datanest
       countDataNest.forEach(function(data, index) {
-        console.log(data.values);
 
         svg_boxes.select(".Count" + index)
           .data(data.values)
           .enter();
-//FIGURE OUT WHY THIS IS ONLY DOING FOR FIRST ENTRY!!!!!!!
+
+        // Add item name label
         svg_boxes.select(".Count" + index).append('text')
           .attr('x', -100)
           .attr('y', ((sympNum.size + index) * 35 + 17.5))
           .text((d) => d.name);
 
-        svg_boxes.select(".Count" + index).append('rect')
-          .attr('x', (d) => xScale(d.date) - (xScale(xMax)/numDays)/2)
-          .attr('y', () => ((sympNum.size + index) * 35))
-          .attr("width", () => (xScale(xMax)/numDays))
-          .attr("height", () => 25)
-          .style('fill', (d) => color(d.name));
+        // For each data entry, add a colored box to correct day
+        data.values.forEach(function(d) {          
 
-        svg_boxes.select(".Count" + index).append('text')
-          .attr('x', (d) => (xScale(d.date) -4))
-          .attr('y', () => ((sympNum.size + index) * 35 + 17.5))
-          .text((d) => d.count);
+          svg_boxes.select(".Count" + index).append('rect')
+            .attr('x', () => xScale(d.date) - (xScale(xMax)/numDays)/2)
+            .attr('y', () => ((sympNum.size + index) * 35))
+            .attr("width", () => (xScale(xMax)/numDays))
+            .attr("height", () => 25)
+            .style('fill', () => color(d.name));
 
-        // place empty boxes
+          svg_boxes.select(".Count" + index).append('text')
+            .attr('x', () => (xScale(d.date) -4))
+            .attr('y', () => ((sympNum.size + index) * 35 + 17.5))
+            .text(() => d.count);
+        });
+
+        // For every day in range, add transparent box
         allDays.forEach(function(num) {
 
           svg_boxes.select(".Count" + index).append('rect')
@@ -356,21 +345,3 @@ function makePlots() {
 }
 
 makePlots();
-
-
-
-
-// // event listener called when the DOM is ready
-// $(document).ready($.get('get-symptom-timeseries.json', function (results) {
-//   console.log(results);
-// }));
-
-// // event listener called when the DOM is ready
-// $(document).ready($.get('get-value-timeseries.json', function (results) {
-//   console.log(results);
-// }));
-
-// // event listener called when the DOM is ready
-// $(document).ready($.get('get-count-timeseries.json', function (results) {
-//   console.log(results);
-// }));

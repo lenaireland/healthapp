@@ -392,6 +392,7 @@ def get_symptom_timeseries():
         symptom_data_list.append({"name": user_symptom_name,
                              "date": str(symptom_item.symptom_date.date()),
                              "sym_present": symptom_item.symptom_present})
+    print(symptom_data)
 
     return(jsonify(symptom_data_list))
 
