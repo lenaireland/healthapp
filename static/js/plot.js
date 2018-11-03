@@ -220,7 +220,7 @@ function makePlots() {
         svg_boxes.select(".Symp" + index)
           .data(data.values)
           .enter();
-
+//FIGURE OUT WHY THIS IS ONLY DOING FOR FIRST ENTRY!!!!!!!
         svg_boxes.select(".Symp" + index).append('text')
           .attr('x', -100)
           .attr('y', (index * 35 + 17.5 ))
@@ -297,7 +297,7 @@ function makePlots() {
         svg_boxes.select(".Count" + index)
           .data(data.values)
           .enter();
-
+//FIGURE OUT WHY THIS IS ONLY DOING FOR FIRST ENTRY!!!!!!!
         svg_boxes.select(".Count" + index).append('text')
           .attr('x', -100)
           .attr('y', ((sympNum.size + index) * 35 + 17.5))
