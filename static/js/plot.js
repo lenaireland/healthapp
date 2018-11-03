@@ -10,9 +10,14 @@ function makePlots() {
   // and http://www.d3noob.org/2014/07/d3js-multi-line-graph-with-automatic.html
 
   // set the dimensions and margins of the values graph
-  let margin = {top: 20, right: 20, bottom: 70, left: 100};
+  let margin = {top: 20, right: 20, bottom: 70, left: 150};
   let width = 960 - margin.left - margin.right;
   let height = 500 - margin.top - margin.bottom;
+
+  // set the dimensions and margins of the boxes graph
+  let boxes_margin = {top: 20, right: 20, bottom: 70, left: 150};
+  let boxes_width = 960 - boxes_margin.left - boxes_margin.right;
+  let boxes_height = 1500 - boxes_margin.top - boxes_margin.bottom;
 
   // Get today's date
   const now = new Date();
@@ -42,28 +47,30 @@ function makePlots() {
       .attr("transform",
             "translate(" + margin.left + "," + margin.top + ")");
 
-  let svg_symp = d3.select("body").append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
+  let svg_boxes = d3.select("body").append("svg")
+      .attr("width", boxes_width + boxes_margin.left + boxes_margin.right)
+      .attr("height", boxes_height + boxes_margin.top + boxes_margin.bottom)
     .append("g")
       .attr("transform",
-            "translate(" + margin.left + "," + margin.top + ")");
-
-  let svg_count = d3.select("body").append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-      .attr("transform",
-            "translate(" + margin.left + "," + margin.top + ")");
+            "translate(" + boxes_margin.left + "," + boxes_margin.top + ")");
 
   // let valueResults;
   // let countResults;
   // let sympResults;
 
+
+// to do: new route for # symptoms, min date
   let valueDateMin;
   let countDateMin;
   let sympDateMin;
   let dateMin;
+
+  let sympNum;
+
+const getDateMin = $.get('get-plot-setup-data', function (results) {
+      // for list input
+      console.log('hi');
+    });
 
 
   // Get the value data
@@ -111,8 +118,6 @@ function makePlots() {
 
     // for value data
 
-    // FIGURE OUT HOW TO GET RID OF THIS REDUNDANT CALL - 
-    // NEXT 5 LINES (ASYNCHRONOUS PROBLEM)
     $.get('get-value-timeseries.json', function (results) {
       // for list input
       results.forEach(function(d) {
@@ -181,10 +186,9 @@ function makePlots() {
 
     // // For symptom data
 
-    // FIGURE OUT HOW TO GET RID OF THIS REDUNDANT CALL - 
-    // NEXT 5 LINES (ASYNCHRONOUS PROBLEM)
     $.get('get-symptom-timeseries.json', function (results) {
       // for list input
+      console.log(results);
       results.forEach(function(d) {
         d.date = parseTime(d.date);
       });
@@ -197,8 +201,6 @@ function makePlots() {
         .key(function(d) {return d.name; })
         .entries(results);
 
-      // let xMin = d3.min(results, function(d) {return d.date});
-      // let xMax = d3.max(results, function(d) {return d.date});
       let xMax = d3.timeDay(now);
       let yNum = sympDataNest.length;
 
@@ -206,68 +208,63 @@ function makePlots() {
 
       let xScale = d3.scaleLinear()
                      .domain([dateMin, xMax])
-                     .range([0, 800]);
+                     .range([0, boxes_width]);
 
-      let yScale = d3.scaleLinear()
-                     .domain([0, yNum])
-                     .range([0, 400]);
+      // let yScale = d3.scaleLinear()
+      //                .domain([0, yNum])
+      //                .range([0, 400]);
 
       let allDays = Array.from(Array(numDays + 1).keys());
+
+      for (let y in Array.from(Array(yNum))) {
+        svg_boxes.append('g')
+          .attr("class", "Symp" + y);      
+      }
 
 
       sympDataNest.forEach(function(data, index) {
 
-        let boxes = svg_symp.selectAll("eachSymp")
+        d3.select(".Symp" + index)
           .data(data.values)
-          .enter()
-          .append('g')
-          .attr("class", "rect");
+          .enter();
 
-        boxes.append('rect')
-          .attr('x', (d) => xScale(d.date))
-          .attr('y', () => yScale(index))
+        d3.select(".Symp" + index).append('rect')
+          .attr('x', (d) => xScale(d.date) - (xScale(xMax)/numDays)/2)
+          .attr('y', () => (index * 35))
           .attr("width", () => (xScale(xMax)/numDays))
-          .attr("height", () => (xScale(xMax)/numDays))
+          .attr("height", 25)
           .style('fill', (d) => color(d.name));
+
+        svg_boxes.select(".Symp" + index).append('text')
+          .attr('x', -100)
+          .attr('y', (index * 35 + 17.5 ))
+          .text((d) => d.name);
 
         allDays.forEach(function(num) {
 
-          let empty_boxes = svg_symp.selectAll("eachSymp")
-            .data(data.values)
-            .enter()
-            .append('g')
-            .attr("class", "rect");
-
-          empty_boxes.append('rect')
-            .attr('x', () => xScale(xMax)/numDays*num )
-            .attr('y', () => yScale(index))
+          svg_boxes.select(".Symp" + index).append('rect')
+            .attr('x', () => xScale(xMax) / numDays * (num - 1/2) )
+            .attr('y', () => (index * 35))
             .attr("width", () => (xScale(xMax)/numDays))
-            .attr("height", () => (xScale(xMax)/numDays))
+            .attr("height", 25)
             .style('fill', 'transparent')
             .style("stroke", 'black')
             .style("stroke-width", 0.5);
 
-          empty_boxes.append('text')
-            .attr('x', -100)
-            .attr('y', (yScale(index) + (xScale(xMax)/numDays/2)))
-            .text((d) => d.name);
-        })
+        });
 
       });
 
-
-      // Add the X Axis
-      svg_symp.append("g")
-         .attr("class", "x axis")
-         .attr("transform", "translate(0," + height + ")")
-         .call(d3.axisBottom(x));
+      // // Add the X Axis
+      // svg_boxes.append("g")
+      //    .attr("class", "x axis")
+      //    .attr("transform", "translate(0," + height + ")")
+      //    .call(d3.axisBottom(x));
     });
 
 
     // // For count data
 
-    // FIGURE OUT HOW TO GET RID OF THIS REDUNDANT CALL - 
-    // NEXT 5 LINES (ASYNCHRONOUS PROBLEM)
     $.get('get-count-timeseries.json', function (results) {
       // for list input
       results.forEach(function(d) {
@@ -281,8 +278,6 @@ function makePlots() {
         .key(function(d) {return d.name; })
         .entries(results);
 
-      // let xMin = d3.min(results, function(d) {return d.date});
-      // let xMax = d3.max(results, function(d) {return d.date});
       let xMax = d3.timeDay(now);
       let yNum = countDataNest.length;
 
@@ -290,79 +285,64 @@ function makePlots() {
 
       let xScale = d3.scaleLinear()
                      .domain([dateMin, xMax])
-                     .range([0, 800]);
+                     .range([0, boxes_width]);
 
-      let yScale = d3.scaleLinear()
-                     .domain([0, yNum])
-                     .range([0, 400]);
+      // let yScale = d3.scaleLinear()
+      //                .domain([0, yNum])
+      //                .range([0, 400]);
 
       let allDays = Array.from(Array(numDays + 1).keys());
 
-
+      for (let y in Array.from(Array(yNum))) {
+        svg_boxes.append('g')
+          .attr("class", "Count" + y);      
+      }
+//!!!!!!!!!!!!!!!!!!!!!!!!
+// TO DO: CHANGE ALL 5s below to num of symptoms tracked (get new route for this!!!!)
       countDataNest.forEach(function(data, index) {
 
-        // count_height += 100;
-
-        // let label = svg_count.selectAll("labels")
-        //   .data(data)
-        //   .enter()
-        //   .append('g')
-        //   .attr("class", "name");
-
-        // label.append('name')
-        //   .attr('x', -150)
-        //   .attr('y', (d) => (100 * index+25))
-        //   .text((d) => d.key);
-
-        let boxes = svg_count.selectAll("eachCount")
+        d3.select(".Count" + index)
           .data(data.values)
-          .enter()
-          .append('g')
-          .attr("class", "rect");
+          .enter();
 
-        boxes.append('rect')
-          .attr('x', (d) => xScale(d.date))
-          .attr('y', () => yScale(index))
+        d3.select(".Count" + index).append('rect')
+          .attr('x', (d) => xScale(d.date) - (xScale(xMax)/numDays)/2)
+          .attr('y', () => ((5 + index) * 35))
           .attr("width", () => (xScale(xMax)/numDays))
-          .attr("height", () => (xScale(xMax)/numDays))
+          .attr("height", () => 25)
           .style('fill', (d) => color(d.name));
 
-        boxes.append('text')
-          .attr('x', (d) => (xScale(d.date) + (xScale(xMax)/numDays/2) ))
-          .attr('y', () => (yScale(index) + (xScale(xMax)/numDays/2) ))
+        svg_boxes.select(".Count" + index).append('text')
+          .attr('x', (d) => (xScale(d.date) -4))
+          .attr('y', () => ((5 + index) * 35 + 17.5))
           .text((d) => d.count);
 
+        svg_boxes.select(".Count" + index).append('text')
+          .attr('x', -100)
+          .attr('y', ((5 + index) * 35 + 17.5))
+          .text((d) => d.name);
+
+        // place empty boxes
         allDays.forEach(function(num) {
 
-          let empty_boxes = svg_count.selectAll("eachCount")
-            .data(data.values)
-            .enter()
-            .append('g')
-            .attr("class", "rect");
-
-          empty_boxes.append('rect')
-            .attr('x', () => xScale(xMax)/numDays*num )
-            .attr('y', () => yScale(index))
+          svg_boxes.select(".Count" + index).append('rect')
+            .attr('x', () => xScale(xMax) / numDays * (num - 1/2) )
+            .attr('y', () => ((5 + index) * 35))
             .attr("width", () => (xScale(xMax)/numDays))
-            .attr("height", () => (xScale(xMax)/numDays))
+            .attr("height", 25)
             .style('fill', 'transparent')
             .style("stroke", 'black')
             .style("stroke-width", 0.5);
 
-          empty_boxes.append('text')
-            .attr('x', -100)
-            .attr('y', (yScale(index) + (xScale(xMax)/numDays/2)))
-            .text((d) => d.name);
-        })
+        });
 
       });
 
-
-      // Add the X Axis
-      svg_count.append("g")
-         .attr("class", "x axis")
-         .attr("transform", "translate(0," + height + ")")
-         .call(d3.axisBottom(x));
+      // // Add the X Axis
+      // svg_boxes.append("g")
+      //    .attr("class", "x axis")
+      //    .attr("transform", "translate(0," + height + ")")
+      //    .call(d3.axisBottom(x));
 
       // // Add the Y Axis
       // svg_count.append("g")

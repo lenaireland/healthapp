@@ -327,13 +327,54 @@ def plot_longitudinal():
     flash('You do not have permission to view this page.')
     return redirect('/login')
 
-# The next 3 routes are used from plot.html and 
+# The next 4 routes are used from plot.html and 
 # associated .js files to plot longitudinal time series
+
+@app.route('/get-plot-setup-data', methods=['GET'])
+def get_plot_setup_data():
+    """Get user first logged date and number of symptoms"""
+
+    # num_symptoms = (db.session.query(func.count(UserSymptom.user_symptom_id_pk))
+    #                           .join(UserCondition)
+    #                           .join(SymptomItem)
+    #                           .filter(UserSymptom.is_tracked==True,
+    #                                   SymptomItem.symptom_present==True
+    #                                   UserCondition.user_id==session['userid'])
+    #                           .one())
+
+    first_symp_date = (db.session.query(func.min(SymptomItem.symptom_date))
+                              .join(UserSymptom)
+                              .join(UserCondition)
+                              .filter(UserSymptom.is_tracked==True,
+                                      SymptomItem.symptom_present==True,
+                                      UserCondition.user_id==session['userid'])
+                              .first())
+
+    first_value_date = (db.session.query(func.min(ValueItem.value_date))
+                          .join(UserValueType)
+                          .join(UserCondition)
+                          .filter(UserValueType.is_tracked==True,
+                                  ValueItem.value > 0,
+                                  UserCondition.user_id==session['userid'])
+                          .first())
+
+    first_count_date = (db.session.query(func.min(CountItem.count_date))
+                          .join(UserCountType)
+                          .join(UserCondition)
+                          .filter(UserCountType.is_tracked==True,
+                                  CountItem.count > 0,
+                                  UserCondition.user_id==session['userid'])
+                          .first())
+
+    first_date = min(first_symp_date[0], first_value_date[0], first_count_date[0])
+    print(first_symp_date)
+    print(first_date)
+    print(type(first_date))
+    return("hi")
 
 @app.route('/get-symptom-timeseries.json', methods=['GET'])
 def get_symptom_timeseries():
     """Get user symptom timeseries data from database"""
-
 
     symptom_data = (db.session.query(SymptomItem)
                           .join(UserSymptom)
@@ -342,18 +383,8 @@ def get_symptom_timeseries():
                                   SymptomItem.symptom_present==True,
                                   UserCondition.user_id==session['userid'])
                           .order_by(SymptomItem.symptom_date)
-                          .order_by(SymptomItem.user_symptom_id)
+                          .order_by(UserSymptom.usercond_id)
                           .all())
-
-    # symptom_data_dict = {}
-    # for symptom_item in symptom_data:
-    #     user_symptom_name = symptom_item.user_symptom.symptom.symptom_name
-    #     if not symptom_data_dict.get(user_symptom_name):
-    #         symptom_data_dict[user_symptom_name] = []
-    #     symptom_data_dict[user_symptom_name].append({"date": str(symptom_item.symptom_date.date()),
-    #                                              "sym_present": symptom_item.symptom_present})
-
-    # return(jsonify(symptom_data_dict))
 
     symptom_data_list = []
     for symptom_item in symptom_data:
@@ -379,16 +410,6 @@ def get_value_timeseries():
                           .order_by(ValueItem.user_value_id)
                           .all())
 
-    # value_data_dict = {}
-    # for value_item in value_data:
-    #     user_value_name = value_item.user_value_type.value_type.value_name
-    #     if not value_data_dict.get(user_value_name):
-    #         value_data_dict[user_value_name] = []
-    #     value_data_dict[user_value_name].append({"date": str(value_item.value_date.date()),
-    #                                              "value": float(value_item.value)})
-
-    # return(jsonify(value_data_dict))
-
     value_data_list = []
     for value_item in value_data:
         user_value_name = value_item.user_value_type.value_type.value_name
@@ -413,16 +434,6 @@ def get_count_timeseries():
                           .order_by(CountItem.count_date)
                           .order_by(CountItem.user_count_id)
                           .all())
-
-    # count_data_dict = {}
-    # for count_item in count_data:
-    #     user_count_name = count_item.user_count_type.count_type.count_name
-    #     if not count_data_dict.get(user_count_name):
-    #         count_data_dict[user_count_name] = []
-    #     count_data_dict[user_count_name].append({"date": str(count_item.count_date.date()),
-    #                                              "count": count_item.count})
-
-    # return(jsonify(count_data_dict))
     
     count_data_list = []
     for count_item in count_data:
