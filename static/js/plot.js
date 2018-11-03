@@ -65,13 +65,7 @@ function makePlots() {
   let sympDateMin;
   let dateMin;
 
-  let sympNum;
-
-const getDateMin = $.get('get-plot-setup-data', function (results) {
-      // for list input
-      console.log('hi');
-    });
-
+  let sympNum = new Set();
 
   // Get the value data
   const getValueData = $.get('get-value-timeseries.json', function (results) {
@@ -90,6 +84,7 @@ const getDateMin = $.get('get-plot-setup-data', function (results) {
     // for list input
     results.forEach(function(d) {
       d.date = parseTime(d.date);
+      sympNum.add(d.name);
     });
 
     // sympResults = results;
@@ -126,7 +121,6 @@ const getDateMin = $.get('get-plot-setup-data', function (results) {
 
       // Scale the range of the data
       x.domain([dateMin, d3.timeDay(now)]);
-      // console.log(results);
       y.domain([0, d3.max(results, function(d) { return d.value; })]);
 
       // create data nest
@@ -188,7 +182,6 @@ const getDateMin = $.get('get-plot-setup-data', function (results) {
 
     $.get('get-symptom-timeseries.json', function (results) {
       // for list input
-      console.log(results);
       results.forEach(function(d) {
         d.date = parseTime(d.date);
       });
@@ -224,21 +217,21 @@ const getDateMin = $.get('get-plot-setup-data', function (results) {
 
       sympDataNest.forEach(function(data, index) {
 
-        d3.select(".Symp" + index)
+        svg_boxes.select(".Symp" + index)
           .data(data.values)
           .enter();
-
-        d3.select(".Symp" + index).append('rect')
-          .attr('x', (d) => xScale(d.date) - (xScale(xMax)/numDays)/2)
-          .attr('y', () => (index * 35))
-          .attr("width", () => (xScale(xMax)/numDays))
-          .attr("height", 25)
-          .style('fill', (d) => color(d.name));
 
         svg_boxes.select(".Symp" + index).append('text')
           .attr('x', -100)
           .attr('y', (index * 35 + 17.5 ))
           .text((d) => d.name);
+
+        svg_boxes.select(".Symp" + index).append('rect')
+          .attr('x', (d) => xScale(d.date) - (xScale(xMax)/numDays)/2)
+          .attr('y', () => (index * 35))
+          .attr("width", () => (xScale(xMax)/numDays))
+          .attr("height", 25)
+          .style('fill', (d) => color(d.name));
 
         allDays.forEach(function(num) {
 
@@ -297,37 +290,37 @@ const getDateMin = $.get('get-plot-setup-data', function (results) {
         svg_boxes.append('g')
           .attr("class", "Count" + y);      
       }
-//!!!!!!!!!!!!!!!!!!!!!!!!
-// TO DO: CHANGE ALL 5s below to num of symptoms tracked (get new route for this!!!!)
-      countDataNest.forEach(function(data, index) {
 
-        d3.select(".Count" + index)
+      countDataNest.forEach(function(data, index) {
+        console.log(data.values);
+
+        svg_boxes.select(".Count" + index)
           .data(data.values)
           .enter();
 
-        d3.select(".Count" + index).append('rect')
+        svg_boxes.select(".Count" + index).append('text')
+          .attr('x', -100)
+          .attr('y', ((sympNum.size + index) * 35 + 17.5))
+          .text((d) => d.name);
+
+        svg_boxes.select(".Count" + index).append('rect')
           .attr('x', (d) => xScale(d.date) - (xScale(xMax)/numDays)/2)
-          .attr('y', () => ((5 + index) * 35))
+          .attr('y', () => ((sympNum.size + index) * 35))
           .attr("width", () => (xScale(xMax)/numDays))
           .attr("height", () => 25)
           .style('fill', (d) => color(d.name));
 
         svg_boxes.select(".Count" + index).append('text')
           .attr('x', (d) => (xScale(d.date) -4))
-          .attr('y', () => ((5 + index) * 35 + 17.5))
+          .attr('y', () => ((sympNum.size + index) * 35 + 17.5))
           .text((d) => d.count);
-
-        svg_boxes.select(".Count" + index).append('text')
-          .attr('x', -100)
-          .attr('y', ((5 + index) * 35 + 17.5))
-          .text((d) => d.name);
 
         // place empty boxes
         allDays.forEach(function(num) {
 
           svg_boxes.select(".Count" + index).append('rect')
             .attr('x', () => xScale(xMax) / numDays * (num - 1/2) )
-            .attr('y', () => ((5 + index) * 35))
+            .attr('y', () => ((sympNum.size + index) * 35))
             .attr("width", () => (xScale(xMax)/numDays))
             .attr("height", 25)
             .style('fill', 'transparent')

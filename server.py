@@ -330,47 +330,47 @@ def plot_longitudinal():
 # The next 4 routes are used from plot.html and 
 # associated .js files to plot longitudinal time series
 
-@app.route('/get-plot-setup-data', methods=['GET'])
-def get_plot_setup_data():
-    """Get user first logged date and number of symptoms"""
+# @app.route('/get-plot-setup-data', methods=['GET'])
+# def get_plot_setup_data():
+#     """Get user first logged date and number of symptoms"""
 
-    # num_symptoms = (db.session.query(func.count(UserSymptom.user_symptom_id_pk))
-    #                           .join(UserCondition)
-    #                           .join(SymptomItem)
-    #                           .filter(UserSymptom.is_tracked==True,
-    #                                   SymptomItem.symptom_present==True
-    #                                   UserCondition.user_id==session['userid'])
-    #                           .one())
+#     # num_symptoms = (db.session.query(func.count(UserSymptom.user_symptom_id_pk))
+#     #                           .join(UserCondition)
+#     #                           .join(SymptomItem)
+#     #                           .filter(UserSymptom.is_tracked==True,
+#     #                                   SymptomItem.symptom_present==True
+#     #                                   UserCondition.user_id==session['userid'])
+#     #                           .one())
 
-    first_symp_date = (db.session.query(func.min(SymptomItem.symptom_date))
-                              .join(UserSymptom)
-                              .join(UserCondition)
-                              .filter(UserSymptom.is_tracked==True,
-                                      SymptomItem.symptom_present==True,
-                                      UserCondition.user_id==session['userid'])
-                              .first())
+#     first_symp_date = (db.session.query(func.min(SymptomItem.symptom_date))
+#                               .join(UserSymptom)
+#                               .join(UserCondition)
+#                               .filter(UserSymptom.is_tracked==True,
+#                                       SymptomItem.symptom_present==True,
+#                                       UserCondition.user_id==session['userid'])
+#                               .first())
 
-    first_value_date = (db.session.query(func.min(ValueItem.value_date))
-                          .join(UserValueType)
-                          .join(UserCondition)
-                          .filter(UserValueType.is_tracked==True,
-                                  ValueItem.value > 0,
-                                  UserCondition.user_id==session['userid'])
-                          .first())
+#     first_value_date = (db.session.query(func.min(ValueItem.value_date))
+#                           .join(UserValueType)
+#                           .join(UserCondition)
+#                           .filter(UserValueType.is_tracked==True,
+#                                   ValueItem.value > 0,
+#                                   UserCondition.user_id==session['userid'])
+#                           .first())
 
-    first_count_date = (db.session.query(func.min(CountItem.count_date))
-                          .join(UserCountType)
-                          .join(UserCondition)
-                          .filter(UserCountType.is_tracked==True,
-                                  CountItem.count > 0,
-                                  UserCondition.user_id==session['userid'])
-                          .first())
+#     first_count_date = (db.session.query(func.min(CountItem.count_date))
+#                           .join(UserCountType)
+#                           .join(UserCondition)
+#                           .filter(UserCountType.is_tracked==True,
+#                                   CountItem.count > 0,
+#                                   UserCondition.user_id==session['userid'])
+#                           .first())
 
-    first_date = min(first_symp_date[0], first_value_date[0], first_count_date[0])
-    print(first_symp_date)
-    print(first_date)
-    print(type(first_date))
-    return("hi")
+#     first_date = min(first_symp_date[0], first_value_date[0], first_count_date[0])
+#     print(first_symp_date)
+#     print(first_date)
+#     print(type(first_date))
+#     return("hi")
 
 @app.route('/get-symptom-timeseries.json', methods=['GET'])
 def get_symptom_timeseries():
@@ -407,7 +407,7 @@ def get_value_timeseries():
                                   ValueItem.value > 0,
                                   UserCondition.user_id==session['userid'])
                           .order_by(ValueItem.value_date)
-                          .order_by(ValueItem.user_value_id)
+                          .order_by(UserValueType.usercond_id)
                           .all())
 
     value_data_list = []
@@ -432,7 +432,7 @@ def get_count_timeseries():
                                   CountItem.count > 0,
                                   UserCondition.user_id==session['userid'])
                           .order_by(CountItem.count_date)
-                          .order_by(CountItem.user_count_id)
+                          .order_by(UserCountType.usercond_id)
                           .all())
     
     count_data_list = []
