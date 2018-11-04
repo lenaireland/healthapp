@@ -21,7 +21,7 @@ function updateValueForms() {
     let dbInputs = getValueParams(valueId);
     let valueType = valueItem.innerText.split(" ")[0];
 
-    console.log(valueType);
+    // console.log(valueType);
 
     if (valueType === "AQI") {
       valueItem[1].value = "Get AirNOW AQI data";
@@ -50,16 +50,18 @@ function updateValue(evt) {
   const dbInputs = getValueParams(valueId);
   let value = evt.currentTarget.value.value;
   dbInputs.value = value;
-  $.post('/update-user-value-item', dbInputs, function (results) {
-    console.log(results);
-    evt.currentTarget.submit.value = "Update";
-  });
+  if (valueType !== "AQI") {
+    $.post('/update-user-value-item', dbInputs, function (results) {
+      alert(results);
+      evt.currentTarget.submit.value = "Update";
+    });
+  }
 }
 
 function defaultZip(evt) {
   evt.preventDefault();
   const target = evt.currentTarget;
-  console.log(target);
+  // console.log(target);
 
   const valueForms = $("form[name='valueform']").get();
 
@@ -70,7 +72,7 @@ function defaultZip(evt) {
     if (valueType === "AQI") {
       const dbInputs = getValueParams(valueId);
       $.post('/update-airnow-item', dbInputs, function (results) {
-        console.log(results);
+        alert(results[1]);
         valueItem.value.value = results[0];
         valueItem.submit.value = "Get AirNOW AQI Data";
       });
@@ -82,8 +84,8 @@ function defaultZip(evt) {
 function newZip(evt) {
   evt.preventDefault();
   const target = evt.currentTarget;
-  console.log(target);
-  console.log(target.newzip.value);
+  // console.log(target);
+  // console.log(target.newzip.value);
 
   const valueForms = $("form[name='valueform']").get();
 
@@ -95,7 +97,7 @@ function newZip(evt) {
       let dbInputs = getValueParams(valueId);
       dbInputs.zipcode = target.newzip.value;
       $.post('/update-airnow-item', dbInputs, function (results) {
-        console.log(results);
+        alert(results[1]);
         valueItem.value.value = results[0];
         valueItem.submit.value = "Get AirNOW AQI Data";
       });

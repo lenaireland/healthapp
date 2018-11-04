@@ -7,10 +7,10 @@ function removeSymptom(evt) {
   const symptom = {
     symptom_id: evt.currentTarget.symptoms.value
   };
-  console.log(symptom);
+  // console.log(symptom);
 
   $.post('/stop-user-symptom', symptom, function (results) {
-    console.log(results);
+    alert(results);
   });
   location.reload(true);
 }

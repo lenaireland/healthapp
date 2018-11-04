@@ -19,10 +19,10 @@ function addCount(evt) {
     count_id: evt.currentTarget.counts.value,
     usercond_id: condition_form[0][0].value
   };
-  console.log(count);
+  // console.log(count);
 
   $.post('/add-user-count', count, function (results) {
-    console.log(results);
+    alert(results);
   });
   location.reload(true);
 }

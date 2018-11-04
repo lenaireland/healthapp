@@ -7,10 +7,10 @@ function removeCount(evt) {
   const count = {
     count_id: evt.currentTarget.counts.value
   };
-  console.log(count);
+  // console.log(count);
 
   $.post('/stop-user-count', count, function (results) {
-    console.log(results);
+    alert(results);
   });
   location.reload(true);
 }

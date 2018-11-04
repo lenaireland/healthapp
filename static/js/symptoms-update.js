@@ -38,13 +38,13 @@ function updateSymptom(evt) {
   if (evt.currentTarget.innerText === "True") {
     dbInputs.TF = false;
     $.post('/update-user-symptom', dbInputs, function (results) {
-      console.log(results);
+      alert(results);
     });
     evt.currentTarget.innerText = "False";
   } else {
     dbInputs.TF = true;
     $.post('/update-user-symptom', dbInputs, function (results) {
-      console.log(results);
+      alert(results);
     });
     evt.currentTarget.innerText = "True";
   }

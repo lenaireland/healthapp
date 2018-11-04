@@ -4,7 +4,7 @@
 
 // GET THIS FUNCTION TO SHOW FORMATTED RESULTS!!!
 function displayResults(results, name) {
-  console.log(name);
+  // console.log(name);
 
   let final_results = {};
   let nameResult;
@@ -12,7 +12,7 @@ function displayResults(results, name) {
 
   for (let [queryItem, queryResult] of results) {
     if (queryItem === name) {
-      console.log(queryResult);
+      // console.log(queryResult);
       nameResult = queryResult;
       // console.log(nameValue);
     } else if (queryResult > 0) {
@@ -22,7 +22,7 @@ function displayResults(results, name) {
 
   out += '</ul>';
 
-  console.log(final_results);
+  // console.log(final_results);
   $("#name").html(name);
   $("#nameResult").html("Occurred "+nameResult+" time(s)");
   $("#otherItems").html("Other tracked items that occurred on the same day"
@@ -41,15 +41,15 @@ function querySymptom(evt) {
 
   const params = evt.currentTarget.symptoms.value.split(";");
   const name = params[0];
-  console.log(name);
+  // console.log(name);
 
   const symptom = {
     symptom_id: params[1]
   };
-  console.log(symptom);
+  // console.log(symptom);
 
   $.get('/query-user-symptom.json', symptom, function (results) {
-    console.log(results);
+    // console.log(results);
     displayResults(results, name);
   });
 }
@@ -62,15 +62,15 @@ function queryValue(evt) {
 
   const params = evt.currentTarget.values.value.split(";");
   const name = params[0];
-  console.log(name);
+  // console.log(name);
 
   const value = {
     value_id: params[1]
   };
-  console.log(value);
+  // console.log(value);
 
   $.get('/query-user-value.json', value, function (results) {
-    console.log(results);
+    // console.log(results);
     displayResults(results, name);
   });
 }
@@ -83,15 +83,15 @@ function queryCount(evt) {
 
   const params = evt.currentTarget.counts.value.split(";");
   const name = params[0];
-  console.log(name);
+  // console.log(name);
 
   const count = {
     count_id: params[1]
   };
-  console.log(count);
+  // console.log(count);
 
   $.get('/query-user-count.json', count, function (results) {
-    console.log(results);
+    // console.log(results);
     displayResults(results, name);
   });
 }

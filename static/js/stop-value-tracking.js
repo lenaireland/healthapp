@@ -7,10 +7,10 @@ function removeValue(evt) {
   const value = {
     value_id: evt.currentTarget.values.value
   };
-  console.log(value);
+  // console.log(value);
 
   $.post('/stop-user-value', value, function (results) {
-    console.log(results);
+    alert(results);
   });
   location.reload(true);
 }

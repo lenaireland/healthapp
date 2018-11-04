@@ -19,10 +19,10 @@ function addSymptom(evt) {
     symptom_id: evt.currentTarget.symptoms.value,
     usercond_id: condition_form[0][0].value
   };
-  console.log(symptom);
+  // console.log(symptom);
 
   $.post('/add-user-symptom', symptom, function (results) {
-    console.log(results);
+    alert(results);
   });
   location.reload(true);
 }

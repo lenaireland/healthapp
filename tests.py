@@ -235,6 +235,20 @@ class LoggedOutTests(TestCase):
         result = self.client.get('/query', follow_redirects=False)
         self.assertEqual(result.status_code, 302)
 
+    def test_plot_redirect(self):
+        """Test plot page."""
+
+        result = self.client.get('/plot', follow_redirects=True)
+        self.assertIn(b'You do not have permission to view this page', 
+                      result.data)
+        self.assertIn(b'Please Login', result.data)
+
+    def test_plot(self):
+        """Test plot page."""
+
+        result = self.client.get('/plot', follow_redirects=False)
+        self.assertEqual(result.status_code, 302)
+
 
 class LoggedInTests(TestCase):
     """Tests pages when a user is logged in."""
@@ -370,6 +384,12 @@ class LoggedInTestsDatabase(TestCase):
         result = self.client.get('/query')
         self.assertIn(b'Choose a symptom to query on', result.data)
         self.assertIn(b'AQI', result.data)
+
+    def test_plot(self):
+        """Test plot page."""
+
+        result = self.client.get('/plot')
+        self.assertIn(b'Longitudinal Time Series', result.data)
 
 
 class SettingsPasswordsTests(TestCase):
@@ -1507,6 +1527,68 @@ class QueryItemsTests(TestCase):
                                  query_string={"count_id": count_id})
 
         self.assertTrue(b'["Wheezing",0]' in result.data)
+
+
+class PlotTests(TestCase):
+    """Tests for longitudinal plots."""
+
+    def setUp(self):
+        """Before every test"""
+
+        app.config['TESTING'] = True
+        app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
+        self.client = app.test_client()
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['userid'] = 2
+
+        # Connect to test database
+        connect_to_db(app, 'postgresql:///testdb')
+
+        # Drop all tables first
+        db.drop_all()
+
+        # Create tables and add sample data
+        db.create_all()
+        example_data()            
+
+    def tearDown(self):
+        """Do at end of every test."""
+
+        db.session.remove()
+        db.drop_all()
+        db.engine.dispose()
+
+    def test_plot_symptom(self):
+        """Test to query database on count item"""
+
+        count_id = 1
+
+        result = self.client.get('/get-symptom-timeseries.json')
+
+        self.assertTrue(b'Wheezing' in result.data)
+        self.assertTrue(b'2018-10-07' in result.data)
+
+    def test_plot_value(self):
+        """Test to query database on count item"""
+
+        count_id = 1
+
+        result = self.client.get('/get-value-timeseries.json')
+
+        self.assertTrue(b'AQI' in result.data)
+        self.assertTrue(b'2018-10-07' in result.data)
+
+    def test_plot_count(self):
+        """Test to query database on count item"""
+
+        count_id = 1
+
+        result = self.client.get('/get-count-timeseries.json')
+
+        self.assertTrue(b'Ventolin' in result.data)
+        self.assertTrue(b'2018-10-07' in result.data)
 
 
 class DailyItemsDatabaseAPITests(TestCase):

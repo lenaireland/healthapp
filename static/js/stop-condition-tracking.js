@@ -7,10 +7,10 @@ function removeCondition(evt) {
   const condition = {
     cond_id: evt.currentTarget.conditions.value
   };
-  console.log(condition);
+  // console.log(condition);
 
   $.post('/stop-user-condition', condition, function (results) {
-    console.log(results);
+    alert(results);
   });
   location.reload(true);
 }

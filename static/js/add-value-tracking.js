@@ -19,10 +19,10 @@ function addValue(evt) {
     value_id: evt.currentTarget.values.value,
     usercond_id: condition_form[0][0].value
   };
-  console.log(value);
+  // console.log(value);
 
   $.post('/add-user-value', value, function (results) {
-    console.log(results);
+    alert(results);
   });
   // location.reload(true);
 }
