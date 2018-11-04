@@ -128,8 +128,19 @@ function makePlots() {
           .attr("class", "line")
           .style("stroke", function() {
             return d.color = color(d.key); })
-          .attr("id", 'tag'+d.key.replace(/\s+/g, '')) // assign ID
+          .attr("class", 'tag'+d.key.replace(/\s+/g, '')) // assign ID
           .attr("d", valueline(d.values))
+
+        // Add the scatterplot
+        svg_value.selectAll("dot")
+            .data(d.values)
+          .enter().append("circle")
+            .attr("r", 3.5)
+            .attr("class", 'tag'+d.key.replace(/\s+/g, '')) // assign ID      
+            .attr("cx", function(d) { return x(d.date); })
+            .attr("cy", function(d) { return y(d.value); })
+            .style("fill", function() {
+              return d.color = color(d.key); });
 
         // Add the legend
         svg_value.append("text")            
@@ -143,9 +154,10 @@ function makePlots() {
             let active = d.active ? false : true;
             let newOpacity = active ? 0 : 1;
             // Hide or show elements based on ID
-            d3.select("#tag"+d.key.replace(/\s+/g, ''))
+            d3.selectAll(".tag"+d.key.replace(/\s+/g, ''))
               .transition().duration(100)
               .style("opacity", newOpacity);
+              // .style("fill", 'transparent');
             // Update whether or not the elements are active
             d.active = active;
           })
