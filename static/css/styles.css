@@ -1,3 +1,77 @@
+.navbar-light {
+    background-color: #A9A9A9;
+}
+
+.navbar-light .navbar-brand {
+    color: #FF3B3F;
+}
+
+.btn-primary {
+    background: #A9A9A9;
+    color: #FF3B3F;
+    border: none;
+/*    outline: 0;
+    box-shadow: none;*/
+}
+
+.btn-primary:hover {
+    background: #808080;
+    color: #FF3B3F;
+}
+
+.btn-secondary{
+    background: #FF3B3F;
+    color: white;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background: #cc2f32;
+    color: white;
+}
+
+#subtitle {
+  padding-top: 70px;  
+}
+
+.page-header {
+/*    position: fixed;*/
+    text-align: center;
+}
+
+#daily-tracking {
+  padding-top: 50px; 
+}
+
+#side-nav {
+    border-left: 1px solid #808080;
+}
+
+
+/*.affix {
+  top: 20px;
+  z-index: 9999 !important;
+}
+
+.affix-top {
+  width: 100%;
+}
+
+.affix-bottom {
+  width: 100%;
+  position: absolute;
+}*/
+
+/*#date-nav {
+    position: fixed;
+    text-align: center;
+}*/
+
+
+
+
+
+/*For D3*/
 path { 
     stroke: steelblue;
     stroke-width: 2px;
