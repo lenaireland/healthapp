@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<a href="/user/{{session['userid']}}">Return to daily log page</a>
+<a href="/user/{{session['userid']}}">Return to Daily Log Page</a>
 
 <p><form id="new_condition_form">
   Choose a new condition you would like to track:
@@ -17,7 +17,7 @@
   </select>
   <p>Description:
   <span id="new_condition_desc"></span></p>
-  <input type="submit" id="new_condition_submit" value="Start Tracking">
+  <input type="submit" id="new_condition_submit" value="Start Tracking" class="btn btn-primary">
 </form></p>
 
 OR
@@ -46,7 +46,7 @@ OR
   </select>
   <p>Description:
   <span id="symptom_desc"></span></p>
-  <input type="submit" id="user_symptom_submit" value="Start Tracking">
+  <input type="submit" id="user_symptom_submit" value="Start Tracking" class="btn btn-primary">
 </form></p>
 
 <p><form id="user_value_form">
@@ -60,7 +60,7 @@ OR
   </select>
   <p>Description:
   <span id="value_desc"></span></p>
-  <input type="submit" id="user_value_submit" value="Start Tracking">
+  <input type="submit" id="user_value_submit" value="Start Tracking" class="btn btn-primary">
 </form></p>
 
 <p><form id="user_count_form">
@@ -74,7 +74,7 @@ OR
   </select>
   <p>Description:
   <span id="count_desc"></span></p>
-  <input type="submit" id="user_count_submit" value="Start Tracking">
+  <input type="submit" id="user_count_submit" value="Start Tracking" class="btn btn-primary">
 </form></p>
 
 <script src="/static/js/add-condition-tracking.js"></script>

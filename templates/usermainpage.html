@@ -16,10 +16,10 @@
         {% if date.date()==today.date() %}
           <div class="col-5">
             <a class="btn btn-secondary" href="/user/{{ session['userid'] }}/{{   prev_date.date() }}">
-              < Yesterday<br> ({{ prev_date.date() }})</a>
+              Yesterday<br>< {{ prev_date.date() }}</a>
           </div>
           <div class="col-2">
-            <b>Today<br> ({{ date.date() }})</b> 
+            <b>Today<br> {{ date.date() }}</b> 
           </div> 
         {% elif date.date() < today.date() %}
           <div class="col-5">
@@ -39,7 +39,7 @@
           <div class="col-4">
             You can't track future days!
             <a class="btn btn-secondary" href="/user/{{ session['userid'] }}/{{ today.date() }}">
-            Today<br> ({{ today.date() }})</a>
+            Today<br> {{ today.date() }}</a>
           </div>
         {% endif %}
       </div>
@@ -102,7 +102,7 @@
 
         <p>Daily Log
           <form name="dailylog" id="userlog/{{ date.date() }}">
-            <textarea name="dailylogtext"></textarea>
+            <textarea class="form-control" name="dailylogtext"></textarea>
             <input type="submit" name="submit" class="btn btn-primary">
           </form>
         </p>
@@ -158,7 +158,7 @@
           <form name="zip-form">
           Enter 5-digit zip
             <input type="text" name="newzip">
-            <input type="submit" name="submit" class="btn   btn-primary">
+            <input type="submit" name="submit" class="btn btn-primary">
           </form>
         </div>
       </div>

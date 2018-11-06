@@ -6,25 +6,37 @@
 {% block nav %}{% endblock %}
 
 {% block content %}
+<div class="container-fluid">
+  <div class="row" id="daily-tracking">
+    <div class="col-1"></div>
+    <div class="col-5">
+      <div class="page-header">
+        <h2>Returning User</h2>
+        <h2>Please Login</h2>
+      </div>
+      <p>
+        <form action="/process-login" method="POST">
+          Email: <input type="text" name="email" required> <br>  <br>
+          Password: <input type="password" name="password"   required><br><br> 
+          <input type="submit">
+        </form>
+      </p>
+    </div>
 
-  <h2>Returning User</h2>
-  <h2>Please Login</h2>
-  <p>
-    <form action="/process-login" method="POST">
-      Email: <input type="text" name="email" required><br><br>
-      Password: <input type="password" name="password" required><br><br> 
-      <input type="submit">
-    </form>
-  </p>
-
-  <h2>New User</h2>
-  <h2>Please Register</h2>
-  <p>
-    <form action="/process-register" method="POST">
-      Email: <input type="text" name="email" required><br><br>
-      Password: <input type="password" name="password" required><br><br> 
-      <input type="submit">
-    </form>
-  </p>
+    <div class="col-5">
+      <div class="page-header">
+        <h2>New User</h2>
+        <h2>Please Register</h2>
+      </div>
+      <p>
+        <form action="/process-register" method="POST">
+          Email: <input type="text" name="email" required><br>  <br>
+          Password: <input type="password" name="password"   required><br><br> 
+          <input type="submit">
+        </form>
+      </p>
+    </div>
+  </div>
+</div>
 
 {% endblock %}

@@ -197,7 +197,7 @@ function makePlots() {
       let xMax = d3.timeDay(now);
       let yNum = sympDataNest.length;
 
-      let numDays = (xMax - dateMin)/1000/3600/24;
+      let numDays = parseInt((xMax - dateMin)/1000/3600/24);
 
       let xScale = d3.scaleLinear()
                      .domain([dateMin, xMax])
@@ -273,7 +273,7 @@ function makePlots() {
       let xMax = d3.timeDay(now);
       let yNum = countDataNest.length;
 
-      let numDays = (xMax - dateMin)/1000/3600/24;
+      let numDays = parseInt((xMax - dateMin)/1000/3600/24);
 
       let xScale = d3.scaleLinear()
                      .domain([dateMin, xMax])
