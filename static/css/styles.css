@@ -1,4 +1,14 @@
 
+/*Fonts*/
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Merriweather", serif;
+}
+
+body {
+  font-family: "Open+sans", sans-serif;
+}
+
+/*Navbar*/
 .navbar-dark {
     background-color: #353535;
 }
@@ -7,6 +17,7 @@
     color: #f0EDEE;
 }
 
+/*Buttons*/
 .btn:focus, btn:active {
    outline: none;
    box-shadow: none;
@@ -42,6 +53,28 @@
     color: white;
 }
 
+/*Links*/
+a {
+  padding-left: 5px;
+  color: #353535;
+}
+
+/*Backgrounds*/
+#login-background, #home-background {
+  background: url(/static/jpg/rawpixel-618738-unsplash.jpg) no-repeat center center;
+  background-size: cover;  
+}
+
+#home-background {
+  padding-top: 100px;  
+}
+
+/*.background {
+  background: url(/static/png/round/round.png) center center;
+  background-size: cover;
+}*/
+
+/*Page styling*/
 #subtitle {
   padding-top: 70px; 
   padding-left: 10px;
@@ -53,20 +86,7 @@
     text-align: center;
 }
 
-/*.background {
-  background: url(/static/png/round/round.png) center center;
-  background-size: cover;
-}*/
-
-#login-background, #home-background {
-  background: url(/static/jpg/rawpixel-618738-unsplash.jpg) no-repeat center center;
-  background-size: cover;  
-}
-
-#home-background {
-  padding-top: 100px;  
-}
-
+/*For homepage*/
 .home-subtitle {
   padding-top: 325px;
   color: white;
@@ -96,20 +116,42 @@
   /*border: 1px solid #808080;*/
 }
 
+/*For user main page*/
 #daily-tracking {
   padding-top: 50px;
 /*  :center;*/
 /*  background-color: white;*/ 
 }
 
-.subselect {
-  padding-left: 50px;
-}
-
 #side-nav {
   border-left: 1px solid #BA1200;
 }
 
+/*.affix {
+  top: 20px;
+  z-index: 9999 !important;
+}
+
+.affix-top {
+  width: 100%;
+}
+
+.affix-bottom {
+  width: 100%;
+  position: absolute;
+}*/
+
+/*#date-nav {
+    position: fixed;
+    text-align: center;
+}*/
+
+/*For add tracking*/
+.subselect {
+  padding-left: 50px;
+}
+
+/*For login*/
 .login-form {
   margin-top: 125px;
   margin-bottom: 125px;
@@ -134,41 +176,6 @@
   border-radius:0;
   transition:border-color .25s ease, box-shadow .25s ease;
 }
-
-a {
-  padding-left: 5px;
-  color: #353535;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: "Quando", serif;
-}
-
-body {
-  font-family: "Open+sans", sans-serif;
-}
-
-
-/*.affix {
-  top: 20px;
-  z-index: 9999 !important;
-}
-
-.affix-top {
-  width: 100%;
-}
-
-.affix-bottom {
-  width: 100%;
-  position: absolute;
-}*/
-
-/*#date-nav {
-    position: fixed;
-    text-align: center;
-}*/
-
-
 
 
 
