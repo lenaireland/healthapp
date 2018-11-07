@@ -13,30 +13,39 @@
 }
 
 .btn-primary {
-    background: #f0EDEE;
+    /*background: #f0EDEE;*/
+    /*background: #FCF7F8;*/
+    background: #DEE5E5;
     color: #353535;
-    border-color: #a72608;
+/*    border-color: #a72608;*/
+    border-color: #70A0AF;
 }
 
 .btn-primary:hover {
-    background: #CfA69D;
+    /*background: #CfA69D;*/
+    background: #B8D4E3;
     color: #353535;
-    border-color: #A72608;
+    /*border-color: #A72608;*/
+    border-color: #70A0AF;    
 }
 
 .btn-secondary{
-    background: #A72608;
+    /*background: #A72608;*/
+    background: #70A0AF;
     color: white;
     border: none;
 }
 
 .btn-secondary:hover {
-    background: #8F2007;
+    /*background: #8F2007;*/
+    background: #59808C;
     color: white;
 }
 
 #subtitle {
-  padding-top: 70px;  
+  padding-top: 70px; 
+  padding-left: 10px;
+  color: #BA1200; 
 }
 
 .page-header {
@@ -58,21 +67,24 @@
   padding-top: 100px;  
 }
 
-.login-form {
-  margin-top: 125px;
-  margin-bottom: 125px;
-  margin-right: 5px;
-  margin-left: 5px;
-  padding-top: 30px;
-  padding-bottom: 20px;
-  background-color: white;
-  opacity: 0.9;
-  border: 1px solid #808080;
+.home-subtitle {
+  padding-top: 325px;
+  color: white;
+  padding-left: 15%;
+  padding-right: 15%;
+}
+
+#enter-button {
+  padding-top: 20px;
+  padding-bottom: 50px;
+  padding-left: 30%;
+/*  display: flex;
+  justify-content: center;*/
 }
 
 #home-about {
-  margin-top: 125px;
-  margin-bottom: 125px;
+/*  margin-top: 125px;
+  margin-bottom: 125px;*/
   margin-right: 5px;
   margin-left: 5px;
   padding-top: 30px;
@@ -90,17 +102,24 @@
 /*  background-color: white;*/ 
 }
 
-#enter-button {
-  padding-bottom: 50px;
-/*  background-color: white;*/ 
-}
-
 .subselect {
   padding-left: 50px;
 }
 
 #side-nav {
-  border-left: 1px solid #808080;
+  border-left: 1px solid #BA1200;
+}
+
+.login-form {
+  margin-top: 125px;
+  margin-bottom: 125px;
+  margin-right: 5px;
+  margin-left: 5px;
+  padding-top: 30px;
+  padding-bottom: 20px;
+  background-color: white;
+  opacity: 0.9;
+  border: 1px solid #808080;
 }
 
 .login {
@@ -116,7 +135,18 @@
   transition:border-color .25s ease, box-shadow .25s ease;
 }
 
+a {
+  padding-left: 5px;
+  color: #353535;
+}
 
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Quando", serif;
+}
+
+body {
+  font-family: "Open+sans", sans-serif;
+}
 
 
 /*.affix {

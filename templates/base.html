@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
   <script src="http://code.jquery.com/jquery.js"></script>
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.0/css/all.css">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans|Lato|Quando" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 
@@ -13,7 +14,7 @@
   {% block nav %}
     {% if session.get('userid') %}
       <nav class="navbar fixed-top navbar-expand-md navbar-dark bg-dark">
-        <a class="navbar-brand" href="/">Health Tracker</a>
+        <a class="navbar-brand" href="/">HealthTracker</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -46,11 +47,16 @@
           </ul>
         </div>
       </nav>
+    {% else %}
+      <nav class="navbar fixed-top navbar-expand-md navbar-dark bg-dark">
+        <a class="navbar-brand" href="/">HealthTracker</a>
+      </nav>
     {% endif %} 
   {% endblock %}
 
+{% block subtitle%}
  <div id="subtitle">
-  Track your way to a healthier you!
+  Track your way to a healthier you
 
     <ul>
       {% for message in get_flashed_messages() %}
@@ -60,10 +66,11 @@
 
     <hr>
   </div>
+  {% endblock %}
 
   {% block content %} put your content here {% endblock %}
 
-  <footer>Lena Ireland 2018</footer>
+  <footer> Lena Ireland 2018</footer>
   
   <!-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script> -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
