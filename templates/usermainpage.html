@@ -4,8 +4,8 @@
 
 {% block content %}
 
-<div class="background">
-  <div class="container-fluid">
+<div class="container-fluid background">
+  <div class="container-fluid foreground">
     <div class="page-header">
 
       {% if user.fname %}
@@ -50,7 +50,7 @@
 
 
   {% if date.date()<=today.date() %}
-  <div class="container-fluid">
+  <div class="container-fluid foreground">
     <div class="row" id="daily-tracking">
       <div class="col-12 col-md-8">
         {% for condition in info %}
@@ -104,7 +104,7 @@
 
         <p>Daily Log
           <form name="dailylog" id="userlog/{{ date.date() }}">
-            <textarea class="form-control" name="dailylogtext" rows="4"></textarea>
+            <textarea class="form-control" name="dailylogtext" rows="4"></textarea><br>
             <input type="submit" name="submit" class="btn   btn-primary">
           </form>
         </p>
