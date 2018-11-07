@@ -5,13 +5,10 @@
 
 {% block content %}
 
-  <a href="/user/{{session['userid']}}">Return to Daily Log Page</a><br>
+<a href="/user/{{session['userid']}}">Return to Daily Log Page</a><br><br>
 
+<div class="container-fluid">
   <h2>Update your settings</h2>
-
-  <p>
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#PasswordModal" id="password">Update Password</button>
-  </p>
 
   <p>
     <form action="/process-settings" method="POST">
@@ -43,6 +40,12 @@
       <input type="submit" value="Submit Updates" class="btn btn-primary">
     </form>
   </p>
+
+
+  <p>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#PasswordModal" id="password">Update Password</button>
+  </p>
+</div>
 
 <!-- Modal -->
 <div class="modal fade" id="PasswordModal" tabindex="-1" role="dialog" aria-labelledby="PasswordModalLabel" aria-hidden="true">

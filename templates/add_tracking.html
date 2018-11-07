@@ -4,78 +4,120 @@
 
 {% block content %}
 
-<a href="/user/{{session['userid']}}">Return to Daily Log Page</a>
+<a href="/user/{{session['userid']}}">Return to Daily Log Page</a><br><br>
 
-<p><form id="new_condition_form">
-  Choose a new condition you would like to track:
-  <select id="new_conditions">
-    {% for condition in unused_conditions %}
-      <option name="new_condition" value={{ condition.cond_id_pk }}>
-        {{ condition.cond_name }}
-      </option>
-    {% endfor %}
-  </select>
+
+<div class="container-fluid">
+  <h2>Add Condition</h2>
+  
+  <form id="new_condition_form">
+    <div class="form-row align-items-center">
+    <b>Choose a new condition you would like to track:</b>
+      <div class="col-auto my-1">
+        <select class="custom-select" id="new_conditions">
+          {% for condition in unused_conditions %}
+            <option name="new_condition" value={{ condition.cond_id_pk }}>
+              {{ condition.cond_name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <input type="submit" id="new_condition_submit" value="Start Tracking" class="btn btn-primary">
+    </div>
+  </form>
   <p>Description:
   <span id="new_condition_desc"></span></p>
-  <input type="submit" id="new_condition_submit" value="Start Tracking" class="btn btn-primary">
-</form></p>
 
-OR
-
-<p><form id="user_condition_form">
-  Choose a condition for which you would like to track a new item:
-  <select id="user_conditions">
-    {% for condition in user_conditions %}
-      <option value={{ condition.usercond_id_pk }}>
-        {{ condition.condition.cond_name }}
-      </option>
-    {% endfor %}
-  </select>
+  <br>
+  <h2>Add Item to a Condition</h2>
+  <form id="user_condition_form">
+    <div class="form-row align-items-center">
+      <b>Choose a condition for which you would like to track a new item:</b>
+      <div class="col-auto my-1">
+        <select class="custom-select" id="user_conditions">
+          {% for condition in user_conditions %}
+            <option value={{ condition.usercond_id_pk }}>
+              {{ condition.condition.cond_name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </form>
   <p>Description:
   <span id="user_condition_desc"></span></p>
-</form>
 
-<p><form id="user_symptom_form">
-  Choose a symptom to track:
-  <select id="symptoms">
-    {% for symptom in unused_symptoms %}
-      <option value={{ symptom.symptom_id_pk }}>
-        {{ symptom.symptom_name}}
-      </option>
-    {% endfor %}
-  </select>
-  <p>Description:
-  <span id="symptom_desc"></span></p>
-  <input type="submit" id="user_symptom_submit" value="Start Tracking" class="btn btn-primary">
-</form></p>
+  <div class="row subselect"> 
+    <form id="user_symptom_form">
+      <div class="form-row align-items-center">
+        <b>Choose a symptom to track:</b>
+      </div>
+      <div class="form-row align-items-center"> 
+        <div class="col-auto my-1">
+          <select class="custom-select" id="symptoms">
+            {% for symptom in unused_symptoms %}
+              <option value={{ symptom.symptom_id_pk }}>
+                {{ symptom.symptom_name}}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <input type="submit" id="user_symptom_submit" value="Start Tracking" class="btn btn-primary">
+      </div>
+    </form>
+  </div>
+  <div class="row subselect">
+    Description:
+    <span id="symptom_desc"></span><br>
+  </div><br>
 
-<p><form id="user_value_form">
-  Choose a value item/test result to track:
-  <select id="values">
-    {% for value in unused_values %}
-      <option value={{ value.value_id_pk }}>
-        {{ value.value_name}}
-      </option>
-    {% endfor %}
-  </select>
-  <p>Description:
-  <span id="value_desc"></span></p>
-  <input type="submit" id="user_value_submit" value="Start Tracking" class="btn btn-primary">
-</form></p>
+  <div class="row subselect"> 
+    <form id="user_value_form">
+      <div class="form-row align-items-center">
+        <b>Choose a value item/test result to track:</b>
+      </div>
+      <div class="form-row align-items-center">      
+        <div class="col-auto my-1">
+          <select class="custom-select" id="values">
+            {% for value in unused_values %}
+              <option value={{ value.value_id_pk }}>
+                {{ value.value_name}}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <input type="submit" id="user_value_submit" value="Start Tracking" class="btn btn-primary">
+      </div>
+    </form>
+  </div>
+  <div class="row subselect">
+    <p>Description:
+    <span id="value_desc"></span><br>
+  </div><br>
 
-<p><form id="user_count_form">
-  Choose a medication/count item to track:
-  <select id="counts">
-    {% for count in unused_counts %}
-      <option value={{ count.count_id_pk }}>
-        {{ count.count_name}}
-      </option>
-    {% endfor %}
-  </select>
-  <p>Description:
-  <span id="count_desc"></span></p>
-  <input type="submit" id="user_count_submit" value="Start Tracking" class="btn btn-primary">
-</form></p>
+  <div class="row subselect">
+    <form id="user_count_form">
+      <div class="form-row align-items-center">
+        <b>Choose a medication/count item to track:</b>
+      </div>
+      <div class="form-row align-items-center"> 
+        <div class="col-auto my-1">
+          <select class="custom-select" id="counts">
+            {% for count in unused_counts %}
+              <option value={{ count.count_id_pk }}>
+                {{ count.count_name}}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <input type="submit" id="user_count_submit" value="Start Tracking" class="btn btn-primary">
+      </div>
+    </form>
+  </div>
+  <div class="row subselect">
+    <p>Description:
+    <span id="count_desc"></span><br>
+  </div><br>
 
 <script src="/static/js/add-condition-tracking.js"></script>
 <script src="/static/js/tracked-conditions.js"></script>

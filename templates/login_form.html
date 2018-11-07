@@ -3,39 +3,57 @@
 
 {% block title %}Login/Register{% endblock %}
 
-{% block nav %}{% endblock %}
+{% block nav %}
+      <nav class="navbar fixed-top navbar-expand-md navbar-dark bg-dark">
+        <a class="navbar-brand" href="/">Health Tracker</a>
+      </nav> 
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+
+<div class="container-fluid" id="login-background">
   <div class="row" id="daily-tracking">
     <div class="col-1"></div>
-    <div class="col-5">
-      <div class="page-header">
-        <h2>Returning User</h2>
-        <h2>Please Login</h2>
-      </div>
-      <p>
-        <form action="/process-login" method="POST">
-          Email: <input type="text" name="email" required> <br>  <br>
-          Password: <input type="password" name="password"   required><br><br> 
-          <input type="submit">
-        </form>
-      </p>
+    <div class="col-5 login-form">
+      <form action="/process-login" method="POST">
+        <div class="page-header">
+          <h3>Returning User</h3>
+          <h3>Please Login</h3>
+        </div>
+        <div class="form-group">          
+          <label for="loginEmail">Email address</label>
+          <input type="email" name="email" required class="login" id="loginEmail">
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>         
+          <input type="password" name="password" required class="login" id="loginPassword">
+        </div>
+        <div class="form-group"> 
+          <input type="submit" class="login">
+        </div>
+      </form>
     </div>
 
-    <div class="col-5">
-      <div class="page-header">
-        <h2>New User</h2>
-        <h2>Please Register</h2>
-      </div>
-      <p>
-        <form action="/process-register" method="POST">
-          Email: <input type="text" name="email" required><br>  <br>
-          Password: <input type="password" name="password"   required><br><br> 
-          <input type="submit">
-        </form>
-      </p>
+    <div class="col-5 login-form">
+      <form action="/process-register" method="POST">
+        <div class="page-header">
+          <h3>New User</h3>
+          <h3>Please Register</h3>
+        </div>
+        <div class="form-group">          
+          <label for="registerEmail">Email address</label>
+          <input type="email" name="email" required class="login" id="registerEmail">
+        </div>
+        <div class="form-group">
+          <label for="registerPassword">Password</label>         
+          <input type="password" name="password" required class="login" id="registerPassword">
+        </div>
+        <div class="form-group"> 
+          <input type="submit" class="login">
+        </div>
+      </form>
     </div>
+
   </div>
 </div>
 

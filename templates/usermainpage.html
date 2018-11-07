@@ -3,6 +3,8 @@
 {% block title %}Health Tracker{% endblock %}
 
 {% block content %}
+
+<div class="background">
   <div class="container-fluid">
     <div class="page-header">
 
@@ -15,7 +17,7 @@
       <div class="row" id="date-nav">
         {% if date.date()==today.date() %}
           <div class="col-5">
-            <a class="btn btn-secondary" href="/user/{{ session['userid'] }}/{{   prev_date.date() }}">
+            <a class="btn btn-secondary" href="/user/{{   session['userid'] }}/{{   prev_date.date() }}">
               Yesterday<br>< {{ prev_date.date() }}</a>
           </div>
           <div class="col-2">
@@ -23,14 +25,14 @@
           </div> 
         {% elif date.date() < today.date() %}
           <div class="col-5">
-            <a class="btn btn-secondary" href="/user/{{ session['userid'] }}/{{ prev_date.date() }}">
+            <a class="btn btn-secondary" href="/user/{{   session['userid'] }}/{{ prev_date.date() }}">
               < {{ prev_date.date() }}</a>
           </div>
           <div class="col-2">
             <b>{{ date.date() }}</b>
           </div>
           <div class="col-5">
-            <a class="btn btn-secondary" href="/user/{{ session['userid'] }}/{{ next_date.date() }}">
+            <a class="btn btn-secondary" href="/user/{{   session['userid'] }}/{{ next_date.date() }}">
               {{next_date.date()}} > </a> 
           </div>
         {% else %}
@@ -38,7 +40,7 @@
           </div>
           <div class="col-4">
             You can't track future days!
-            <a class="btn btn-secondary" href="/user/{{ session['userid'] }}/{{ today.date() }}">
+            <a class="btn btn-secondary" href="/user/{{   session['userid'] }}/{{ today.date() }}">
             Today<br> {{ today.date() }}</a>
           </div>
         {% endif %}
@@ -56,7 +58,7 @@
           {% for symptom in info[condition]['symptoms'] %}
 
             <p>{{symptom.Symptom.symptom_name}}
-              <button name="symptombutton" class="btn btn-primary"
+              <button name="symptombutton" class="btn   btn-primary"
                 id="usersymptom;{{symptom.UserSymptom.user_symptom_id_pk}};{{ date.date() }}">
                 -
               </button>
@@ -68,18 +70,18 @@
           {% for item in info[condition]['value_types'] %}
             <p>
               {% if item.ValueType.value_name == "AQI" %}
-                <form name="valueform" data-toggle="modal" data-target="#AQIModal"
+                <form name="valueform" data-toggle="modal"   data-target="#AQIModal"
                   id="uservalue;{{item.UserValueType.user_value_id_pk}};{{ date.date() }}">
                 {{item.ValueType.value_name}}
                   <input type="text" name="value">
-                  <input type="submit" name="submit" class="btn btn-primary">
+                  <input type="submit" name="submit" class="  btn btn-primary">
                 </form>
               {% else %}
                 <form name="valueform" 
                   id="uservalue;{{item.UserValueType.user_value_id_pk}};{{ date.date() }}">
                 {{item.ValueType.value_name}}
                   <input type="text" name="value">
-                  <input type="submit" name="submit" class="btn btn-primary">
+                  <input type="submit" name="submit" class="  btn btn-primary">
                 </form>
               {% endif %}        
             </p> 
@@ -92,7 +94,7 @@
                 id="usercount;{{item.UserCountType.user_count_id_pk}};{{ date.date() }}">
               {{item.CountType.count_name}}
                 <input type="number" name="count" min="0">
-                <input type="submit" name="submit" class="btn btn-primary">
+                <input type="submit" name="submit" class="  btn btn-primary">
               </form>
             </p> 
           {% endfor %}
@@ -102,29 +104,29 @@
 
         <p>Daily Log
           <form name="dailylog" id="userlog/{{ date.date() }}">
-            <textarea class="form-control" name="dailylogtext"></textarea>
-            <input type="submit" name="submit" class="btn btn-primary">
+            <textarea class="form-control" name="dailylogtext" rows="4"></textarea>
+            <input type="submit" name="submit" class="btn   btn-primary">
           </form>
         </p>
       </div>
 
       <div class="col-12 col-md-4 scrollspy" id="side-nav">
-        <!-- class="navbar" data-spy="affix" data-offset-top="0"  -->
+        <!-- class="navbar" data-spy="affix"   data-offset-top="0"  -->
         <!-- <ul class="navbar-nav mr-auto"> -->
-        <ul class="nav navbar-nav" data-spy="affix" data-offset-top="10">
+        <ul class="nav navbar-nav" data-spy="affix"   data-offset-top="10">
           <li class="nav-item"> 
-            <a href="/plot"><i class="fas fa-chart-line"></i> Visualize</a>
+            <a href="/plot"><i class="fas fa-chart-line"></i>   Visualize</a>
           </li>
           <li class="nav-item"> 
-            <a href="/query"><i class="fas fa-question"></i> Data Query</a>
+            <a href="/query"><i class="fas fa-question"></i>   Data Query</a>
           </li>
           <li class="nav-item">
-            <a href="/add-tracking"><i class="far fa-plus-square"></i> 
+            <a href="/add-tracking"><i class="far   fa-plus-square"></i> 
               Add condition/item to track
             </a>
           </li>
           <li class="nav-item">
-            <a href="/stop-tracking"><i class="far fa-minus-square"></i> 
+            <a href="/stop-tracking"><i class="far   fa-minus-square"></i> 
               Stop tracking condition/item
             </a>
           </li> 
@@ -133,43 +135,44 @@
     </div>
   </div>
   {% endif %}
+</div>
 
 
-  <!-- Modal -->
-  <div class="modal fade" id="AQIModal" tabindex="-1" role="dialog"   aria-labelledby="AQIModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="AQIModalLabel">Get AirNOW AQI   Data</h5>
-          <button type="button" class="close" data-dismiss="modal"   aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          Do you want to use your default zipcode to get the Air   Quality Index or enter another zipcode (US ONLY)?
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary" id="  default-zip">Default Zipcode</button>
-        </div>
-        <div class="modal-body">
-          If zipcode form is submitted blank, default zipcode will   be used.
-        </div>
-        <div class="modal-footer">
-          <form name="zip-form">
-          Enter 5-digit zip
-            <input type="text" name="newzip">
-            <input type="submit" name="submit" class="btn btn-primary">
-          </form>
-        </div>
+<!-- Modal -->
+<div class="modal fade" id="AQIModal" tabindex="-1" role="dialog"   aria-labelledby="AQIModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="AQIModalLabel">Get AirNOW AQI   Data</h5>
+        <button type="button" class="close" data-dismiss="modal"   aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Do you want to use your default zipcode to get the Air Quality Index or enter another zipcode (US ONLY)?
+      </div>
+<!--         <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="  default-zip">Default Zipcode</button>
+      </div> -->
+      <div class="modal-body">
+        If zipcode form is submitted blank, default zipcode will be used.
+      </div>
+      <div class="modal-footer">
+        <form name="zip-form">
+        Enter 5-digit zip
+          <input type="text" name="newzip">
+          <input type="submit" name="submit" class="btn btn-primary">
+        </form>
       </div>
     </div>
   </div>
+</div>
 
 
 
-  <script src="/static/js/symptoms-update.js"></script>
-  <script src="/static/js/value-items-update.js"></script>
-  <script src="/static/js/count-items-update.js"></script>
-  <script src="/static/js/log-update.js"></script>
+<script src="/static/js/symptoms-update.js"></script>
+<script src="/static/js/value-items-update.js"></script>
+<script src="/static/js/count-items-update.js"></script>
+<script src="/static/js/log-update.js"></script>
 
 {% endblock %}

@@ -1,35 +1,37 @@
-.navbar-light {
-    background-color: #C0C0C0;
+
+.navbar-dark {
+    background-color: #353535;
 }
 
-.navbar-light .navbar-brand {
-    color: #CC3B3F;
+.navbar-dark .navbar-brand {
+    color: #f0EDEE;
 }
 
-.btn:focus,.btn:active {
+.btn:focus, btn:active {
    outline: none;
    box-shadow: none;
 }
 
 .btn-primary {
-    background: #C0C0C0;
-    color: #CC3B3F;
-    border: none;
+    background: #f0EDEE;
+    color: #353535;
+    border-color: #a72608;
 }
 
 .btn-primary:hover {
-    background: #A9A9A9;
-    color: #CC3B3F;
+    background: #CfA69D;
+    color: #353535;
+    border-color: #A72608;
 }
 
 .btn-secondary{
-    background: #CC3B3F;
+    background: #A72608;
     color: white;
     border: none;
 }
 
 .btn-secondary:hover {
-    background: #A32F32;
+    background: #8F2007;
     color: white;
 }
 
@@ -42,18 +44,69 @@
     text-align: center;
 }
 
+/*.background {
+  background: url(/static/png/round/round.png) center center;
+  background-size: cover;
+}*/
+
+#login-background, #home-background {
+  background: url(/static/jpg/rawpixel-618738-unsplash.jpg) no-repeat center center;
+  background-size: cover;  
+}
+
+#home-background {
+  padding-top: 100px;  
+}
+
+.login-form {
+  margin-top: 125px;
+  margin-bottom: 125px;
+  margin-right: 5px;
+  margin-left: 5px;
+  padding-top: 30px;
+  padding-bottom: 20px;
+  background-color: white;
+  opacity: 0.9;
+  border: 1px solid #808080;
+}
+
+#home-about {
+  margin-top: 125px;
+  margin-bottom: 125px;
+  margin-right: 5px;
+  margin-left: 5px;
+  padding-top: 30px;
+  padding-bottom: 20px;
+  padding-right: 5px;
+  padding-left: 5px;
+  background-color: white;
+  opacity: 0.9;
+  /*border: 1px solid #808080;*/
+}
+
 #daily-tracking {
-  padding-top: 50px; 
+  padding-top: 50px;
+/*  :center;*/
+/*  background-color: white;*/ 
+}
+
+#enter-button {
+  padding-bottom: 50px;
+/*  background-color: white;*/ 
+}
+
+.subselect {
+  padding-left: 50px;
 }
 
 #side-nav {
-    border-left: 1px solid #808080;
+  border-left: 1px solid #808080;
 }
 
-input, textarea {
+.login {
   display:block;
   width:100%;
-  height:100%;
+  height:30px;
   padding:5px 10px;
   background:none;
   background-image:none;
@@ -62,6 +115,8 @@ input, textarea {
   border-radius:0;
   transition:border-color .25s ease, box-shadow .25s ease;
 }
+
+
 
 
 /*.affix {

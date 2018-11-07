@@ -4,56 +4,79 @@
 
 {% block content %}
 
-<a href="/user/{{session['userid']}}">Return to Daily Log Page</a>
+<a href="/user/{{session['userid']}}">Return to Daily Log Page</a><br><br>
 
-<p><br><form id="user_condition_stop_form">
-  Choose a condition to stop tracking:
-  <select id="conditions">
-    {% for condition in user_conditions %}
-      <option value={{ condition.cond_id }}>
-        {{ condition.condition.cond_name}}
-      </option>
-    {% endfor %}
-  </select>
-  <input type="submit" id="user_condition_submit">
-</form></p><br>
+<div class="container-fluid">
+  <h2>Remove Condition</h2>
 
+  <form id="user_condition_stop_form">
+    <div class="form-row align-items-center">
+      <b>Choose a condition to stop tracking:</b>
+      <div class="col-auto my-1">
+        <select class="custom-select" id="conditions">
+          {% for condition in user_conditions %}
+            <option value={{ condition.cond_id }}>
+              {{ condition.condition.cond_name}}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <input type="submit" id="user_condition_submit" value="Stop Tracking" class="btn btn-primary">
+    </div>
+  </form>
 
-<p><form id="user_symptom_stop_form">
-  Choose a symptom to stop tracking:
-  <select id="symptoms">
-    {% for symptom in symptoms %}
-      <option value={{ symptom.Symptom.symptom_id_pk }}>
-        {{ symptom.Symptom.symptom_name}}
-      </option>
-    {% endfor %}
-  </select>
-  <input type="submit" id="user_symptom_submit" value="Stop Tracking">
-</form></p>
+  <br>
+  <h2>Remove Item</h2>
 
-<p><form id="user_value_stop_form">
-  Choose a value item/test to stop tracking:
-  <select id="values">
-    {% for value in values %}
-      <option value={{ value.ValueType.value_id_pk }}>
-        {{ value.ValueType.value_name}}
-      </option>
-    {% endfor %}
-  </select>
-  <input type="submit" id="user_value_submit" value="Stop Tracking">
-</form></p>
+  <form id="user_symptom_stop_form">
+    <div class="form-row align-items-center">
+      <b>Choose a symptom to stop tracking:</b>
+      <div class="col-auto my-1">
+        <select class="custom-select" id="symptoms">
+          {% for symptom in symptoms %}
+            <option value={{ symptom.Symptom.symptom_id_pk }}>
+              {{ symptom.Symptom.symptom_name}}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <input type="submit" id="user_symptom_submit" value="Stop Tracking" class="btn btn-primary">
+    </div>
+  </form>
 
-<p><form id="user_count_stop_form">
-  Choose a medication/count item to stop tracking:
-  <select id="counts">
-    {% for count in counts %}
-      <option value={{ count.CountType.count_id_pk }}>
-        {{ count.CountType.count_name}}
-      </option>
-    {% endfor %}
-  </select>
-  <input type="submit" id="user_count_submit" value="Stop Tracking">
-</form></p>
+  <form id="user_value_stop_form">
+    <div class="form-row align-items-center">
+      <b>Choose a value item/test to stop tracking:</b>
+      <div class="col-auto my-1">
+        <select class="custom-select" id="values">
+          {% for value in values %}
+            <option value={{ value.ValueType.value_id_pk }}>
+              {{ value.ValueType.value_name}}
+            </option>
+         {% endfor %}
+        </select>
+      </div>
+      <input type="submit" id="user_value_submit" value="Stop Tracking" class="btn btn-primary">
+    </div>
+  </form>
+
+  <form id="user_count_stop_form">
+    <div class="form-row align-items-center">
+      <b>Choose a medication/count item to stop tracking:</b>
+      <div class="col-auto my-1">
+        <select class="custom-select" id="counts">
+          {% for count in counts %}
+            <option value={{ count.CountType.count_id_pk }}>
+              {{ count.CountType.count_name}}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <input type="submit" id="user_count_submit" value="Stop Tracking" class="btn btn-primary">
+    </div>
+  </form>
+
+</div>
 
 <script src="/static/js/stop-condition-tracking.js"></script>
 <script src="/static/js/stop-symptom-tracking.js"></script>

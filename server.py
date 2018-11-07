@@ -536,6 +536,11 @@ def update_aqi_data():
     date = request.form.get("date")
     zipcode = request.form.get("zipcode")
 
+
+
+    print("\n\n\n\n\n\n")
+    print(zipcode)
+
     if not zipcode:
         user = User.query.get(session['userid'])
         zipcode = user.zipcode
@@ -1138,7 +1143,7 @@ def query_dates(dates):
         for item in value.value_items:
             if (
                 item.value_date.date() in dates and 
-                item.value > 0
+                item.value is not None
                 ):
                 query_result[name] += 1    
 
@@ -1148,7 +1153,7 @@ def query_dates(dates):
         for item in count.count_items:
             if (
                 item.count_date.date() in dates and 
-                item.count > 0
+                item.count is not None
                 ):
                 query_result[name] += 1
 

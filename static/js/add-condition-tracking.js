@@ -3,13 +3,15 @@
 
 function updateNewCondDesc() {
   const condition_form = $("#new_condition_form").get();
-  const condition = {
-    cond_id: condition_form[0][0].value
-  };
+  if (condition_form.length !== 0) {
+    const condition = {
+      cond_id: condition_form[0][0].value
+    };
 
-  $.get('get-condition-desc', condition, function (results) {
-    $("#new_condition_desc").html(results);
-  });
+    $.get('get-condition-desc', condition, function (results) {
+      $("#new_condition_desc").html(results);
+    });
+  }
 }
 
 function addCondition(evt) {

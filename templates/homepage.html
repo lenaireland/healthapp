@@ -2,13 +2,22 @@
 
 {% block title %}Health Tracker{% endblock %}
 
-{% block nav %}{% endblock %}
+{% block nav %}
+      <nav class="navbar fixed-top navbar-expand-md navbar-dark bg-dark">
+        <a class="navbar-brand" href="/">Health Tracker</a>
+      </nav> 
+{% endblock %}
 
 {% block content %}
+<div class="container-fluid" id="home-background">
+  <div class="row" id="home-about">
+    HealthTracker is a tool that allows users to take charge of their health conditions by logging personalized daily information.  Users can then use the accumulated daily data to identify personal triggers to avoid or know when extra medication may be necessary.  Features include daily item logging, custom item trackers, manual data review, query of logged items to find common occurrences, and graphical presentation of longitudinal data.
+  </div>
+  
+  <div class="row" id="enter-button">
+    <a href="/login" class="btn btn-primary">Click here to begin...</a>
+  </div>
 
-About this project...<br>
-
-<a href="/login">Click here to begin...</a><br>
-
+</div>
 
 {% endblock %}

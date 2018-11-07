@@ -29,8 +29,16 @@ function makePlots() {
   const x = d3.scaleTime().range([0, width]);
   const y = d3.scaleLinear().range([height, 0]);
 
-  const color = d3.scaleOrdinal(d3.schemeCategory10);
-  // const colorScale = d3.scaleOrdinal(['pink', 'blue', 'orange', 'green']);
+  const color = d3.scaleOrdinal(d3.schemeCategory20b);
+  const color_value = (d3.scaleOrdinal([d3.rgb("#a50f15"),
+                                        d3.rgb("#08519c"),
+                                        d3.rgb("#54278f"),
+                                        d3.rgb("#de2d26"),
+                                        d3.rgb("#3182bd"),
+                                        d3.rgb("#756bb1"),
+                                        d3.rgb("#fb6a4a"),
+                                        d3.rgb("#6baed6"),
+                                        d3.rgb("#9e9ac8")]));
 
   // define the line
   let valueline = d3.line()
@@ -127,9 +135,9 @@ function makePlots() {
         svg_value.append("path")
           .attr("class", "line")
           .style("stroke", function() {
-            return d.color = color(d.key); })
+            return d.color = color_value(d.key); })
           .attr("class", 'tag'+d.key.replace(/\s+/g, '')) // assign ID
-          .attr("d", valueline(d.values))
+          .attr("d", valueline(d.values));
 
         // Add the scatterplot
         svg_value.selectAll("dot")
@@ -140,7 +148,7 @@ function makePlots() {
             .attr("cx", function(d) { return x(d.date); })
             .attr("cy", function(d) { return y(d.value); })
             .style("fill", function() {
-              return d.color = color(d.key); });
+              return d.color = color_value(d.key); });
 
         // Add the legend
         svg_value.append("text")            
@@ -148,7 +156,7 @@ function makePlots() {
           .attr("y", height + (margin.bottom/2)+ 5)
           .attr("class", "legend")
           .style("fill", function() {
-            return d.color = color(d.key); })
+            return d.color = color_value(d.key); })
           .on("click", function() {
             // Determine if current line is visibile
             let active = d.active ? false : true;
@@ -197,6 +205,8 @@ function makePlots() {
       let xMax = d3.timeDay(now);
       let yNum = sympDataNest.length;
 
+      // parseInt to make it work w/ daylight savings
+      // FIX THIS to be more robust later
       let numDays = parseInt((xMax - dateMin)/1000/3600/24);
 
       let xScale = d3.scaleLinear()
@@ -273,6 +283,8 @@ function makePlots() {
       let xMax = d3.timeDay(now);
       let yNum = countDataNest.length;
 
+      // parseInt to make it work w/ daylight savings
+      // FIX THIS to be more robust later
       let numDays = parseInt((xMax - dateMin)/1000/3600/24);
 
       let xScale = d3.scaleLinear()
@@ -342,17 +354,15 @@ function makePlots() {
       // svg_count.append("g")
       //    .attr("class", "y axis")
       //    .call(d3.axisLeft(y));
-  });
-
-  }
-
+    });
+  };
   // chained calls
   // would be nice to do value, symptom, and count together, then getMin, 
   // but this will do
   getValueData.always(getSympData)
               .always(getCountData)
               .always(getMin)
-              .always(useData)
+              .always(useData);
 
 }
 

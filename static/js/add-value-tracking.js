@@ -3,13 +3,15 @@
 
 function updateValueDesc() {
   const value_form = $("#user_value_form").get();
-  const value = {
-    value_id: value_form[0][0].value
-  };
+  if (value_form.length !== 0) {
+    const value = {
+      value_id: value_form[0][0].value
+    };
 
-  $.get('get-value-desc', value, function (results) {
-    $("#value_desc").html(results);
-  });
+    $.get('get-value-desc', value, function (results) {
+      $("#value_desc").html(results);
+    });
+  }
 }
 
 function addValue(evt) {

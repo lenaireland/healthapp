@@ -3,13 +3,15 @@
 
 function updateCountDesc() {
   const count_form = $("#user_count_form").get();
-  const count = {
-    count_id: count_form[0][0].value
-  };
+  if (count_form.length !== 0) {
+    const count = {
+      count_id: count_form[0][0].value
+    };
 
-  $.get('get-count-desc', count, function (results) {
-    $("#count_desc").html(results);
-  });
+    $.get('get-count-desc', count, function (results) {
+      $("#count_desc").html(results);
+    });
+  }
 }
 
 function addCount(evt) {

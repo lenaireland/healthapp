@@ -58,28 +58,28 @@ function updateValue(evt) {
   }
 }
 
-function defaultZip(evt) {
-  evt.preventDefault();
-  const target = evt.currentTarget;
-  // console.log(target);
+// function defaultZip(evt) {
+//   evt.preventDefault();
+//   const target = evt.currentTarget;
+//   console.log(target);
 
-  const valueForms = $("form[name='valueform']").get();
+//   const valueForms = $("form[name='valueform']").get();
 
-  for (let valueItem of valueForms) {
-    let valueId = valueItem.id;
-    let valueType = valueItem.innerText.split(" ")[0];
+//   for (let valueItem of valueForms) {
+//     let valueId = valueItem.id;
+//     let valueType = valueItem.innerText.split(" ")[0];
 
-    if (valueType === "AQI") {
-      const dbInputs = getValueParams(valueId);
-      $.post('/update-airnow-item', dbInputs, function (results) {
-        alert(results[1]);
-        valueItem.value.value = results[0];
-        valueItem.submit.value = "Get AirNOW AQI Data";
-      });
-    }
-  }
-  $("#AQIModal").modal('toggle');
-}
+//     if (valueType === "AQI") {
+//       const dbInputs = getValueParams(valueId);
+//       $.post('/update-airnow-item', dbInputs, function (results) {
+//         alert(results[1]);
+//         valueItem.value.value = results[0];
+//         valueItem.submit.value = "Get AirNOW AQI Data";
+//       });
+//     }
+//   }
+//   $("#AQIModal").modal('toggle');
+// }
 
 function newZip(evt) {
   evt.preventDefault();
@@ -113,6 +113,6 @@ $(document).ready(updateValueForms);
 // event listener on click for any value form
 $("form[name='valueform']").on("submit", updateValue);
 
-$("#default-zip").on("click", defaultZip);
+// $("#default-zip").on("click", defaultZip);
 
 $("form[name='zip-form']").on("submit", newZip);

@@ -3,13 +3,15 @@
 
 function updateSymptomDesc() {
   const symptom_form = $("#user_symptom_form").get();
-  const symptom = {
-    symptom_id: symptom_form[0][0].value
-  };
+  if (symptom_form.length !== 0) {
+    const symptom = {
+      symptom_id: symptom_form[0][0].value
+    };
 
-  $.get('get-symptom-desc', symptom, function (results) {
-    $("#symptom_desc").html(results);
-  });
+    $.get('get-symptom-desc', symptom, function (results) {
+      $("#symptom_desc").html(results);
+    });
+  }
 }
 
 function addSymptom(evt) {
