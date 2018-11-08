@@ -79,31 +79,6 @@ a {
   padding-top: 100px;  
 }
 
-.background {
-  background: url(/static/jpg/rawpixel-618738-unsplash.jpg) no-repeat center center;
-  background-size: cover;
-  padding-right: 0px;
-  padding-left: 0px;
-}
-
-.foreground {
-  padding-top: 20px;
-  background: rgba(255,255,255,0.8);
-}
-
-/*#filter {
-  background-color: white;
-  opacity: 0.8;
-  width: 100%;
-  height: 100%;
-}*/
-
-/*.background {
-  background: url(/static/jpg/rawpixel-618738-unsplash.jpg) no-repeat center center;
-  background-size: cover;
-  opacity: 1.0;
-}*/
-
 /*Page styling*/
 #subtitle {
   padding-top: 70px; 
@@ -156,28 +131,30 @@ a {
 /*  background-color: white;*/ 
 }
 
+.background {
+  background: url(/static/jpg/rawpixel-618738-unsplash.jpg) no-repeat center center;
+  background-size: cover;
+  padding-right: 0px;
+  padding-left: 0px;
+}
+
+.foreground {
+  padding-top: 20px;
+  background: rgba(255,255,255,0.8);
+}
+
+#logging {
+  border-right: 1px solid #BA1200;
+}
+
 #side-nav {
-  border-left: 1px solid #BA1200;
+  position: fixed;
+  z-index: 1;
+  top: 50;
+  right: 0;
+/*  overflow-x: hidden;
+  height: 100%;*/
 }
-
-/*.affix {
-  top: 20px;
-  z-index: 9999 !important;
-}
-
-.affix-top {
-  width: 100%;
-}
-
-.affix-bottom {
-  width: 100%;
-  position: absolute;
-}*/
-
-/*#date-nav {
-    position: fixed;
-    text-align: center;
-}*/
 
 /*For add tracking*/
 .subselect {
@@ -202,12 +179,12 @@ a {
   width:100%;
   height:30px;
   padding:5px 10px;
-  background:none;
-  background-image:none;
+/*  background:none;
+  background-image:none;*/
   border:1px solid $gray-light;
   color:$white;
-  border-radius:0;
-  transition:border-color .25s ease, box-shadow .25s ease;
+/*  border-radius:0;
+  transition:border-color .25s ease, box-shadow .25s ease;*/
 }
 
 

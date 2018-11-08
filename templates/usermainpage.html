@@ -52,7 +52,8 @@
   {% if date.date()<=today.date() %}
   <div class="container-fluid foreground">
     <div class="row" id="daily-tracking">
-      <div class="col-12 col-md-8">
+
+      <div class="col-8" id="logging">
         {% for condition in info %}
           <h2>{{condition}}</h2>
           {% for symptom in info[condition]['symptoms'] %}
@@ -65,6 +66,7 @@
             </p>
 
           {% endfor %}
+          <small>&nbsp;&nbsp;Press button to toggle True/False</small><br>
           -----------
 
           {% for item in info[condition]['value_types'] %}
@@ -110,10 +112,9 @@
         </p>
       </div>
 
-      <div class="col-12 col-md-4 scrollspy" id="side-nav">
-        <!-- class="navbar" data-spy="affix"   data-offset-top="0"  -->
-        <!-- <ul class="navbar-nav mr-auto"> -->
-        <ul class="nav navbar-nav" data-spy="affix"   data-offset-top="10">
+      <div class="col-4" id="side-nav">
+        <div class="affix">
+        <ul class="nav navbar-nav">
           <li class="nav-item-side"> 
             <a href="/plot"><i class="fas fa-chart-line"></i>   Visualize</a>
           </li>
@@ -130,8 +131,10 @@
               Stop tracking condition/item
             </a>
           </li> 
-        </ul>      
+        </ul> 
+        </div>     
       </div>
+
     </div>
   </div>
   {% endif %}
