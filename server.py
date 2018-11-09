@@ -160,10 +160,7 @@ def process_user_settings():
     db.session.commit()
 
     flash('User settings updated')
-######
-# TO DO: change this to take back to settings, add button to return to user page
-# MAKE THIS A MODAL
-#######
+
     return redirect('/settings')
 
 @app.route('/update-password', methods=['POST'])
@@ -535,17 +532,13 @@ def update_aqi_data():
     user_value_id = request.form.get("user_value_id")
     date = request.form.get("date")
     zipcode = request.form.get("zipcode")
-
-
-
-    print("\n\n\n\n\n\n")
-    print(zipcode)
+    value_type = request.form.get("valueType")
 
     if not zipcode:
         user = User.query.get(session['userid'])
         zipcode = user.zipcode
 
-    value = airnow_api(date, zipcode, distance)
+    value = airnow_api(date, zipcode, distance, value_type)
 
     if value:
         db_status = update_value_item_db(user_value_id, date, value)
@@ -1064,7 +1057,7 @@ def update_value_item_db(user_value_id, date, value):
     return "Record Added"
 
 
-def airnow_api(date, zipcode, distance):
+def airnow_api(date, zipcode, distance, value_type):
     """Process data to send to AirNOW API"""
     
     value = None
@@ -1092,9 +1085,13 @@ def airnow_api(date, zipcode, distance):
     data = get_airnow_data(url, payload)
 
     for item in data:
-        if (item['ParameterName'] == 'O3' or 
-            item['ParameterName'] == 'OZONE'):
-            value = item['AQI']
+        if value_type == "AQI(ozone)":
+            if (item['ParameterName'] == 'O3' or 
+                item['ParameterName'] == 'OZONE'):
+                value = item['AQI']
+        elif value_type == "AQI(PM2.5)":
+            if (item['ParameterName'] == 'PM2.5'):
+                value = item['AQI']
 
     return value
 
@@ -1333,10 +1330,10 @@ def user_not_tracked_count_types():
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the
     # point that we invoke the DebugToolbarExtension
-    # app.debug = True
+    app.debug = True
     
     # make sure templates, etc. are not cached in debug mode
-    # app.jinja_env.auto_reload = app.debug
+    app.jinja_env.auto_reload = app.debug
 
     connect_to_db(app)
 

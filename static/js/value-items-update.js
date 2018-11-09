@@ -19,11 +19,9 @@ function updateValueForms() {
   for (let valueItem of valueForms) {
     let valueId = valueItem.id;
     let dbInputs = getValueParams(valueId);
-    let valueType = valueItem.innerText.split(" ")[0];
+    const valueType = valueItem.innerText.split(" ")[0];
 
-    // console.log(valueType);
-
-    if (valueType === "AQI") {
+    if (valueType === "AQI(PM2.5)" || valueType === "AQI(ozone)") {
       valueItem[1].value = "Get AirNOW AQI data";
     }
 
@@ -31,7 +29,7 @@ function updateValueForms() {
       if (results !== "False") {
         if (results !== "None") {
           valueItem[0].value = parseFloat(results, 10);
-          if (valueType === "AQI") {
+          if (valueType === "AQI(PM2.5)" || valueType === "AQI(ozone)") {
             valueItem[1].value = "Get AirNOW AQI Data";
           } else {
             valueItem[1].value = "Update Value";
@@ -45,12 +43,12 @@ function updateValueForms() {
 function updateValue(evt) {
   evt.preventDefault();
   const valueId = evt.currentTarget.id;
-  const valueType = evt.currentTarget.innerText.split(" ")[0];
+  let valueType = evt.currentTarget.innerText.split(" ")[0];
 
   const dbInputs = getValueParams(valueId);
   let value = evt.currentTarget.value.value;
   dbInputs.value = value;
-  if (valueType !== "AQI") {
+  if (valueType !== "AQI(PM2.5)" && valueType !== "AQI(ozone)") {
     $.post('/update-user-value-item', dbInputs, function (results) {
       alert(results);
       evt.currentTarget.submit.value = "Update";
@@ -93,9 +91,11 @@ function newZip(evt) {
     let valueId = valueItem.id;
     let valueType = valueItem.innerText.split(" ")[0];
 
-    if (valueType === "AQI") {
+    if (valueType === "AQI(PM2.5)" || valueType === "AQI(ozone)") {
       let dbInputs = getValueParams(valueId);
       dbInputs.zipcode = target.newzip.value;
+      dbInputs.valueType = valueType;
+      // console.log(dbInputs);
       $.post('/update-airnow-item', dbInputs, function (results) {
         alert(results[1]);
         valueItem.value.value = results[0];

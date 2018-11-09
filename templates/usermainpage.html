@@ -71,7 +71,7 @@
 
           {% for item in info[condition]['value_types'] %}
             <p>
-              {% if item.ValueType.value_name == "AQI" %}
+              {% if item.ValueType.value_name[:3] == "AQI" %}
                 <form name="valueform" data-toggle="modal"   data-target="#AQIModal"
                   id="uservalue;{{item.UserValueType.user_value_id_pk}};{{ date.date() }}">
                 {{item.ValueType.value_name}}
