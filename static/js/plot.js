@@ -136,7 +136,7 @@ function makePlots() {
           .attr("class", "line")
           .style("stroke", function() {
             return d.color = color_value(d.key); })
-          .attr("class", 'tag'+d.key.replace(/\s+/g, '')) // assign ID
+          .attr("class", 'tag'+d.key.replace(/[\s,(,),\.]+/g, '')) // assign ID
           .attr("d", valueline(d.values));
 
         // Add the scatterplot
@@ -144,7 +144,7 @@ function makePlots() {
             .data(d.values)
           .enter().append("circle")
             .attr("r", 3.5)
-            .attr("class", 'tag'+d.key.replace(/\s+/g, '')) // assign ID      
+            .attr("class", 'tag'+d.key.replace(/[\s,(,),\.]+/g, '')) // assign ID      
             .attr("cx", function(d) { return x(d.date); })
             .attr("cy", function(d) { return y(d.value); })
             .style("fill", function() {
@@ -162,7 +162,7 @@ function makePlots() {
             let active = d.active ? false : true;
             let newOpacity = active ? 0 : 1;
             // Hide or show elements based on ID
-            d3.selectAll(".tag"+d.key.replace(/\s+/g, ''))
+            d3.selectAll(".tag"+d.key.replace(/[\s,(,),\.]+/g, ''))
               .transition().duration(100)
               .style("opacity", newOpacity);
               // .style("fill", 'transparent');

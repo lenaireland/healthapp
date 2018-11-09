@@ -82,10 +82,9 @@ function updateValue(evt) {
 function newZip(evt) {
   evt.preventDefault();
   const target = evt.currentTarget;
-  // console.log(target);
-  // console.log(target.newzip.value);
 
   const valueForms = $("form[name='valueform']").get();
+  console.log(valueForms);
 
   for (let valueItem of valueForms) {
     let valueId = valueItem.id;
@@ -95,7 +94,7 @@ function newZip(evt) {
       let dbInputs = getValueParams(valueId);
       dbInputs.zipcode = target.newzip.value;
       dbInputs.valueType = valueType;
-      // console.log(dbInputs);
+
       $.post('/update-airnow-item', dbInputs, function (results) {
         alert(results[1]);
         valueItem.value.value = results[0];
