@@ -166,7 +166,8 @@ def example_data():
         UserValueType(usercond_id=user_conditions[0].usercond_id_pk, value_id=value_types[0].value_id_pk),
         UserValueType(usercond_id=user_conditions[2].usercond_id_pk, value_id=value_types[0].value_id_pk),
         UserValueType(usercond_id=user_conditions[3].usercond_id_pk, value_id=value_types[1].value_id_pk, is_tracked=False),
-        UserValueType(usercond_id=user_conditions[5].usercond_id_pk, value_id=value_types[0].value_id_pk)
+        UserValueType(usercond_id=user_conditions[5].usercond_id_pk, value_id=value_types[0].value_id_pk),
+        UserValueType(usercond_id=user_conditions[2].usercond_id_pk, value_id=value_types[3].value_id_pk)
     ]
 
     db.session.add_all(user_value_types)
@@ -235,7 +236,10 @@ def example_data():
                   user_value_id=user_value_types[3].user_value_id_pk),
         ValueItem(value_date=datetime(2018, 10, 7, 0, 0, 0), 
                   value=30, 
-                  user_value_id=user_value_types[3].user_value_id_pk)        
+                  user_value_id=user_value_types[3].user_value_id_pk),
+        ValueItem(value_date=datetime(2018, 10, 1, 0, 0, 0), 
+                  value=80, 
+                  user_value_id=user_value_types[4].user_value_id_pk)        
     ]
 
     db.session.add_all(value_items)

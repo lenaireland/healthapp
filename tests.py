@@ -1671,7 +1671,7 @@ class DailyItemsDatabaseAPITests(TestCase):
         user_value_id = 2
         date = "2018-10-01"
         zipcode = "94030"
-        value_type = "AQI(ozone)"
+        value_type = "AQI(PM2.5)"
 
         with self.client as c:
             result = c.post('/update-airnow-item',
