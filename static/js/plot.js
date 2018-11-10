@@ -24,6 +24,7 @@ function makePlots() {
 
   // parse the date / time
   const parseTime = d3.timeParse("%Y-%m-%d");
+  const formatTime = d3.timeFormat("%e %B");
 
   // set the ranges
   const x = d3.scaleTime().range([0, width]);
@@ -44,6 +45,11 @@ function makePlots() {
   let valueline = d3.line()
     .x(function(d) { return x(d.date); })
     .y(function(d) { return y(d.value); });
+
+  // Define the div for the tooltip
+  let div = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
 
   // append the svg object to the body of the page
   // appends a 'group' element to 'svg'
@@ -148,7 +154,21 @@ function makePlots() {
             .attr("cx", function(d) { return x(d.date); })
             .attr("cy", function(d) { return y(d.value); })
             .style("fill", function() {
-              return d.color = color_value(d.key); });
+              return d.color = color_value(d.key); })
+            // tooltip
+            .on("mouseover", function(d) {
+              div.transition()
+                .duration(200)
+                .style("opacity", .9);
+              div.html(d.name + "<br>" + formatTime(d.date) + "<br/>Value:"  + d.value)
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
+              })
+            .on("mouseout", function(d) {
+              div.transition()
+                .duration(500)
+                .style("opacity", 0);
+            });
 
         // Add the legend
         svg_value.append("text")            
@@ -226,7 +246,7 @@ function makePlots() {
 
         svg_boxes.select(".Symp" + index)
           .data(data.values)
-          .enter()
+          .enter();
 
         // Add item name label
         svg_boxes.select(".Symp" + index).append('text')
@@ -234,16 +254,6 @@ function makePlots() {
           .attr('y', (index * 35 + 17.5 ))
           .text((d) => d.name);
 
-        // For each data entry, add a colored box to correct day
-        data.values.forEach(function(d) {
-
-          svg_boxes.select(".Symp" + index).append('rect')
-            .attr('x', () => xScale(d.date) - (xScale(xMax)/numDays)/2)
-            .attr('y', () => (index * 35))
-            .attr("width", () => (xScale(xMax)/numDays))
-            .attr("height", 25)
-            .style('fill', () => color(d.name));
-        })
 
         // For every day in range, add transparent box
         allDays.forEach(function(num) {
@@ -256,6 +266,32 @@ function makePlots() {
             .style('fill', 'transparent')
             .style("stroke", 'black')
             .style("stroke-width", 0.5);
+
+        });
+
+        // For each data entry, add a colored box to correct day
+        data.values.forEach(function(d) {
+
+          svg_boxes.select(".Symp" + index).append('rect')
+            .attr('x', () => xScale(d.date) - (xScale(xMax)/numDays)/2)
+            .attr('y', () => (index * 35))
+            .attr("width", () => (xScale(xMax)/numDays))
+            .attr("height", 25)
+            .style('fill', () => color(d.name))
+            // tooltip
+            .on("mouseover", function() {
+              div.transition()
+                .duration(200)
+                .style("opacity", .9);
+              div.html("<br>" + formatTime(d.date))
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
+            })
+            .on("mouseout", function() {
+              div.transition()
+                .duration(500)
+                .style("opacity", 0);
+            });
 
         });
 
@@ -312,22 +348,6 @@ function makePlots() {
           .attr('y', ((sympNum.size + index) * 35 + 17.5))
           .text((d) => d.name);
 
-        // For each data entry, add a colored box to correct day
-        data.values.forEach(function(d) {          
-
-          svg_boxes.select(".Count" + index).append('rect')
-            .attr('x', () => xScale(d.date) - (xScale(xMax)/numDays)/2)
-            .attr('y', () => ((sympNum.size + index) * 35))
-            .attr("width", () => (xScale(xMax)/numDays))
-            .attr("height", () => 25)
-            .style('fill', () => color(d.name));
-
-          svg_boxes.select(".Count" + index).append('text')
-            .attr('x', () => (xScale(d.date) -4))
-            .attr('y', () => ((sympNum.size + index) * 35 + 17.5))
-            .text(() => d.count);
-        });
-
         // For every day in range, add transparent box
         allDays.forEach(function(num) {
 
@@ -340,6 +360,36 @@ function makePlots() {
             .style("stroke", 'black')
             .style("stroke-width", 0.5);
 
+        });
+
+        // For each data entry, add a colored box to correct day
+        data.values.forEach(function(d) {          
+
+          svg_boxes.select(".Count" + index).append('rect')
+            .attr('x', () => xScale(d.date) - (xScale(xMax)/numDays)/2)
+            .attr('y', () => ((sympNum.size + index) * 35))
+            .attr("width", () => (xScale(xMax)/numDays))
+            .attr("height", () => 25)
+            .style('fill', () => color(d.name))
+            // tooltip
+            .on("mouseover", function() {
+              div.transition()
+                .duration(200)
+                .style("opacity", .9);
+              div.html("<br>" + formatTime(d.date))
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
+            })
+            .on("mouseout", function() {
+              div.transition()
+                .duration(500)
+                .style("opacity", 0);
+            });
+
+          svg_boxes.select(".Count" + index).append('text')
+            .attr('x', () => (xScale(d.date) -4))
+            .attr('y', () => ((sympNum.size + index) * 35 + 17.5))
+            .text(() => d.count);
         });
 
       });
