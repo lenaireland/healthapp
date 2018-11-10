@@ -1330,15 +1330,21 @@ def user_not_tracked_count_types():
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the
     # point that we invoke the DebugToolbarExtension
-    app.debug = True
+    # app.debug = True
     
     # make sure templates, etc. are not cached in debug mode
-    app.jinja_env.auto_reload = app.debug
+    # app.jinja_env.auto_reload = app.debug
 
-    connect_to_db(app)
-
-    # Use the DebugToolbar
-    DebugToolbarExtension(app)
+    from sys import argv
+    if argv[-1] == "--debug":
+        app.debug = True
+        connect_to_db(app, db_uri="postgresql:///health", debug=True)
+        app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+        # Use the DebugToolbar
+        DebugToolbarExtension(app)
+    else:
+        app.debug = False
+        connect_to_db(app, db_uri="postgresql:///health", debug=False)
 
     app.run(port=5000, host='0.0.0.0')
     # app.run(debug=True)
