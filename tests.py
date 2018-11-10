@@ -155,7 +155,7 @@ class LoggedOutTests(TestCase):
         """Test homepage page."""
 
         result = self.client.get('/')
-        self.assertIn(b'About this project', result.data) 
+        self.assertIn(b'HealthTracker is a tool', result.data) 
 
     def test_login_page(self):
         """Test login page."""
@@ -284,7 +284,7 @@ class LoggedInTests(TestCase):
         """Test homepage page."""
 
         result = self.client.get('/')
-        self.assertIn(b'About this project', result.data) 
+        self.assertIn(b'HealthTracker is a tool', result.data) 
 
     def test_login_page(self):
         """Test login page."""
@@ -1646,12 +1646,14 @@ class DailyItemsDatabaseAPITests(TestCase):
         user_value_id = 2
         date = str(datetime.now().date())
         zipcode = "94030"
+        value_type = "AQI(ozone)"
 
         with self.client as c:
             result = c.post('/update-airnow-item',
                        data={"user_value_id": user_value_id, 
                              "date": date,
-                             "zipcode": zipcode})
+                             "zipcode": zipcode,
+                             "valueType": value_type})
 
             r = json.loads(result.data.decode())
 
@@ -1669,12 +1671,14 @@ class DailyItemsDatabaseAPITests(TestCase):
         user_value_id = 2
         date = "2018-10-01"
         zipcode = "94030"
+        value_type = "AQI(ozone)"
 
         with self.client as c:
             result = c.post('/update-airnow-item',
                        data={"user_value_id": user_value_id, 
                              "date": date,
-                             "zipcode": zipcode})
+                             "zipcode": zipcode,
+                             "valueType": value_type})
 
             r = json.loads(result.data.decode())
 
@@ -1691,11 +1695,13 @@ class DailyItemsDatabaseAPITests(TestCase):
 
         user_value_id = 2
         date = str(datetime.now().date())
+        value_type = "AQI(ozone)"
 
         with self.client as c:
             result = c.post('/update-airnow-item',
                        data={"user_value_id": user_value_id, 
-                             "date": date})
+                             "date": date,
+                             "valueType": value_type})
 
             r = json.loads(result.data.decode())
 
@@ -1712,11 +1718,13 @@ class DailyItemsDatabaseAPITests(TestCase):
 
         user_value_id = 2
         date = "2018-10-01"
+        value_type = "AQI(ozone)"
 
         with self.client as c:
             result = c.post('/update-airnow-item',
                        data={"user_value_id": user_value_id, 
-                             "date": date})
+                             "date": date,
+                             "valueType": value_type})
 
             r = json.loads(result.data.decode())
 
@@ -1734,12 +1742,14 @@ class DailyItemsDatabaseAPITests(TestCase):
         user_value_id = 2
         date = str(datetime.now().date())
         zipcode = "as65aew"
+        value_type = "AQI(ozone)"
 
         with self.client as c:
             result = c.post('/update-airnow-item',
                        data={"user_value_id": user_value_id, 
                              "date": date,
-                             "zipcode": zipcode})
+                             "zipcode": zipcode,
+                             "valueType": value_type})
 
             r = json.loads(result.data.decode())
 
