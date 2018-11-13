@@ -48,7 +48,7 @@ $ source env/bin/activate
 
 Install dependencies:
 ```
-$ pip install -r requirements.txt
+$ pip3 install -r requirements.txt
 ```
 
 Sign up to use the [AirNOW API](https://docs.airnowapi.org/account/request/) and obtain an API key. Save it to a file `secrets.sh`, along with a secret key you choose for the app. Your file should look something like this:
