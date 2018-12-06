@@ -10,6 +10,11 @@ body {
   color: #353535;
 }
 
+footer {
+  padding-left: 25px;
+  padding-right: 25px;
+}
+
 /*Navbar*/
 .navbar-dark {
     background-color: #353535;
@@ -68,6 +73,10 @@ body {
 a {
   padding-left: 5px;
   color: #353535;
+}
+
+.footer-link {
+  text-decoration: underline
 }
 
 .nav a i {
