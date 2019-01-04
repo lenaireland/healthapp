@@ -225,9 +225,9 @@ function makePlots() {
       let xMax = d3.timeDay(now);
       let yNum = sympDataNest.length;
 
-      // parseInt to make it work w/ daylight savings
-      // FIX THIS to be more robust later
-      let numDays = parseInt((xMax - dateMin)/1000/3600/24);
+      // Math.round to make it work w/ daylight savings (rounds to nearest int)
+      // used to be parseInt but this floored so only worked for fall.
+      let numDays = Math.round((xMax - dateMin)/1000/3600/24);
 
       let xScale = d3.scaleLinear()
                      .domain([dateMin, xMax])
@@ -319,9 +319,9 @@ function makePlots() {
       let xMax = d3.timeDay(now);
       let yNum = countDataNest.length;
 
-      // parseInt to make it work w/ daylight savings
-      // FIX THIS to be more robust later
-      let numDays = parseInt((xMax - dateMin)/1000/3600/24);
+      // Math.round to make it work w/ daylight savings (rounds to nearest int)
+      // used to be parseInt but this floored so only worked for fall.
+      let numDays = Math.round((xMax - dateMin)/1000/3600/24);
 
       let xScale = d3.scaleLinear()
                      .domain([dateMin, xMax])
