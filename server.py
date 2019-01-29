@@ -328,47 +328,46 @@ def plot_longitudinal():
 # The next 3 routes are used from plot.html and 
 # associated .js files to plot longitudinal time series
 
-# @app.route('/get-plot-setup-data', methods=['GET'])
-# def get_plot_setup_data():
+@app.route('/get-plot-setup-data.json', methods=['GET'])
+def get_plot_setup_data():
 #     """Get user first logged date and number of symptoms"""
 
-#     # num_symptoms = (db.session.query(func.count(UserSymptom.user_symptom_id_pk))
-#     #                           .join(UserCondition)
-#     #                           .join(SymptomItem)
-#     #                           .filter(UserSymptom.is_tracked==True,
-#     #                                   SymptomItem.symptom_present==True
-#     #                                   UserCondition.user_id==session['userid'])
-#     #                           .one())
+    num_symptoms = (db.session.query(func.count(UserSymptom.user_symptom_id_pk))
+                              .join(UserCondition)
+                              .join(SymptomItem)
+                              .filter(UserSymptom.is_tracked==True,
+                                      SymptomItem.symptom_present==True,
+                                      UserCondition.user_id==session['userid'])
+                              .group_by(UserSymptom.user_symptom_id_pk)
+                              .count())
 
-#     first_symp_date = (db.session.query(func.min(SymptomItem.symptom_date))
-#                               .join(UserSymptom)
-#                               .join(UserCondition)
-#                               .filter(UserSymptom.is_tracked==True,
-#                                       SymptomItem.symptom_present==True,
-#                                       UserCondition.user_id==session['userid'])
-#                               .first())
+    first_symp_date = (db.session.query(func.min(SymptomItem.symptom_date))
+                              .join(UserSymptom)
+                              .join(UserCondition)
+                              .filter(UserSymptom.is_tracked==True,
+                                      SymptomItem.symptom_present==True,
+                                      UserCondition.user_id==session['userid'])
+                              .first())
 
-#     first_value_date = (db.session.query(func.min(ValueItem.value_date))
-#                           .join(UserValueType)
-#                           .join(UserCondition)
-#                           .filter(UserValueType.is_tracked==True,
-#                                   ValueItem.value > 0,
-#                                   UserCondition.user_id==session['userid'])
-#                           .first())
+    first_value_date = (db.session.query(func.min(ValueItem.value_date))
+                          .join(UserValueType)
+                          .join(UserCondition)
+                          .filter(UserValueType.is_tracked==True,
+                                  ValueItem.value > 0,
+                                  UserCondition.user_id==session['userid'])
+                          .first())
 
-#     first_count_date = (db.session.query(func.min(CountItem.count_date))
-#                           .join(UserCountType)
-#                           .join(UserCondition)
-#                           .filter(UserCountType.is_tracked==True,
-#                                   CountItem.count > 0,
-#                                   UserCondition.user_id==session['userid'])
-#                           .first())
+    first_count_date = (db.session.query(func.min(CountItem.count_date))
+                          .join(UserCountType)
+                          .join(UserCondition)
+                          .filter(UserCountType.is_tracked==True,
+                                  CountItem.count > 0,
+                                  UserCondition.user_id==session['userid'])
+                          .first())
 
-#     first_date = min(first_symp_date[0], first_value_date[0], first_count_date[0])
-#     print(first_symp_date)
-#     print(first_date)
-#     print(type(first_date))
-#     return("hi")
+    first_date = min(first_symp_date[0], first_value_date[0], first_count_date[0])
+
+    return(jsonify([str(first_date.date()), num_symptoms]))
 
 @app.route('/get-symptom-timeseries.json', methods=['GET'])
 def get_symptom_timeseries():
@@ -1332,17 +1331,17 @@ def user_not_tracked_count_types():
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the
     # point that we invoke the DebugToolbarExtension
-    #app.debug = True
+    # app.debug = True
     
     # make sure templates, etc. are not cached in debug mode
-    #app.jinja_env.auto_reload = app.debug
+    # app.jinja_env.auto_reload = app.debug
     
     connect_to_db(app)
     # Use the DebugToolbar
     DebugToolbarExtension(app)
  
     app.run(port=5000, host='0.0.0.0')
-    #app.run(debug=True)
+    # app.run(debug=True)
 
 
 # TRYING TO MAKE IT SO DON'T HAVE TO TURN OF FLASK DEBUGGER - NOT WORKING

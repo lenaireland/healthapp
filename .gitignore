@@ -2,3 +2,4 @@ env/
 *.pyc
 *secret*
 sqlalchemy_tests/
+*.DS_Store

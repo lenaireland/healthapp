@@ -69,49 +69,16 @@ function makePlots() {
             "translate(" + boxes_margin.left + "," + boxes_margin.top + ")");
 
 
-// to get first date user tracked
-  let valueDateMin;
-  let countDateMin;
-  let sympDateMin;
+// to get first date user tracked and number of symptoms tracked
+
   let dateMin;
+  let sympNum;
 
-  let sympNum = new Set();
 
-  // Get the value data
-  const getValueData = $.get('get-value-timeseries.json', function (results) {
-    // for list input
-    results.forEach(function(d) {
-      d.date = parseTime(d.date);
-    });
-
-    valueDateMin = d3.min(results, function(d) { return d.date; });
+  const getSetup = $.get('get-plot-setup-data.json', function (results) {
+    dateMin = parseTime(results[0]);
+    sympNum = results[1];
   });
-
-  // Get the symptom data
-  const getSympData = $.get('get-symptom-timeseries.json', function (results) {
-    // for list input
-    results.forEach(function(d) {
-      d.date = parseTime(d.date);
-      sympNum.add(d.name);
-    });
-
-    sympDateMin = d3.min(results, function(d) { return d.date; });
-  });
-
-  // Get the count data
-  const getCountData = $.get('get-count-timeseries.json', function (results) {
-    // for list input
-    results.forEach(function(d) {
-      d.date = parseTime(d.date);
-    });
-
-    countDateMin = d3.min(results, function(d) { return d.date; });
-  });
-
-  // Get the overall min
-  const getMin = function() {      
-    dateMin = d3.min([valueDateMin, sympDateMin, countDateMin]);
-  }
 
   const useData = function() {
 
@@ -345,7 +312,7 @@ function makePlots() {
         // Add item name label
         svg_boxes.select(".Count" + index).append('text')
           .attr('x', -100)
-          .attr('y', ((sympNum.size + index) * 35 + 17.5))
+          .attr('y', ((sympNum + index) * 35 + 17.5))
           .text((d) => d.name);
 
         // For every day in range, add transparent box
@@ -353,7 +320,7 @@ function makePlots() {
 
           svg_boxes.select(".Count" + index).append('rect')
             .attr('x', () => xScale(xMax) / numDays * (num - 1/2) )
-            .attr('y', () => ((sympNum.size + index) * 35))
+            .attr('y', () => ((sympNum + index) * 35))
             .attr("width", () => (xScale(xMax)/numDays))
             .attr("height", 25)
             .style('fill', 'transparent')
@@ -367,7 +334,7 @@ function makePlots() {
 
           svg_boxes.select(".Count" + index).append('rect')
             .attr('x', () => xScale(d.date) - (xScale(xMax)/numDays)/2)
-            .attr('y', () => ((sympNum.size + index) * 35))
+            .attr('y', () => ((sympNum + index) * 35))
             .attr("width", () => (xScale(xMax)/numDays))
             .attr("height", () => 25)
             .style('fill', () => color(d.name))
@@ -388,7 +355,7 @@ function makePlots() {
 
           svg_boxes.select(".Count" + index).append('text')
             .attr('x', () => (xScale(d.date) -4))
-            .attr('y', () => ((sympNum.size + index) * 35 + 17.5))
+            .attr('y', () => ((sympNum + index) * 35 + 17.5))
             .text(() => d.count);
         });
 
@@ -406,14 +373,9 @@ function makePlots() {
       //    .call(d3.axisLeft(y));
     });
   };
-  // chained calls
-  // would be nice to do value, symptom, and count together, then getMin, 
-  // but this will do
-  getValueData.always(getSympData)
-              .always(getCountData)
-              .always(getMin)
-              .always(useData);
 
+  // chained calls
+  getSetup.always(useData);
 }
 
 makePlots();
